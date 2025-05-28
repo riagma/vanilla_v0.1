@@ -1,5 +1,5 @@
 export const contexto = {
-  token: localStorage.getItem('token') || null
+  token: null
 };
 
 export function setToken(token) {
@@ -7,7 +7,8 @@ export function setToken(token) {
   localStorage.setItem('token', token);
 }
 
-export function limpiarSesion() {
+export function logout() {
   contexto.token = null;
   localStorage.removeItem('token');
+  location.hash = '#/';  // Redirige al login
 }

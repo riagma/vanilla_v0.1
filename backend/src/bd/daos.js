@@ -1,0 +1,42 @@
+import { VotanteDAO } from './daos/VotanteDAO.js';
+import { EleccionDAO } from './daos/EleccionDAO.js';
+import { AdministradorDAO } from './daos/AdministradorDAO.js';
+import { PartidoDAO } from './daos/PartidoDAO.js';
+import { PartidoEleccionDAO } from './daos/PartidoEleccionDAO.js';
+import { RegistroVotanteEleccionDAO } from './daos/RegistroVotanteEleccionDAO.js';
+import { ResultadoEleccionDAO } from './daos/ResultadoEleccionDAO.js';
+import { ResultadoPartidoDAO } from './daos/ResultadoPartidoDAO.js';
+
+// Creación de instancias singleton
+const votanteDAO = new VotanteDAO();
+const eleccionDAO = new EleccionDAO();
+const administradorDAO = new AdministradorDAO();
+const partidoDAO = new PartidoDAO();
+const partidoEleccionDAO = new PartidoEleccionDAO();
+const registroVotanteEleccionDAO = new RegistroVotanteEleccionDAO();
+const resultadoEleccionDAO = new ResultadoEleccionDAO();
+const resultadoPartidoDAO = new ResultadoPartidoDAO();
+
+// Objeto inmutable con todos los DAOs
+export const daos = Object.freeze({
+  votante: votanteDAO,
+  eleccion: eleccionDAO,
+  administrador: administradorDAO,
+  partido: partidoDAO,
+  partidoEleccion: partidoEleccionDAO,
+  registroVotanteEleccion: registroVotanteEleccionDAO,
+  resultadoEleccion: resultadoEleccionDAO,
+  resultadoPartido: resultadoPartidoDAO
+});
+
+// Exportación individual de DAOs
+export {
+  votanteDAO,
+  eleccionDAO,
+  administradorDAO,
+  partidoDAO,
+  partidoEleccionDAO,
+  registroVotanteEleccionDAO,
+  resultadoEleccionDAO,
+  resultadoPartidoDAO
+};

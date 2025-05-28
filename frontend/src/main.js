@@ -1,4 +1,4 @@
-import { contexto, setToken, limpiarSesion } from './contexto.js';
+import { contexto, setToken, logout } from './contexto.js';
 import { loginForm } from './vistas/login.js';
 import { vistaProtegida } from './vistas/protegida.js';
 
@@ -14,7 +14,7 @@ function render() {
     });
   } else {
     app.innerHTML = '';
-    vistaProtegida(app, limpiarSesion);
+    vistaProtegida(app, logout);
   }
 }
 
