@@ -2,20 +2,22 @@ import { servicioAutenticacion } from '../servicios/servicioAutenticacion.js';
 
 export const controladorAutenticacion = {
   async loginVotante(peticion, respuesta) {
-    const { dni, clave } = peticion.body;
+    const { dni, contrasena } = peticion.body;
     try {
-      const token = await servicioAutenticacion.loginVotante(dni, clave);
-      respuesta.json({ token });
+      const resultado = await servicioAutenticacion.loginVotante(peticion.bd, dni, contrasena);
+      respuesta.json(resultado);
     } catch (error) {
       respuesta.status(401).json({ error: error.message });
     }
   },
 
   async loginAdmin(peticion, respuesta) {
-    const { correo, clave } = peticion.body;
+    const { correo, contrasena } = peticion.body;
     try {
-      const token = await servicioAutenticacion.loginAdmin(correo, clave);
-      respuesta.json({ token });
+      console.log('Intentando login admin con:', { correo, contrasena });
+      const resultado = await servicioAutenticacion.loginAdmin(peticion.bd, correo, contrasena);
+      console.log('Login admin exitoso:', resultado);
+      respuesta.json(resultado);
     } catch (error) {
       respuesta.status(401).json({ error: error.message });
     }

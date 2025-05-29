@@ -1,0 +1,73 @@
+@baseUrl = http://localhost:3000
+@tokenAdmin = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3JyZW8iOiJyaWFnbWFAZ21haWwuY29tIiwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzQ3NzU2OTM3LCJleHAiOjE3NDc3ODU3Mzd9.wI9qSPJSWkLoe6rne-3rJrktxPRlqnLPjrj5q4LIvSo
+@tokenVotante = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkbmkiOiIzNzc1MTIwNFEiLCJ0aXBvIjoidm90YW50ZSIsImlhdCI6MTc0ODU1MDI5MywiZXhwIjoxNzQ4NTUzODkzfQ.BDJIi5UHFs3oi5eZuzjjT2ImwKlszKzy9uSp-8LAGBY
+
+### LOGIN de administrador
+POST {{baseUrl}}/api/login/admin
+Content-Type: application/json
+
+{
+  "correo": "riagma@gmail.com",
+  "contrasena": "1234123412341234"
+}
+
+### LOGIN de votante
+POST {{baseUrl}}/api/login/votante
+Content-Type: application/json
+
+{
+  "dni": "37751204Q",
+  "contrasena": "Password123!"
+}
+
+### Listar elecciones disponibles (Votante)
+GET {{baseUrl}}/api/votante/elecciones
+Authorization: Bearer {{tokenVotante}}
+
+
+
+
+### Obtener perfil del votante
+GET {{baseUrl}}/api/votante/perfil
+Authorization: Bearer {{tokenVotante}}
+
+### Obtener perfil del administrador
+GET {{baseUrl}}/api/admin/perfil
+Authorization: Bearer {{tokenAdmin}}
+
+### Listar elecciones (Admin)
+GET {{baseUrl}}/api/admin/elecciones
+Authorization: Bearer {{tokenAdmin}}
+
+### Crear elección (Admin)
+POST {{baseUrl}}/api/admin/elecciones
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "nombre": "Elección de prueba",
+  "descripcion": "Descripción de la elección",
+  "fechaInicioRegistro": "2024-05-01T00:00:00Z",
+  "fechaFinRegistro": "2024-05-15T00:00:00Z",
+  "fechaInicioVotacion": "2024-05-16T00:00:00Z",
+  "fechaFinVotacion": "2024-05-17T00:00:00Z",
+  "fechaCelebracion": "2024-05-18T00:00:00Z",
+  "estado": "PENDIENTE"
+}
+
+### Actualizar elección (Admin)
+PUT {{baseUrl}}/api/admin/elecciones/1
+Authorization: Bearer {{tokenAdmin}}
+Content-Type: application/json
+
+{
+  "estado": "REGISTRO"
+}
+
+### Eliminar elección (Admin)
+DELETE {{baseUrl}}/api/admin/elecciones/1
+Authorization: Bearer {{tokenAdmin}}
+
+### Ver detalle de elección (Votante)
+GET {{baseUrl}}/api/votante/elecciones/1
+Authorization: Bearer {{tokenVotante}}

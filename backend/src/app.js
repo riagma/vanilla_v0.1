@@ -18,10 +18,13 @@ export async function iniciarServidor() {
   // Middlewares globales
   aplicacion.use(cors());
   aplicacion.use(express.json());
-  aplicacion.use(mwBaseDatos);
-
+  
   // Prefijo común para todas las rutas API
   const routerAPI = express.Router();
+  
+  // Aplicar middleware de BD solo a las rutas API
+  routerAPI.use(mwBaseDatos);
+  
   aplicacion.use('/api', routerAPI);
 
   // Rutas API

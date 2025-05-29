@@ -13,11 +13,9 @@ export const controladorVotante = {
 
   async listarEleccionesDisponibles(peticion, respuesta) {
     try {
-      const elecciones = await servicioElecciones.listarPorVotante(
-        peticion.bd,
-        peticion.votante.dni
-      );
-      respuesta.json({ elecciones });
+      console.log('Listando elecciones para el votante:', peticion.votante.dni);
+      const elecciones = await servicioElecciones.listarTodas(peticion.bd);
+      respuesta.json(elecciones || []);
     } catch (error) {
       respuesta.status(500).json({ error: error.message });
     }
