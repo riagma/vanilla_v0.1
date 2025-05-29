@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken';
-import { SECRETO } from '../utils/constantes.js';
+import { SECRETO } from '../utiles/constantes.js';
 import { daos } from '../bd/daos.js';
 import bcrypt from 'bcrypt';
 
 export const servicioAutenticacion = {
-  async loginVotante(db, dni, clave) {
-    const votante = await daos.votante.obtenerPorDNI(db, dni);
+  async loginVotante(bd, dni, clave) {
+    const votante = await daos.votante.obtenerPorDNI(bd, dni);
     if (!votante) {
       throw new Error('Credenciales inválidas');
     }
@@ -21,8 +21,8 @@ export const servicioAutenticacion = {
     }, SECRETO, { expiresIn: '1h' });
   },
 
-  async loginAdmin(db, correo, clave) {
-    const admin = await daos.administrador.obtenerPorCorreo(db, correo);
+  async loginAdmin(bd, correo, clave) {
+    const admin = await daos.administrador.obtenerPorCorreo(bd, correo);
     if (!admin) {
       throw new Error('Credenciales inválidas');
     }

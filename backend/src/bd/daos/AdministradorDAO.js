@@ -5,12 +5,12 @@ export class AdministradorDAO extends BaseDAO {
     super('Administrador');
   }
 
-  async obtenerPorCorreo(db, correo) {
-    return await this.obtenerPorId(db, correo, 'correo');
+  async obtenerPorCorreo(bd, correo) {
+    return await this.obtenerPorId(bd, correo, 'correo');
   }
 
-  async verificarCredenciales(db, correo, hashContrasena) {
-    return await db.get(
+  async verificarCredenciales(bd, correo, hashContrasena) {
+    return await bd.get(
       'SELECT * FROM Administrador WHERE correo = ? AND hashContrasena = ?',
       [correo, hashContrasena]
     );

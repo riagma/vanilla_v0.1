@@ -11,12 +11,12 @@ function normalizarTexto(texto) {
     .replace(/[^a-z0-9]/g, '_');
 }
 
-export async function cargarVotantes(db, cantidad = 100) {
+export async function cargarVotantes(bd, cantidad = 100) {
   console.log(`Iniciando carga de ${cantidad} votantes...`);
 
   try {
     // Limpiar tabla antes de insertar
-    await db.run('DELETE FROM Votante');
+    await bd.run('DELETE FROM Votante');
     
     for (let i = 0; i < cantidad; i++) {
       const nombre = faker.person.firstName();
@@ -39,7 +39,7 @@ export async function cargarVotantes(db, cantidad = 100) {
       const hashContrasena = await bcrypt.hash('Password123!', 10);
 
       // Insertar votante
-      await daos.votante.crear(db, {
+      await daos.votante.crear(bd, {
         dni,
         nombre,
         primerApellido,
@@ -55,7 +55,7 @@ export async function cargarVotantes(db, cantidad = 100) {
     console.log('\n✅ Votantes creados exitosamente.');
 
     // Mostrar algunos ejemplos
-    const ejemplos = await db.all('SELECT * FROM Votante LIMIT 5');
+    const ejemplos = await bd.all('SELECT * FROM Votante LIMIT 5');
     console.log('\nEjemplos de votantes creados:');
     ejemplos.forEach(v => {
       console.log(`- ${v.nombre} ${v.primerApellido} (${v.dni}) - ${v.correoElectronico}`);

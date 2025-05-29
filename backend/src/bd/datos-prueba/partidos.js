@@ -1,10 +1,10 @@
-export async function cargarPartidos(db) {
+export async function cargarPartidos(bd) {
   console.log('\n🏛️  Iniciando carga de partidos políticos...');
 
   try {
     // Limpiar tablas
-    await db.run('DELETE FROM PartidoEleccion');
-    await db.run('DELETE FROM Partido');
+    await bd.run('DELETE FROM PartidoEleccion');
+    await bd.run('DELETE FROM Partido');
     
     // Partidos políticos de ejemplo
     const partidos = [
@@ -31,7 +31,7 @@ export async function cargarPartidos(db) {
     ];
 
     // Insertar partidos
-    const stmtPartido = await db.prepare(
+    const stmtPartido = await bd.prepare(
       'INSERT INTO Partido (siglas, nombre, descripcion) VALUES (?, ?, ?)'
     );
 
@@ -43,11 +43,11 @@ export async function cargarPartidos(db) {
     await stmtPartido.finalize();
 
     // Obtener todas las elecciones
-    const elecciones = await db.all('SELECT id FROM Eleccion');
+    const elecciones = await bd.all('SELECT id FROM Eleccion');
     console.log(`\n🔄 Asignando partidos a ${elecciones.length} elecciones...`);
 
     // Asignar partidos a elecciones
-    const stmtAsignacion = await db.prepare(
+    const stmtAsignacion = await bd.prepare(
       'INSERT INTO PartidoEleccion (partidoId, eleccionId) VALUES (?, ?)'
     );
 
@@ -60,13 +60,13 @@ export async function cargarPartidos(db) {
     await stmtAsignacion.finalize();
 
     // Mostrar resumen
-    const stats = await db.get('SELECT COUNT(*) as count FROM PartidoEleccion');
+    const stats = await bd.get('SELECT COUNT(*) as count FROM PartidoEleccion');
     console.log(`\n📊 Resumen:`);
     console.log(`- Partidos creados: ${partidos.length}`);
     console.log(`- Asignaciones a elecciones: ${stats.count}`);
 
     // Mostrar detalle de partidos
-    const partidosDetalle = await db.all(`
+    const partidosDetalle = await bd.all(`
       SELECT p.siglas, p.nombre, COUNT(pe.eleccionId) as numElecciones
       FROM Partido p
       LEFT JOIN PartidoEleccion pe ON p.siglas = pe.partidoId

@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import fs from 'fs/promises';
 import { createInterface } from 'readline';
-import { RUTA_BD } from '../../utils/constantes.js';
+import { RUTA_BD } from '../../utiles/constantes.js';
 
 // Obtener __dirname en ESM
 const __nombreArchivo = fileURLToPath(import.meta.url);

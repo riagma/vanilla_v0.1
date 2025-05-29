@@ -5,8 +5,8 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
     super('RegistroVotanteEleccion');
   }
 
-  async registrarVotante(db, votanteId, eleccionId, compromiso, transaccion, datosPrivados = null) {
-    return await this.crear(db, {
+  async registrarVotante(bd, votanteId, eleccionId, compromiso, transaccion, datosPrivados = null) {
+    return await this.crear(bd, {
       votanteId,
       eleccionId,
       compromiso,
@@ -16,16 +16,16 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
     });
   }
 
-  async obtenerRegistroPorVotanteYEleccion(db, votanteId, eleccionId) {
-    return await db.get(
+  async obtenerRegistroPorVotanteYEleccion(bd, votanteId, eleccionId) {
+    return await bd.get(
       `SELECT * FROM ${this.nombreTabla} 
        WHERE votanteId = ? AND eleccionId = ?`,
       [votanteId, eleccionId]
     );
   }
 
-  async obtenerRegistrosPorEleccion(db, eleccionId) {
-    return await db.all(
+  async obtenerRegistrosPorEleccion(bd, eleccionId) {
+    return await bd.all(
       `SELECT r.*, v.nombre, v.primerApellido, v.segundoApellido 
        FROM ${this.nombreTabla} r
        INNER JOIN Votante v ON r.votanteId = v.dni
@@ -34,8 +34,8 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
     );
   }
 
-  async contarRegistrosPorEleccion(db, eleccionId) {
-    const resultado = await db.get(
+  async contarRegistrosPorEleccion(bd, eleccionId) {
+    const resultado = await bd.get(
       `SELECT COUNT(*) as total FROM ${this.nombreTabla} 
        WHERE eleccionId = ?`,
       [eleccionId]

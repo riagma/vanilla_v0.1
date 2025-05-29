@@ -5,20 +5,20 @@ export class VotanteDAO extends BaseDAO {
     super('Votante');
   }
 
-  async obtenerPorDNI(db, dni) {
-    return await this.obtenerPorId(db, dni, 'dni');
+  async obtenerPorDNI(bd, dni) {
+    return await this.obtenerPorId(bd, dni, 'dni');
   }
 
-  async obtenerPorCorreo(db, correo) {
-    return await db.get(
+  async obtenerPorCorreo(bd, correo) {
+    return await bd.get(
       'SELECT * FROM Votante WHERE correoElectronico = ?',
       [correo]
     );
   }
 
-  async actualizarContrasena(db, dni, hashContrasena) {
+  async actualizarContrasena(bd, dni, hashContrasena) {
     return await this.actualizar(
-      db, 
+      bd, 
       dni, 
       { hashContrasena }, 
       'dni'

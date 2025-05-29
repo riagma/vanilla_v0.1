@@ -1,4 +1,4 @@
-import { servicioElecciones } from '../services/servicioElecciones.js';
+import { servicioElecciones } from '../servicios/servicioElecciones.js';
 
 export const controladorAdmin = {
   async obtenerDatos(peticion, respuesta) {
@@ -13,7 +13,7 @@ export const controladorAdmin = {
 
   async listarElecciones(peticion, respuesta) {
     try {
-      const elecciones = await servicioElecciones.listarTodas(peticion.db);
+      const elecciones = await servicioElecciones.listarTodas(peticion.bd);
       respuesta.json({ elecciones });
     } catch (error) {
       respuesta.status(500).json({ error: error.message });
@@ -23,7 +23,7 @@ export const controladorAdmin = {
   async obtenerEleccion(peticion, respuesta) {
     try {
       const eleccion = await servicioElecciones.obtenerPorId(
-        peticion.db,
+        peticion.bd,
         peticion.params.id
       );
       respuesta.json({ eleccion });
@@ -35,7 +35,7 @@ export const controladorAdmin = {
   async crearEleccion(peticion, respuesta) {
     try {
       const id = await servicioElecciones.crear(
-        peticion.db,
+        peticion.bd,
         peticion.body
       );
       respuesta.status(201).json({ id });
@@ -47,7 +47,7 @@ export const controladorAdmin = {
   async actualizarEleccion(peticion, respuesta) {
     try {
       await servicioElecciones.actualizar(
-        peticion.db,
+        peticion.bd,
         peticion.params.id,
         peticion.body
       );
@@ -60,7 +60,7 @@ export const controladorAdmin = {
   async eliminarEleccion(peticion, respuesta) {
     try {
       await servicioElecciones.eliminar(
-        peticion.db,
+        peticion.bd,
         peticion.params.id
       );
       respuesta.sendStatus(204);

@@ -5,16 +5,16 @@ export class EleccionDAO extends BaseDAO {
     super('Eleccion');
   }
 
-  async obtenerActivas(db) {
-    return await db.all(
+  async obtenerActivas(bd) {
+    return await bd.all(
       `SELECT * FROM ${this.nombreTabla} 
        WHERE estado = 'ACTIVA' 
        AND fechaFinVotacion > datetime('now')`
     );
   }
 
-  async obtenerConPartidos(db, eleccionId) {
-    return await db.all(
+  async obtenerConPartidos(bd, eleccionId) {
+    return await bd.all(
       `SELECT e.*, p.* 
        FROM Eleccion e
        LEFT JOIN PartidoEleccion pe ON e.id = pe.eleccionId

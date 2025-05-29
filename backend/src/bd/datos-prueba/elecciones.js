@@ -2,12 +2,12 @@ import { addDays, subDays } from 'date-fns';
 
 const ESTADOS = ['PENDIENTE', 'REGISTRO', 'VOTACION', 'CERRADA'];
 
-export async function cargarElecciones(db) {
+export async function cargarElecciones(bd) {
   console.log('\n📊 Iniciando carga de elecciones...');
 
   try {
     // Limpiar tabla
-    await db.run('DELETE FROM Eleccion');
+    await bd.run('DELETE FROM Eleccion');
     
     const hoy = new Date();
     
@@ -56,7 +56,7 @@ export async function cargarElecciones(db) {
     ];
 
     // Preparar statement para mejor rendimiento
-    const stmt = await db.prepare(`
+    const stmt = await bd.prepare(`
       INSERT INTO Eleccion (
         nombre, descripcion,
         fechaInicioRegistro, fechaFinRegistro,
@@ -82,11 +82,11 @@ export async function cargarElecciones(db) {
     await stmt.finalize();
 
     // Mostrar resumen
-    const total = await db.get('SELECT COUNT(*) as count FROM Eleccion');
+    const total = await bd.get('SELECT COUNT(*) as count FROM Eleccion');
     console.log(`\n📊 Total elecciones cargadas: ${total.count}`);
 
     // Mostrar estado actual
-    const porEstado = await db.all(`
+    const porEstado = await bd.all(`
       SELECT estado, COUNT(*) as count 
       FROM Eleccion 
       GROUP BY estado

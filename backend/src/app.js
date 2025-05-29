@@ -1,11 +1,16 @@
 import express from 'express';
 import cors from 'cors';
-import { PUERTO } from './utils/constantes.js';
-import { configurarServidorEstatico } from './utils/configServidorEstatico.js';
-import { dbMiddleware } from './middlewares/bd.js';
-import { rutasLogin } from './routes/rutasLogin.js';
-import { rutasAdmin } from './routes/rutasAdmin.js';
-import { rutasVotante } from './routes/rutasVotante.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { PUERTO } from './utiles/constantes.js';
+import { mwBaseDatos } from './middlewares/mwBaseDatos.js';
+import { rutasLogin } from './rutas/rutasLogin.js';
+import { rutasAdmin } from './rutas/rutasAdmin.js';
+import { rutasVotante } from './rutas/rutasVotante.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rutaFrontend = path.join(__dirname, '../../frontend/dist');
 
 export async function iniciarServidor() {
   const aplicacion = express();
@@ -13,7 +18,7 @@ export async function iniciarServidor() {
   // Middlewares globales
   aplicacion.use(cors());
   aplicacion.use(express.json());
-  aplicacion.use(dbMiddleware);
+  aplicacion.use(mwBaseDatos);
 
   // Prefijo común para todas las rutas API
   const routerAPI = express.Router();
@@ -41,8 +46,19 @@ export async function iniciarServidor() {
     });
   });
 
-  // Servidor estático para el frontend (después del manejo de API)
-  configurarServidorEstatico(aplicacion);
+  // Servidor estático para el frontend
+  aplicacion.use(express.static(rutaFrontend));
+
+  // Ruta catch-all para SPA
+  aplicacion.get('*', (peticion, respuesta) => {
+    // Ignorar peticiones a la API (ya manejadas anteriormente)
+    if (peticion.originalUrl.startsWith('/api/')) {
+      return siguiente();
+    }
+
+    // Servir index.html para todas las demás rutas
+    respuesta.sendFile(path.join(rutaFrontend, 'index.html'));
+  });
 
   // Iniciar servidor
   return new Promise((resolve) => {

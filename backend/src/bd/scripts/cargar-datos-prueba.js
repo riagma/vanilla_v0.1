@@ -13,16 +13,16 @@ async function cargarDatosPrueba() {
   }
 
   console.log('Iniciando carga de datos de prueba...');
-  const db = await obtenerDB();
+  const bd = await obtenerDB();
 
   try {
     // Cargar datos en orden por dependencias
-    await cargarVotantes(db, cantidad);
-    await cargarElecciones(db);
-    await cargarPartidos(db);
+    await cargarVotantes(bd, cantidad);
+    await cargarElecciones(bd);
+    await cargarPartidos(bd);
 
     // Actualizar resumen final para incluir partidos
-    const stats = await db.all(`
+    const stats = await bd.all(`
       SELECT 'Votantes' as tabla, COUNT(*) as total FROM Votante
       UNION ALL
       SELECT 'Elecciones', COUNT(*) FROM Eleccion
@@ -37,7 +37,7 @@ async function cargarDatosPrueba() {
     console.error('Error al cargar datos de prueba:', error);
     process.exit(1);
   } finally {
-    await db.close();
+    await bd.close();
   }
 }
 

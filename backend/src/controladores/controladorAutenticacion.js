@@ -1,4 +1,4 @@
-import { servicioAutenticacion } from '../services/servicioAutenticacion.js';
+import { servicioAutenticacion } from '../servicios/servicioAutenticacion.js';
 
 export const controladorAutenticacion = {
   async loginVotante(peticion, respuesta) {

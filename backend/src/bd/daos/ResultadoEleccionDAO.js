@@ -5,8 +5,8 @@ export class ResultadoEleccionDAO extends BaseDAO {
     super('ResultadoEleccion');
   }
 
-  async crearResultado(db, eleccionId, datos) {
-    return await this.crear(db, {
+  async crearResultado(bd, eleccionId, datos) {
+    return await this.crear(bd, {
       eleccionId,
       censados: datos.censados || 0,
       votantes: datos.votantes || 0,
@@ -17,11 +17,11 @@ export class ResultadoEleccionDAO extends BaseDAO {
     });
   }
 
-  async obtenerResultadoCompleto(db, eleccionId) {
-    const resultado = await this.obtenerPorId(db, eleccionId, 'eleccionId');
+  async obtenerResultadoCompleto(bd, eleccionId) {
+    const resultado = await this.obtenerPorId(bd, eleccionId, 'eleccionId');
     if (!resultado) return null;
 
-    const partidosResultados = await db.all(
+    const partidosResultados = await bd.all(
       `SELECT p.nombre, p.siglas, rp.votos, rp.porcentaje
        FROM ResultadoPartido rp
        INNER JOIN Partido p ON rp.partidoId = p.siglas
@@ -35,7 +35,7 @@ export class ResultadoEleccionDAO extends BaseDAO {
     };
   }
 
-  async actualizarEstadisticas(db, eleccionId, datos) {
-    return await this.actualizar(db, eleccionId, datos, 'eleccionId');
+  async actualizarEstadisticas(bd, eleccionId, datos) {
+    return await this.actualizar(bd, eleccionId, datos, 'eleccionId');
   }
 }

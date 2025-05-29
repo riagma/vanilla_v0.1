@@ -1,7 +1,7 @@
 import { daos } from '../bd/daos.js';
 
 export const servicioElecciones = {
-  async crear(db, datosEleccion) {
+  async crear(bd, datosEleccion) {
     // Validar fechas
     const fechas = validarFechasEleccion(datosEleccion);
     
@@ -12,11 +12,11 @@ export const servicioElecciones = {
       estado: 'PENDIENTE'
     };
 
-    return await daos.eleccion.crear(db, eleccionACrear);
+    return await daos.eleccion.crear(bd, eleccionACrear);
   },
 
-  async actualizar(db, id, datosEleccion) {
-    const eleccionExistente = await daos.eleccion.obtenerPorId(db, id);
+  async actualizar(bd, id, datosEleccion) {
+    const eleccionExistente = await daos.eleccion.obtenerPorId(bd, id);
     if (!eleccionExistente) {
       throw new Error('Elección no encontrada');
     }
@@ -26,11 +26,11 @@ export const servicioElecciones = {
       validarFechasEleccion(datosEleccion);
     }
 
-    return await daos.eleccion.actualizar(db, id, datosEleccion);
+    return await daos.eleccion.actualizar(bd, id, datosEleccion);
   },
 
-  async eliminar(db, id) {
-    const eleccionExistente = await daos.eleccion.obtenerPorId(db, id);
+  async eliminar(bd, id) {
+    const eleccionExistente = await daos.eleccion.obtenerPorId(bd, id);
     if (!eleccionExistente) {
       throw new Error('Elección no encontrada');
     }
@@ -39,17 +39,17 @@ export const servicioElecciones = {
       throw new Error('Solo se pueden eliminar elecciones pendientes');
     }
 
-    return await daos.eleccion.eliminar(db, id);
+    return await daos.eleccion.eliminar(bd, id);
   },
 
-  async obtenerPorId(db, id) {
-    const eleccion = await daos.eleccion.obtenerPorId(db, id);
+  async obtenerPorId(bd, id) {
+    const eleccion = await daos.eleccion.obtenerPorId(bd, id);
     if (!eleccion) {
       throw new Error('Elección no encontrada');
     }
 
     // Obtener partidos participantes
-    const partidos = await daos.partidoEleccion.obtenerPartidosPorEleccion(db, id);
+    const partidos = await daos.partidoEleccion.obtenerPartidosPorEleccion(bd, id);
     
     return {
       ...eleccion,
@@ -57,12 +57,12 @@ export const servicioElecciones = {
     };
   },
 
-  async listarTodas(db) {
-    return await daos.eleccion.obtenerTodos(db);
+  async listarTodas(bd) {
+    return await daos.eleccion.obtenerTodos(bd);
   },
 
-  async listarPorVotante(db, dniVotante) {
-    return await daos.registroVotanteEleccion.obtenerEleccionesPorVotante(db, dniVotante);
+  async listarPorVotante(bd, dniVotante) {
+    return await daos.registroVotanteEleccion.obtenerEleccionesPorVotante(bd, dniVotante);
   }
 };
 

@@ -5,8 +5,8 @@ export class ResultadoPartidoDAO extends BaseDAO {
     super('ResultadoPartido');
   }
 
-  async registrarResultado(db, partidoId, eleccionId, votos, porcentaje) {
-    return await this.crear(db, {
+  async registrarResultado(bd, partidoId, eleccionId, votos, porcentaje) {
+    return await this.crear(bd, {
       partidoId,
       eleccionId,
       votos,
@@ -14,8 +14,8 @@ export class ResultadoPartidoDAO extends BaseDAO {
     });
   }
 
-  async actualizarResultado(db, partidoId, eleccionId, votos, porcentaje) {
-    return await db.run(
+  async actualizarResultado(bd, partidoId, eleccionId, votos, porcentaje) {
+    return await bd.run(
       `UPDATE ${this.nombreTabla} 
        SET votos = ?, porcentaje = ?
        WHERE partidoId = ? AND eleccionId = ?`,
@@ -23,8 +23,8 @@ export class ResultadoPartidoDAO extends BaseDAO {
     );
   }
 
-  async obtenerResultadosPorEleccion(db, eleccionId) {
-    return await db.all(
+  async obtenerResultadosPorEleccion(bd, eleccionId) {
+    return await bd.all(
       `SELECT rp.*, p.nombre as nombrePartido
        FROM ${this.nombreTabla} rp
        INNER JOIN Partido p ON rp.partidoId = p.siglas
@@ -34,8 +34,8 @@ export class ResultadoPartidoDAO extends BaseDAO {
     );
   }
 
-  async obtenerResultadosPorPartido(db, partidoId) {
-    return await db.all(
+  async obtenerResultadosPorPartido(bd, partidoId) {
+    return await bd.all(
       `SELECT rp.*, e.nombre as nombreEleccion
        FROM ${this.nombreTabla} rp
        INNER JOIN Eleccion e ON rp.eleccionId = e.id

@@ -5,19 +5,19 @@ export class PartidoDAO extends BaseDAO {
     super('Partido');
   }
 
-  async obtenerPorSiglas(db, siglas) {
-    return await this.obtenerPorId(db, siglas, 'siglas');
+  async obtenerPorSiglas(bd, siglas) {
+    return await this.obtenerPorId(bd, siglas, 'siglas');
   }
 
-  async obtenerPorNombre(db, nombre) {
-    return await db.get(
+  async obtenerPorNombre(bd, nombre) {
+    return await bd.get(
       'SELECT * FROM Partido WHERE nombre = ?',
       [nombre]
     );
   }
 
-  async obtenerPorEleccion(db, eleccionId) {
-    return await db.all(
+  async obtenerPorEleccion(bd, eleccionId) {
+    return await bd.all(
       `SELECT p.* 
        FROM Partido p
        INNER JOIN PartidoEleccion pe ON p.siglas = pe.partidoId
