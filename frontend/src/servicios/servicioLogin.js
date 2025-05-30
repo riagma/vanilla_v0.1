@@ -1,47 +1,49 @@
 import { api } from './api.js';
-import { contexto, TIPOS_USUARIO, notificarCambios } from '../contexto.js';
+import { TIPO_USUARIO } from '../utils/constantes.js';
+import { actualizarContexto, limpiarContexto } from '../contexto.js';
 
 export const servicioLogin = {
-    async loginAdmin(correo, contrasena) {
-        try {
-            const { token, administrador } = await api.post('/api/login/admin', {
-                correo,
-                contrasena
-            });
+  async loginAdmin(correo, contrasena) {
+    try {
+      const { token, administrador } = await api.post('/api/login/admin', {
+        correo,
+        contrasena
+      });
 
-            // Actualizar contexto
-            contexto.token = token;
-            contexto.tipoUsuario = TIPOS_USUARIO.ADMIN;
-            contexto.datosAdmin = administrador;
-            contexto.usuario = { nombre: administrador.correo };
-            
-            // Notificar cambios
-            notificarCambios();
+      actualizarContexto({
+        token,
+        tipoUsuario: TIPO_USUARIO.ADMIN,
+        usuario: { nombre: administrador.correo },
+        datosAdmin: administrador,
+        datosVotante: null
+      });
 
-            return contexto;
-        } catch (error) {
-            throw new Error('Error en login de administrador: ' + error.message);
-        }
-    },
+    } catch (error) {
+      throw new Error('Error en login de administrador: ' + error.message);
+    }
+  },
 
-    async loginVotante(dni, contrasena) {
-        try {
-            const resultado = await api.post('/api/login/votante', {
-                dni,
-                contrasena
-            });
-            
-            contexto.token = resultado.token;
-            contexto.tipoUsuario = TIPOS_USUARIO.VOTANTE;
-            contexto.usuario = resultado.votante;
-            contexto.datosVotante = resultado.votante;
+  async loginVotante(dni, contrasena) {
+    try {
+      const { token, votante } = await api.post('/api/login/votante', {
+        dni,
+        contrasena
+      });
 
-            // Notificar cambios
-            notificarCambios();
+      actualizarContexto({
+        token,
+        tipoUsuario: TIPO_USUARIO.VOTANTE,
+        usuario: votante,
+        datosAdmin: null,
+        datosVotante: votante
+      });
 
-            return resultado;
-        } catch (error) {
-            throw new Error('Error en login de votante: ' + error.message);
-        }
-    },
+    } catch (error) {
+      throw new Error('Error en login de votante: ' + error.message);
+    }
+  },
+
+  logout() {
+    limpiarContexto();
+  }
 };

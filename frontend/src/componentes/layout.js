@@ -1,6 +1,8 @@
 import { inicializarHeader } from './header.js';
 
 export function crearLayout(contenedor) {
+  let limpiezaHeader = null;
+
   contenedor.innerHTML = `
     <div class="d-flex flex-column min-vh-100">
       <!-- Cabecera fija -->
@@ -36,12 +38,19 @@ export function crearLayout(contenedor) {
   const contenidoPrincipal = document.getElementById('contenidoPrincipal');
   const nombreUsuario = document.getElementById('nombreUsuario');
 
-  // Inicializar header con su propia suscripción
-  inicializarHeader(headerAcciones);
+  // Inicializar header con su propia suscripción y guardar función de limpieza
+  limpiezaHeader = inicializarHeader(headerAcciones);
 
+  // Retornar referencias y función de limpieza
   return {
     contenidoPrincipal,
     headerAcciones,
-    nombreUsuario
+    nombreUsuario,
+    limpiar: () => {
+      if (limpiezaHeader) {
+        limpiezaHeader();
+        limpiezaHeader = null;
+      }
+    }
   };
 }

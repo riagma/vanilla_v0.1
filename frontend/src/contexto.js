@@ -1,54 +1,50 @@
 // Sistema de suscripción
 const observadores = new Set();
 
-export const TIPOS_USUARIO = {
-    ADMIN: 'ADMIN',
-    VOTANTE: 'VOTANTE'
+// Estado privado
+const estado = {
+  token: null,
+  tipoUsuario: null,
+  usuario: null,
+  datosAdmin: null,
+  datosVotante: null
 };
 
-export const contexto = {
+// Getters
+export const getContexto = () => ({...estado});
+export const getToken = () => estado.token;
+export const getTipoUsuario = () => estado.tipoUsuario;
+export const getUsuario = () => estado.usuario ? {...estado.usuario} : null;
+export const getDatosAdmin = () => estado.datosAdmin ? {...estado.datosAdmin} : null;
+export const getDatosVotante = () => estado.datosVotante ? {...estado.datosVotante} : null;
+
+// Función para notificar cambios
+function notificarCambios() {
+  const contextoInmutable = getContexto();
+  observadores.forEach(callback => callback(contextoInmutable));
+}
+
+// Setters
+export function actualizarContexto(nuevoEstado) {
+  const estadoAnterior = {...estado};
+  Object.assign(estado, nuevoEstado);
+  
+  if (JSON.stringify(estadoAnterior) !== JSON.stringify(estado)) {
+    notificarCambios();
+  }
+}
+
+export function limpiarContexto() {
+  actualizarContexto({
     token: null,
     tipoUsuario: null,
     usuario: null,
     datosAdmin: null,
     datosVotante: null
-};
+  });
+}
 
-// Función para suscribirse a cambios
 export function observarContexto(callback) {
-    observadores.add(callback);
-    return () => observadores.delete(callback); // Función para des-suscribirse
-}
-
-// Función para notificar cambios
-export function notificarCambios() {
-    observadores.forEach(callback => callback(contexto));
-}
-
-// Modificadores del contexto
-export function setToken(nuevoToken) {
-    contexto.token = nuevoToken;
-    notificarCambios();
-}
-
-export function setUsuario(nuevoUsuario) {
-    contexto.usuario = nuevoUsuario;
-    notificarCambios();
-}
-
-export function logout() {
-    contexto.token = null;
-    contexto.tipoUsuario = null;
-    contexto.usuario = null;
-    contexto.datosAdmin = null;
-    contexto.datosVotante = null;
-    notificarCambios();
-}
-
-export function esAdmin() {
-    return contexto.tipoUsuario === TIPOS_USUARIO.ADMIN;
-}
-
-export function esVotante() {
-    return contexto.tipoUsuario === TIPOS_USUARIO.VOTANTE;
+  observadores.add(callback);
+  return () => observadores.delete(callback);
 }

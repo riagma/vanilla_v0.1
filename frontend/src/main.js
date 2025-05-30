@@ -1,44 +1,111 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { contexto, observarContexto } from './contexto.js';
+import { observarContexto, getToken, getTipoUsuario, getUsuario } from './contexto.js';
 import { vistaLogin } from './vistas/vistaLogin.js';
 import { vistaVotante } from './vistas/vistaVotante.js';
 import { vistaAdmin } from './vistas/vistaAdmin.js';
 import { crearLayout } from './componentes/layout.js';
+import { TIPO_USUARIO } from './utils/constantes.js';
 
-// Crear layout una única vez
+// Crear layout una única vez y guardar función de limpieza
 const app = document.getElementById('app');
-const { contenidoPrincipal, headerAcciones, nombreUsuario } = crearLayout(app);
+const { contenidoPrincipal, nombreUsuario, limpiar: limpiarLayout } = crearLayout(app);
 
-function render() {
-  const hash = location.hash || '#/';
+// Rutas protegidas por tipo de usuario
+const RUTAS = {
+  [TIPO_USUARIO.VOTANTE]: {
+    '/': vistaVotante,
+    '/elecciones': vistaVotante,
+    '/eleccion/:id': null,
+  },
+  [TIPO_USUARIO.ADMIN]: {
+    '/': vistaAdmin,
+    '/elecciones': vistaAdmin,
+    '/eleccion/:id': null,
+  }
+};
 
-  console.log('Renderizando con contexto:', contexto); // Debug
+let limpiezaVistaActual = null;
+let cancelarSuscripcionContexto = null;
 
-  // Actualizar nombre de usuario en header
-  if (contexto.usuario) {
-    nombreUsuario.textContent = contexto.usuario.nombre;
-  } else {
-    nombreUsuario.textContent = '';
+function limpiarAplicacion() {
+  console.log('Limpiando aplicación...');
+  
+  // Limpiar suscripción al contexto
+  if (cancelarSuscripcionContexto) {
+    cancelarSuscripcionContexto();
+    cancelarSuscripcionContexto = null;
   }
 
-  if (!contexto.token) {
-    vistaLogin(contenidoPrincipal);
-    return;
+  // Limpiar layout
+  if (limpiarLayout) {
+    console.log('Limpiando layout...');
+    limpiarLayout();
   }
 
-  console.log('Tipo de usuario:', contexto.tipoUsuario); // Debug
-
-  if (contexto.tipoUsuario === 'VOTANTE') {
-    vistaVotante(contenidoPrincipal);
-  } else if (contexto.tipoUsuario === 'ADMIN') {
-    vistaAdmin(contenidoPrincipal);
+  // Limpiar vista actual
+  if (limpiezaVistaActual) {
+    console.log('Limpiando vista actual...');
+    limpiezaVistaActual();
+    limpiezaVistaActual = null;
   }
 }
 
-// Suscribirse a cambios en el contexto
-observarContexto(render);
+function render() {
+
+  const token = getToken();
+  const hash = location.hash.slice(1) || '/';
+
+  console.log(`Renderizando vista para hash: ${hash} con token: ${token}`);
+
+  // Limpiar vista anterior si existe
+  limpiezaVistaActual?.();
+  limpiezaVistaActual = null;
+  
+
+  // Si no hay token, mostrar login
+  if (!token) {
+    hash === '/' ? limpiezaVistaActual = vistaLogin(contenidoPrincipal) : navegarA('/');
+    return;
+  }
+
+  // Si hay token, actualizar header y mostrar vista correspondiente
+  const tipoUsuario = getTipoUsuario();
+  const usuario = getUsuario();
+
+  // Actualizar header
+  nombreUsuario.textContent = usuario?.nombre || '';
+
+  // Obtener rutas disponibles según tipo de usuario
+  const rutasDisponibles = RUTAS[tipoUsuario];
+  if (!rutasDisponibles) {
+    console.error('Tipo de usuario no válido:', tipoUsuario);
+    return;
+  }
+
+  // Encontrar y renderizar vista correspondiente
+  const vista = rutasDisponibles[hash];
+  if (vista) {
+    limpiezaVistaActual = vista(contenidoPrincipal);
+  } else {
+    // Redirigir a ruta por defecto si no existe
+    location.hash = '#/';
+  }
+}
+
+console.log('Inicializando aplicación...');
+
+// Suscribirse solo a cambios de autenticación
+cancelarSuscripcionContexto = observarContexto((contextoInmutable) => {
+  contextoInmutable.token === null && navegarA('/');
+});
 
 // Escuchar cambios de navegación
 window.addEventListener('hashchange', render);
 window.addEventListener('DOMContentLoaded', render);
+window.addEventListener('beforeunload', () => { limpiarAplicacion(); });
+
+// Función helper para navegación
+export function navegarA(ruta) {
+    location.hash = '#' + ruta;
+}
