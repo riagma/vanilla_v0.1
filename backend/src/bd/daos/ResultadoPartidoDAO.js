@@ -5,6 +5,7 @@ export class ResultadoPartidoDAO extends BaseDAO {
     super('ResultadoPartido');
   }
 
+  // Registrar resultado (puedes usar this.crear directamente)
   async registrarResultado(bd, partidoId, eleccionId, votos, porcentaje) {
     return await this.crear(bd, {
       partidoId,
@@ -14,16 +15,27 @@ export class ResultadoPartidoDAO extends BaseDAO {
     });
   }
 
+  // Actualizar resultado por partidoId y eleccionId (clave compuesta)
   async actualizarResultado(bd, partidoId, eleccionId, votos, porcentaje) {
-    return await bd.run(
-      `UPDATE ${this.nombreTabla} 
-       SET votos = ?, porcentaje = ?
-       WHERE partidoId = ? AND eleccionId = ?`,
-      [votos, porcentaje, partidoId, eleccionId]
+    return await this.actualizar(
+      bd,
+      { partidoId, eleccionId },
+      { votos, porcentaje }
     );
   }
 
-  async obtenerResultadosPorEleccion(bd, eleccionId) {
+  // Eliminar resultado por partidoId y eleccionId (clave compuesta)
+  async eliminarResultado(bd, partidoId, eleccionId) {
+    return await this.eliminar(bd, { partidoId, eleccionId });
+  }
+
+  // Obtener resultado por partidoId y eleccionId (clave compuesta)
+  async obtenerPorPartidoYEleccion(bd, partidoId, eleccionId) {
+    return await this.obtenerPorId(bd, { partidoId, eleccionId });
+  }
+
+  // Obtener todos los resultados de una elección
+  async obtenerPorEleccion(bd, eleccionId) {
     return await bd.all(
       `SELECT rp.*, p.nombre as nombrePartido
        FROM ${this.nombreTabla} rp
@@ -34,7 +46,8 @@ export class ResultadoPartidoDAO extends BaseDAO {
     );
   }
 
-  async obtenerResultadosPorPartido(bd, partidoId) {
+  // Obtener todos los resultados de un partido en todas las elecciones
+  async obtenerPorPartido(bd, partidoId) {
     return await bd.all(
       `SELECT rp.*, e.nombre as nombreEleccion
        FROM ${this.nombreTabla} rp

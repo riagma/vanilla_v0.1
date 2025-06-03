@@ -11,7 +11,7 @@ export function fichaEleccion(contenedor, eleccion, onVerDetalle) {
     eventListeners.clear();
   }
 
-  function render() {
+  function renderizar() {
     // Limpiar antes de re-renderizar
     limpiar();
 
@@ -50,7 +50,7 @@ export function fichaEleccion(contenedor, eleccion, onVerDetalle) {
   }
 
   // Renderizado inicial
-  render();
+  renderizar();
 
   // Retornar función de limpieza
   return limpiar;

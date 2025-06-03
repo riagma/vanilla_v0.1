@@ -1,15 +1,8 @@
 @baseUrl = http://localhost:3000
 @tokenAdmin = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3JyZW8iOiJyaWFnbWFAZ21haWwuY29tIiwiaXNBZG1pbiI6dHJ1ZSwiaWF0IjoxNzQ3NzU2OTM3LCJleHAiOjE3NDc3ODU3Mzd9.wI9qSPJSWkLoe6rne-3rJrktxPRlqnLPjrj5q4LIvSo
-@tokenVotante = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkbmkiOiIzNzc1MTIwNFEiLCJ0aXBvIjoidm90YW50ZSIsImlhdCI6MTc0ODU1MDI5MywiZXhwIjoxNzQ4NTUzODkzfQ.BDJIi5UHFs3oi5eZuzjjT2ImwKlszKzy9uSp-8LAGBY
+@tokenVotante = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkbmkiOiIzNzc1MTIwNFEiLCJ0aXBvIjoidm90YW50ZSIsImlhdCI6MTc0ODk4Mzc5NywiZXhwIjoxNzQ4OTg3Mzk3fQ.4cSKvZQCXnns8FUwPsrZR-M6cbzYmcJT6vcLH9JAhqw
 
-### LOGIN de administrador
-POST {{baseUrl}}/api/login/admin
-Content-Type: application/json
-
-{
-  "correo": "riagma@gmail.com",
-  "contrasena": "1234123412341234"
-}
+##------------------------------------------------------------------------------
 
 ### LOGIN de votante
 POST {{baseUrl}}/api/login/votante
@@ -24,8 +17,21 @@ Content-Type: application/json
 GET {{baseUrl}}/api/votante/elecciones
 Authorization: Bearer {{tokenVotante}}
 
+### Obtener detalle de elección (Votante)
+GET {{baseUrl}}/api/votante/elecciones/3
+Authorization: Bearer {{tokenVotante}}
+
+##------------------------------------------------------------------------------
 
 
+### LOGIN de administrador
+POST {{baseUrl}}/api/login/admin
+Content-Type: application/json
+
+{
+  "correo": "riagma@gmail.com",
+  "contrasena": "1234123412341234"
+}
 
 ### Obtener perfil del votante
 GET {{baseUrl}}/api/votante/perfil

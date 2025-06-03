@@ -5,20 +5,32 @@ export class ResultadoEleccionDAO extends BaseDAO {
     super('ResultadoEleccion');
   }
 
-  async crearResultado(bd, eleccionId, datos) {
+  // Crear resultado (puedes usar this.crear directamente si los campos coinciden)
+  async crearResultado(bd, datos) {
     return await this.crear(bd, {
-      eleccionId,
-      censados: datos.censados || 0,
-      votantes: datos.votantes || 0,
-      abstenciones: datos.abstenciones || 0,
-      votosBlancos: datos.votosBlancos || 0,
-      votosNulos: datos.votosNulos || 0,
-      fechaRecuento: new Date().toISOString()
+      ...datos,
+      fechaRecuento: datos.fechaRecuento || new Date().toISOString()
     });
   }
 
+  // Obtener resultado por eleccionId (clave alternativa)
+  async obtenerPorEleccionId(bd, eleccionId) {
+    return await this.obtenerPorId(bd, { eleccionId });
+  }
+
+  // Actualizar por eleccionId (clave alternativa)
+  async actualizarPorEleccionId(bd, eleccionId, datos) {
+    return await this.actualizar(bd, { eleccionId }, datos);
+  }
+
+  // Eliminar por eleccionId (clave alternativa)
+  async eliminarPorEleccionId(bd, eleccionId) {
+    return await this.eliminar(bd, { eleccionId });
+  }
+
+  // Obtener resultado completo con partidos
   async obtenerResultadoCompleto(bd, eleccionId) {
-    const resultado = await this.obtenerPorId(bd, eleccionId, 'eleccionId');
+    const resultado = await this.obtenerPorId(bd, { eleccionId });
     if (!resultado) return null;
 
     const partidosResultados = await bd.all(
@@ -33,9 +45,5 @@ export class ResultadoEleccionDAO extends BaseDAO {
       ...resultado,
       partidos: partidosResultados
     };
-  }
-
-  async actualizarEstadisticas(bd, eleccionId, datos) {
-    return await this.actualizar(bd, eleccionId, datos, 'eleccionId');
   }
 }

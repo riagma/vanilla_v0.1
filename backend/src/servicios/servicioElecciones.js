@@ -1,6 +1,10 @@
 import { daos } from '../bd/daos.js';
 
 export const servicioElecciones = {
+
+  //----------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
+  
   async crear(bd, datosEleccion) {
     // Validar fechas
     const fechas = validarFechasEleccion(datosEleccion);
@@ -42,13 +46,19 @@ export const servicioElecciones = {
     return await daos.eleccion.eliminar(bd, id);
   },
 
-  async obtenerPorId(bd, id) {
-    const eleccion = await daos.eleccion.obtenerPorId(bd, id);
-    if (!eleccion) {
-      throw new Error('Elección no encontrada');
-    }
+  //----------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
 
-    // Obtener partidos participantes
+  async obtenerTodas(bd) {
+    return await daos.eleccion.obtenerTodos(bd);
+  },
+
+  //----------------------------------------------------------------------------
+
+  async obtenerPorId(bd, id) {
+    const eleccion = await daos.eleccion.obtenerPorId(bd, { id });
+    if (!eleccion) throw new Error('Elección no encontrada');
+
     const partidos = await daos.partidoEleccion.obtenerPartidosPorEleccion(bd, id);
     
     return {
@@ -57,14 +67,70 @@ export const servicioElecciones = {
     };
   },
 
-  async listarTodas(bd) {
-    return await daos.eleccion.obtenerTodos(bd);
+  //----------------------------------------------------------------------------
+
+  async obtenerDetalle(bd, id, dni) {
+    const eleccion = await daos.eleccion.obtenerPorId(bd, { id });
+    if (!eleccion) throw new Error('Elección no encontrada');
+
+    const partidos = await daos.partidoEleccion.obtenerPartidosPorEleccion(bd, id);
+    const registroVotante = await daos.registroVotanteEleccion.obtenerPorId(bd, dni, id);
+    const resultadosEleccion = await daos.resultadoEleccion.obtenerPorEleccionId(bd, id);
+    const resultadosPorPartido = await daos.resultadoPartido.obtenerPorEleccion(bd, id);
+
+    // // Asocia resultados a partidos
+    // const partidosConResultados = partidos.map(partido => ({
+    //   ...partido,
+    //   resultado: resultadosPorPartido.find(rp => rp.partidoId === partido.siglas) || null
+    // }));
+
+    const resultadosCompletos = resultadosEleccion ? {
+      ...resultadosEleccion,
+      porPartido: resultadosPorPartido || []
+    } : null;
+        
+    return {
+      eleccion,
+      partidos,
+      registro: registroVotante || null,
+      resultados: resultadosCompletos || null
+    };
   },
+
+  //----------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
 
   async listarPorVotante(bd, dniVotante) {
     return await daos.registroVotanteEleccion.obtenerEleccionesPorVotante(bd, dniVotante);
-  }
+  },
+
+  async listarPartidosPorEleccion(bd, idEleccion) {
+    // Devuelve los partidos asociados a una elección
+    return await daos.partidoEleccion.obtenerPartidosPorEleccion(bd, idEleccion);
+  },
+
+  async obtenerResultadosEleccion(bd, idEleccion) {
+    // Devuelve los resultados de la elección (puedes adaptar según tu modelo)
+    return await daos.resultado.obtenerPorEleccion(bd, idEleccion);
+  },
+
+  async obtenerRegistroVotanteEnEleccion(bd, dniVotante, idEleccion) {
+    // Devuelve el registro del votante en una elección concreta
+    return await daos.registroVotanteEleccion.obtenerPorVotanteYEleccion(bd, dniVotante, idEleccion);
+  },
+
+  async registrarVotante(bd, dniVotante, idEleccion, compromiso) {
+    // Registra al votante en la elección (puedes adaptar los campos según tu modelo)
+    return await daos.registroVotanteEleccion.crear(bd, {
+      dniVotante,
+      idEleccion,
+      compromiso
+    });
+  },
 };
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 // Funciones auxiliares
 function validarFechasEleccion(datosEleccion) {

@@ -5,10 +5,6 @@ export class PartidoDAO extends BaseDAO {
     super('Partido');
   }
 
-  async obtenerPorSiglas(bd, siglas) {
-    return await this.obtenerPorId(bd, siglas, 'siglas');
-  }
-
   async obtenerPorNombre(bd, nombre) {
     return await bd.get(
       'SELECT * FROM Partido WHERE nombre = ?',

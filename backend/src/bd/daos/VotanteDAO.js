@@ -6,7 +6,8 @@ export class VotanteDAO extends BaseDAO {
   }
 
   async obtenerPorDNI(bd, dni) {
-    return await this.obtenerPorId(bd, dni, 'dni');
+    console.log('Obteniendo votante por DNI:', dni);
+    return await this.obtenerPorId(bd, { dni });
   }
 
   async obtenerPorCorreo(bd, correo) {
@@ -18,10 +19,9 @@ export class VotanteDAO extends BaseDAO {
 
   async actualizarContrasena(bd, dni, hashContrasena) {
     return await this.actualizar(
-      bd, 
-      dni, 
-      { hashContrasena }, 
-      'dni'
+      bd,
+      { dni },
+      { hashContrasena }
     );
   }
 }

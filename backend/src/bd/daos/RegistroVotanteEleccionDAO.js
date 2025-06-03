@@ -16,15 +16,11 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
     });
   }
 
-  async obtenerRegistroPorVotanteYEleccion(bd, votanteId, eleccionId) {
-    return await bd.get(
-      `SELECT * FROM ${this.nombreTabla} 
-       WHERE votanteId = ? AND eleccionId = ?`,
-      [votanteId, eleccionId]
-    );
+  async obtenerPorId(bd, votanteId, eleccionId) {
+    return await super.obtenerPorId(bd, { votanteId, eleccionId });
   }
 
-  async obtenerRegistrosPorEleccion(bd, eleccionId) {
+  async obtenerPorEleccion(bd, eleccionId) {
     return await bd.all(
       `SELECT r.*, v.nombre, v.primerApellido, v.segundoApellido 
        FROM ${this.nombreTabla} r
@@ -34,7 +30,7 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
     );
   }
 
-  async contarRegistrosPorEleccion(bd, eleccionId) {
+  async contarPorEleccion(bd, eleccionId) {
     const resultado = await bd.get(
       `SELECT COUNT(*) as total FROM ${this.nombreTabla} 
        WHERE eleccionId = ?`,

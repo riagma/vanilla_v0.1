@@ -32,7 +32,7 @@ export const servicioAutenticacion = {
 
   async loginAdmin(bd, correo, clave) {
     console.log('Intentando login admin con:', { correo, clave });
-    const admin = await daos.administrador.obtenerPorCorreo(bd, correo);
+    const admin = await daos.administrador.obtenerPorCorreo(bd, { correo });
     console.log('Datos del administrador:', admin);
     if (!admin) {
       throw new Error('Credenciales inválidas');

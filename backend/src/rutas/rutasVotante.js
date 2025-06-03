@@ -10,11 +10,16 @@ const router = Router();
 router.use(verificarTokenVotante);
 
 // Rutas del votante
-router.get('/', controladorVotante.obtenerDatos);
+
+router.get('/', controladorVotante.obtenerDatosVotante);
+
 router.get('/elecciones', controladorVotante.listarEleccionesDisponibles);
-router.post('/elecciones/:id/registro', 
-    validarEsquema(esquemaRegistroVotanteEleccion), 
-    controladorVotante.registrarseEnEleccion
+router.get('/elecciones/:idEleccion', controladorVotante.obtenerDetalleEleccion);
+
+router.post(
+  '/elecciones/:id/registro',
+  validarEsquema(esquemaRegistroVotanteEleccion),
+  controladorVotante.registrarseEnEleccion
 );
 
 export const rutasVotante = router;

@@ -1,5 +1,5 @@
 import { api } from './api.js';
-import { TIPO_USUARIO } from '../utils/constantes.js';
+import { TIPO_USUARIO } from '../utiles/constantes.js';
 import { actualizarContexto, limpiarContexto } from '../contexto.js';
 
 export const servicioLogin = {
@@ -17,6 +17,9 @@ export const servicioLogin = {
         datosAdmin: administrador,
         datosVotante: null
       });
+
+      // Limpia la URL de cualquier query string sensible
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
 
     } catch (error) {
       throw new Error('Error en login de administrador: ' + error.message);
@@ -37,6 +40,9 @@ export const servicioLogin = {
         datosAdmin: null,
         datosVotante: votante
       });
+
+      // Limpia la URL de cualquier query string sensible
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
 
     } catch (error) {
       throw new Error('Error en login de votante: ' + error.message);

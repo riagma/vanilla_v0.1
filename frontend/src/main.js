@@ -1,111 +1,118 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { observarContexto, getToken, getTipoUsuario, getUsuario } from './contexto.js';
-import { vistaLogin } from './vistas/vistaLogin.js';
-import { vistaVotante } from './vistas/vistaVotante.js';
-import { vistaAdmin } from './vistas/vistaAdmin.js';
-import { crearLayout } from './componentes/layout.js';
-import { TIPO_USUARIO } from './utils/constantes.js';
 
-// Crear layout una única vez y guardar función de limpieza
+import { getToken, getTipoUsuario } from './contexto.js';
+import { crearMarco } from './componentes/marco.js';
+import { obtenerVista, vistaInicial, navegarA } from './rutas/enrutado.js';
+
+// Crear marco una única vez y guardar función de limpieza
 const app = document.getElementById('app');
-const { contenidoPrincipal, nombreUsuario, limpiar: limpiarLayout } = crearLayout(app);
+const { contenedorMarco, limpiarMarco } = crearMarco(app);
 
-// Rutas protegidas por tipo de usuario
-const RUTAS = {
-  [TIPO_USUARIO.VOTANTE]: {
-    '/': vistaVotante,
-    '/elecciones': vistaVotante,
-    '/eleccion/:id': null,
-  },
-  [TIPO_USUARIO.ADMIN]: {
-    '/': vistaAdmin,
-    '/elecciones': vistaAdmin,
-    '/eleccion/:id': null,
-  }
-};
+let contenedorPrincipal = contenedorMarco;
 
-let limpiezaVistaActual = null;
-let cancelarSuscripcionContexto = null;
+let limpiarVistaActual = null;
+
+//------------------------------------------------------------------------------
 
 function limpiarAplicacion() {
   console.log('Limpiando aplicación...');
-  
-  // Limpiar suscripción al contexto
-  if (cancelarSuscripcionContexto) {
-    cancelarSuscripcionContexto();
-    cancelarSuscripcionContexto = null;
+
+  if (limpiarMarco) {
+    console.log('Limpiando marco...');
+    limpiarMarco();
   }
 
-  // Limpiar layout
-  if (limpiarLayout) {
-    console.log('Limpiando layout...');
-    limpiarLayout();
-  }
-
-  // Limpiar vista actual
-  if (limpiezaVistaActual) {
+  if (limpiarVistaActual) {
     console.log('Limpiando vista actual...');
-    limpiezaVistaActual();
-    limpiezaVistaActual = null;
+    limpiarVistaActual();
+    limpiarVistaActual = null;
   }
 }
 
-function render() {
+//------------------------------------------------------------------------------
 
+function renderizar() {
   const token = getToken();
   const hash = location.hash.slice(1) || '/';
 
-  console.log(`Renderizando vista para hash: ${hash} con token: ${token}`);
+  const pistaToken = token?.slice(-5) || ''; 
 
-  // Limpiar vista anterior si existe
-  limpiezaVistaActual?.();
-  limpiezaVistaActual = null;
+  // const contenedorPrincipalDOM = document.getElementById(contenedorMarco);
+
+  // if(!contenedorPrincipal.isSameNode(contenedorPrincipalDOM)) {
+  //   console.log('Actualizando contenedor principal...');
+  //   contenedorPrincipal = contenedorPrincipalDOM;
+  // }
+
+  //--------------
+
+  console.log(`Renderizando vista para hash: ${hash} con token: ...${pistaToken}`);
+
+  limpiarVistaActual?.();
+  limpiarVistaActual = null;
   
-
   // Si no hay token, mostrar login
   if (!token) {
-    hash === '/' ? limpiezaVistaActual = vistaLogin(contenidoPrincipal) : navegarA('/');
+    hash === '/' ? limpiarVistaActual = vistaInicial(contenedorPrincipal) : navegarA('/');
     return;
   }
 
-  // Si hay token, actualizar header y mostrar vista correspondiente
+  //--------------
+
+  // Si hay token, mostrar vista correspondiente
   const tipoUsuario = getTipoUsuario();
-  const usuario = getUsuario();
-
-  // Actualizar header
-  nombreUsuario.textContent = usuario?.nombre || '';
-
-  // Obtener rutas disponibles según tipo de usuario
-  const rutasDisponibles = RUTAS[tipoUsuario];
-  if (!rutasDisponibles) {
-    console.error('Tipo de usuario no válido:', tipoUsuario);
-    return;
-  }
-
-  // Encontrar y renderizar vista correspondiente
-  const vista = rutasDisponibles[hash];
-  if (vista) {
-    limpiezaVistaActual = vista(contenidoPrincipal);
-  } else {
-    // Redirigir a ruta por defecto si no existe
-    location.hash = '#/';
+  
+  try {
+    const vista = obtenerVista(tipoUsuario, hash);
+    if (vista) {
+      limpiarVistaActual = vista(contenedorPrincipal);
+    } else {
+      // Mostrar alerta en lugar de redirigir
+      alert(`La ruta "${hash}" no existe`);
+      // Revertir la URL al estado anterior sin causar nuevo renderizado
+      history.pushState(null, '', location.pathname);
+    }
+  } catch (error) {
+    console.error(error);
+    alert('Error al cargar la vista');
   }
 }
+
+//------------------------------------------------------------------------------
 
 console.log('Inicializando aplicación...');
 
-// Suscribirse solo a cambios de autenticación
-cancelarSuscripcionContexto = observarContexto((contextoInmutable) => {
-  contextoInmutable.token === null && navegarA('/');
-});
-
 // Escuchar cambios de navegación
-window.addEventListener('hashchange', render);
-window.addEventListener('DOMContentLoaded', render);
+window.addEventListener('hashchange', renderizar);
+window.addEventListener('DOMContentLoaded', renderizar);
 window.addEventListener('beforeunload', () => { limpiarAplicacion(); });
 
-// Función helper para navegación
-export function navegarA(ruta) {
-    location.hash = '#' + ruta;
-}
+//------------------------------------------------------------------------------
+
+const observer = new MutationObserver((mutationsList) => {
+
+  for(const mutation of mutationsList) {
+
+    if(mutation.type === 'childList') {
+
+      const padreContenedorActual = contenedorPrincipal.parentNode;
+
+      if(!contenedorPrincipal.isConnected) {
+
+        console.group('El contenedor principal ha sido removido o reemplazado');
+        console.trace();
+        console.groupEnd();
+
+        contenedorPrincipal = document.getElementById('contenedorMarco');
+      }
+    }
+  }
+});
+
+observer.observe(document.body, {
+  childList: true,
+  subtree: true
+});
+
+//------------------------------------------------------------------------------
