@@ -5,21 +5,6 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
     super('RegistroVotanteEleccion');
   }
 
-  async registrarVotante(bd, votanteId, eleccionId, compromiso, transaccion, datosPrivados = null) {
-    return await this.crear(bd, {
-      votanteId,
-      eleccionId,
-      compromiso,
-      transaccion,
-      datosPrivados,
-      fechaRegistro: new Date().toISOString()
-    });
-  }
-
-  async obtenerPorId(bd, votanteId, eleccionId) {
-    return await super.obtenerPorId(bd, { votanteId, eleccionId });
-  }
-
   async obtenerPorEleccion(bd, eleccionId) {
     return await bd.all(
       `SELECT r.*, v.nombre, v.primerApellido, v.segundoApellido 

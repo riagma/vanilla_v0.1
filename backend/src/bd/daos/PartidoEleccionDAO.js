@@ -5,18 +5,18 @@ export class PartidoEleccionDAO extends BaseDAO {
     super('PartidoEleccion');
   }
 
-  async asignarPartidoAEleccion(bd, partidoId, eleccionId) {
+  async asignarPartidoEleccion(bd, partidoId, eleccionId) {
     return await this.crear(bd, { partidoId, eleccionId });
   }
 
-  async eliminarPartidoDeEleccion(bd, partidoId, eleccionId) {
+  async eliminarPartidoEleccion(bd, partidoId, eleccionId) {
     return await bd.run(
       'DELETE FROM PartidoEleccion WHERE partidoId = ? AND eleccionId = ?',
       [partidoId, eleccionId]
     );
   }
 
-  async obtenerPartidosPorEleccion(bd, eleccionId) {
+  async obtenerPartidosEleccion(bd, eleccionId) {
     return await bd.all(
       `SELECT p.*, pe.eleccionId 
        FROM Partido p
@@ -26,7 +26,7 @@ export class PartidoEleccionDAO extends BaseDAO {
     );
   }
 
-  async obtenerEleccionesPorPartido(bd, partidoId) {
+  async obtenerEleccionesPartido(bd, partidoId) {
     return await bd.all(
       `SELECT e.*, pe.partidoId 
        FROM Eleccion e

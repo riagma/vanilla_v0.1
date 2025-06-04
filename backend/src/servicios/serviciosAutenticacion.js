@@ -3,7 +3,7 @@ import { SECRETO } from '../utiles/constantes.js';
 import { daos } from '../bd/daos.js';
 import bcrypt from 'bcrypt';
 
-export const servicioAutenticacion = {
+export const serviciosAutenticacion = {
   async loginVotante(bd, dni, clave) {
     console.log('Intentando login votante con:', { dni, clave });
     const votante = await daos.votante.obtenerPorDNI(bd, dni);

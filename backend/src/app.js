@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { PUERTO } from './utiles/constantes.js';
 import { mwBaseDatos } from './middlewares/mwBaseDatos.js';
+import { mwExcepcion } from './middlewares/mwExcepcion.js';
 import { rutasLogin } from './rutas/rutasLogin.js';
 import { rutasAdmin } from './rutas/rutasAdmin.js';
 import { rutasVotante } from './rutas/rutasVotante.js';
@@ -41,14 +42,8 @@ export async function iniciarServidor() {
   });
 
   // Middleware para errores en rutas API
-  routerAPI.use((error, peticion, respuesta, siguiente) => {
-    console.error('Error en API:', error);
-    respuesta.status(500).json({
-      error: 'Error interno del servidor',
-      mensaje: error.message
-    });
-  });
-
+  routerAPI.use(mwExcepcion);
+  
   // Servidor estático para el frontend
   aplicacion.use(express.static(rutaFrontend));
 

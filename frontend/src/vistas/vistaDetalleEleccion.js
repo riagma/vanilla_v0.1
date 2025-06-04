@@ -5,7 +5,7 @@ import { navegarA } from '../rutas/enrutado.js';
 
 export function vistaDetalleEleccion(contenedor, idEleccion) {
   let detalleEleccion = null;
-  let limpiezaComponentes = new Set();
+  let manejadores = new Set();
   let datosVotanteActual = getDatosVotante();
   let destruida = false;
 
@@ -116,8 +116,8 @@ export function vistaDetalleEleccion(contenedor, idEleccion) {
   }
 
   function renderizar() {
-    limpiezaComponentes.forEach(fn => fn());
-    limpiezaComponentes.clear();
+    manejadores.forEach(fn => fn());
+    manejadores.clear();
 
     if (!detalleEleccion) {
       contenedor.innerHTML = `
@@ -201,7 +201,7 @@ export function vistaDetalleEleccion(contenedor, idEleccion) {
           }
         };
         botonRegistro.addEventListener('click', manejarRegistro);
-        limpiezaComponentes.add([botonRegistro, 'click', manejarRegistro]);
+        manejadores.add([botonRegistro, 'click', manejarRegistro]);
       }
     }
 
@@ -210,7 +210,7 @@ export function vistaDetalleEleccion(contenedor, idEleccion) {
       if (botonVotar) {
         const manejarVotar = () => navegarA(`/eleccion/${idEleccion}/votar`);
         botonVotar.addEventListener('click', manejarVotar);
-        limpiezaComponentes.add([botonVotar, 'click', manejarVotar]);
+        manejadores.add([botonVotar, 'click', manejarVotar]);
       }
     }
   }
@@ -233,7 +233,6 @@ export function vistaDetalleEleccion(contenedor, idEleccion) {
   return () => {
     destruida = true;
     cancelarSuscripcion?.();
-    limpiezaComponentes.forEach(fn => fn());
-    limpiezaComponentes.clear();
+    limpiarManejadores(manejadores);
   };
 }

@@ -32,8 +32,8 @@ export const esquemaEleccion = z.object({
   fechaInicioVotacion: z.string().datetime({ message: "Fecha de inicio de votación inválida" }),
   fechaFinVotacion: z.string().datetime({ message: "Fecha de fin de votación inválida" }),
   fechaCelebracion: z.string().datetime({ message: "Fecha de celebración inválida" }),
-  estado: z.enum(Object.values(EstadosEleccion), { 
-    message: "Estado de elección inválido" 
+  estado: z.enum(Object.values(EstadosEleccion), {
+    message: "Estado de elección inválido"
   })
 });
 
@@ -58,6 +58,14 @@ export const esquemaRegistroVotanteEleccion = z.object({
   transaccion: z.string().min(1),
   fechaRegistro: z.string().datetime(),
   datosPrivados: z.string().optional().nullable()
+});
+
+// Esquema para RegistroVotanteEleccionPeticion
+export const esquemaRegistroVotanteEleccionPeticion = esquemaRegistroVotanteEleccion.omit({
+  votanteId: true,
+  eleccionId: true,
+  transaccion: true,
+  fechaRegistro: true
 });
 
 // Esquema para ResultadoEleccion
