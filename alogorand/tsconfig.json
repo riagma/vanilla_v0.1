@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "target": "es5", // Especifica la versión de ECMAScript de destino: 'ES3' (predeterminado), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', 'ES2021' o 'ESNEXT'.
+        "module": "commonjs", // Especifica el sistema de módulos a utilizar: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020' o 'ESNext'.
+        "outDir": "./dist", // Redirige la estructura de directorios de salida al directorio.
+        "esModuleInterop": true, // Habilita la interoperabilidad entre módulos CommonJS y ES.
+        "forceConsistentCasingInFileNames": true, // Asegura que las referencias a archivos tengan el mismo uso de mayúsculas y minúsculas.
+        "strict": true, // Habilita todas las comprobaciones de tipo estricto.
+        "skipLibCheck": true // Omite la comprobación de tipo de los archivos de declaración (*.d.ts).
+    },
+    "include": [
+        "clients/**/*"
+    ], // Especifica los archivos TypeScript que se incluirán en la compilación.
+    "exclude": [
+        "node_modules"
+    ] // Especifica los archivos o directorios que se excluirán de la compilación.
+}
