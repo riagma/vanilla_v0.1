@@ -11,16 +11,16 @@ const ABIregistrarCompromiso = new ABIMethod({
 });
 
 export async function registrarCompromiso() {
-  const { confirmation } = await algorand.send.appCallMethodCall({
+  const { txId, confirmation  } = await algorand.send.appCallMethodCall({
     sender: account.addr,
     appId,
     method: ABIregistrarCompromiso,
     args: [],
-    lease: Uint8Array.from(randomBytes(32)),   // 👈  NO dentro de transactionParams
+    lease: Uint8Array.from(randomBytes(32)),
     skipWaiting: false,
     maxRoundsToWaitForConfirmation: 12,
     skipSimulate: true, 
   });
-  console.log(`Compromiso registrado en la ronda ${confirmation.confirmedRound}`);
-  return confirmation;
+  console.log(`Compromiso registrado en la ronda ${confirmation?.confirmedRound}`);
+  return { txId, confirmedRound: confirmation?.confirmedRound ?? 0n };
 }

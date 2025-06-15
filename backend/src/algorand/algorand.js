@@ -1,19 +1,27 @@
 import { AlgorandClient } from '@algorandfoundation/algokit-utils';
-import { config }               from 'dotenv';
-import path                     from 'node:path';
-import { fileURLToPath }        from 'node:url';
+import { config } from 'dotenv';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // Cargar el .env adecuado (igual que en algorand.js)
-const __dirname = path.dirname(fileURLToPath(import.meta.url)) + '/../..'; 
+const __dirname = path.dirname(fileURLToPath(import.meta.url)) + '/../..';
 const dotenvPath = path.join(__dirname, `.env.${process.env.NODE_ENV || 'localnet'}`);
 console.log(`Cargando configuración desde: ${dotenvPath}`);
 config({ path: dotenvPath });
 
-const algorand =
-  process.env.NODE_ENV === 'testnet'
-    ? AlgorandClient.defaultTestNet()
-    : AlgorandClient.defaultLocalNet(); // puerto 4001/4002/8980
+export const ENTORNO = process.env.NODE_ENV || 'localnet';
+export const DISPENSER = process.env.DISPENSER || 'dispenser';
 
-export const algod   = algorand.client.algod;
-export const account = algorand.account.fromMnemonic(process.env.DEPLOYER_MNEMONIC);
+const algorand = 
+  ENTORNO === 'mainnet' ? AlgorandClient.defaultMainNet() :
+  ENTORNO === 'testnet' ? AlgorandClient.defaultTestNet() : 
+  
+  AlgorandClient.defaultLocalNet();
+
+export const dispenser = algorand.account.fromMnemonic(DISPENSER);
+console.log(`Dispenser: ${String(dispenser.addr)}`);
+ 
+export const algod = algorand.client.algod;
+export const indexer = algorand.client.indexer;
+
 export default algorand;
