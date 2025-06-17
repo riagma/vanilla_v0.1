@@ -15,7 +15,6 @@ export async function cargarVotantes(bd, cantidad = 100) {
   console.log(`Iniciando carga de ${cantidad} votantes...`);
 
   try {
-    // Limpiar tabla antes de insertar
     await bd.run('DELETE FROM Votante');
     
     for (let i = 0; i < cantidad; i++) {
@@ -24,18 +23,15 @@ export async function cargarVotantes(bd, cantidad = 100) {
       const primerApellido = apellidos[0];
       const segundoApellido = apellidos[1] || faker.person.lastName();
 
-      // Generar correo electrónico
       const nombreEmail = normalizarTexto(nombre);
       const apellidosEmail = `${normalizarTexto(primerApellido)}.${normalizarTexto(segundoApellido)}`;
       const correoElectronico = `${nombreEmail}.${apellidosEmail}@ejemplo.com`;
 
-      // Generar DNI español
       const numeroDNI = faker.number.int({ min: 0, max: 99999999 }).toString().padStart(8, '0');
       const letrasDNI = 'TRWAGMYFPDXBNJZSQVHLCKE';
       const letraDNI = letrasDNI[numeroDNI % 23];
       const dni = `${numeroDNI}${letraDNI}`;
 
-      // Crear hash de contraseña
       const hashContrasena = await bcrypt.hash('Password123!', 10);
 
       // Insertar votante
@@ -52,9 +48,8 @@ export async function cargarVotantes(bd, cantidad = 100) {
         process.stdout.write('.');
       }
     }
-    console.log('\n✅ Votantes creados exitosamente.');
+    console.log('\nVotantes creados exitosamente.');
 
-    // Mostrar algunos ejemplos
     const ejemplos = await bd.all('SELECT * FROM Votante LIMIT 5');
     console.log('\nEjemplos de votantes creados:');
     ejemplos.forEach(v => {

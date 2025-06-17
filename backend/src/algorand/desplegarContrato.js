@@ -1,20 +1,110 @@
 // src/deployer/deployContract.js
+import { obtenerDB } from '../bd/bd.js';
+import { daos } from '../bd/daos.js';
+
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { stringifyJSON } from 'algosdk';
 
-import algorand, { ELECTION_MNEMONIC } from './algorand.js';
-import { inicializarEleccion } from './voto3.js';
+import { algorand } from './algorand.js';
+import {
+  inicializarEleccion,
+  establecerClienteVoto3,
+  abrirRegistroCompromisos,
+  cerrarRegistroCompromisos,
+  registrarCompromiso
+} from './serviciosVoto3.js';
+
+export async function desplegarContrato(cuentaId, eleccionId, contratoDir) {
+
+  console.log(`Desplegando contrato: ${cuentaId} - ${eleccionId} - ${contratoDir}`);
+
+  const { approvalProgram, clearStateProgram, schema } = await leerArtefactos(contratoDir);
+  const { bd, secreto } = await leerBaseDatos(cuentaId);
+
+  //-------------
+
+  const account = algorand.account.fromMnemonic(secreto);
+  console.log(`Cuenta de despliegue: ${account.addr}`);
+
+  const resultCreate = await algorand.send.appCreate(
+    {
+      sender: account.addr,
+      approvalProgram,
+      clearStateProgram,
+      schema,
+      // args: [Uint8Array.from([0x4c, 0x5c, 0x61, 0xba])],
+      // lease: Uint8Array.from(randomBytes(32)),
+    },
+    {
+      skipWaiting: false,
+      skipSimulate: true,
+      maxRoundsToWaitForConfirmation: 12,
+      maxFee: (2000).microAlgos(),
+    }
+  );
+
+  console.log(`Contrato desplegado con éxito:`);
+  console.log(`  AppI:    ${resultCreate.appId}`);
+  console.log(`  Address: ${resultCreate.appAddress}`);
+  console.log(`  TxId:    ${resultCreate.txIds}`);
+
+  const { contratoId } = await escribirBaseDatos(bd, cuentaId, resultCreate.appId, resultCreate.appAddress);
+
+  const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
+
+  console.log(`Cliente Voto3 establecido para contrato: ${appId}`);
+
+  const resultPayment = await algorand.send.payment(
+    {
+      sender: sender,
+      receiver: resultCreate.appAddress,
+      amount: (100).algos(),
+    },
+    {
+      skipWaiting: false,
+      skipSimulate: true,
+      maxRoundsToWaitForConfirmation: 12,
+    }
+  );
+
+  console.log(`Contrato inicializado con éxito: ${resultPayment.txIds}`);
+
+  //--------------
+
+  // cspell:disable-next-line
+  const compromiso = 'E3J64KABAP72GXJ3CQDYXYK456XQ4QYV2X4PODMXPSLRXOLZGA7AWZ2CRY'
+
+  await abrirRegistroCompromisos(bd, { contratoId });
+  // await registrarCompromiso(bd, { contratoId, compromiso });
+  // await cerrarRegistroCompromisos(bd, { contratoId });
+
+  //--------------
 
 
-const account = algorand.account.fromMnemonic(ELECTION_MNEMONIC);
-console.log(`Cuenta de despliegue: ${account.addr}`);
 
-export async function deployContract(artifactsDir) {
+  process.exit(0); // Descomentar para evitar continuar con el despliegue
+
+  const resultInicializar = await inicializarEleccion(
+    account.addr,
+    resultCreate.appId,
+    [] // No args para inicializar_eleccion
+  )
+
+  console.log(`Contrato inicializado con éxito: ${resultInicializar.txId}`);
+
+  return {
+    appId: resultCreate.appId,
+    appAddr: resultCreate.appAddress,
+    appRound: resultCreate.confirmation?.confirmedRound ?? 0n,
+  };
+}
+
+async function leerArtefactos(artifactsDir) {
+
   const approvalFile = (await findFile(artifactsDir, '.approval.teal'));
   const clearFile = (await findFile(artifactsDir, '.clear.teal'));
 
-  console.log(`Desplegando contrato desde: ${artifactsDir}`);
   console.log(`  Approval TEAL: ${approvalFile}`);
   console.log(`  Clear TEAL   : ${clearFile}`);
 
@@ -40,63 +130,54 @@ export async function deployContract(artifactsDir) {
   console.log(`  Global State Schema: ${globalInts} ints, ${globalByteSlices} bytes`);
   console.log(`  Local State Schema : ${localInts} ints, ${localByteSlices} bytes`);
 
-  //-------------
-
-  const resultCreate = await algorand.send.appCreate(
-    {
-      sender: account.addr,
-      approvalProgram,
-      clearStateProgram,
-      schema: {
-        globalInts,
-        globalByteSlices,
-        localInts,
-        localByteSlices,
-      },
-      // args: [Uint8Array.from([0x4c, 0x5c, 0x61, 0xba])],
-      // lease: Uint8Array.from(randomBytes(32)),
-    },
-    {
-      skipWaiting: false,
-      skipSimulate: true,
-      maxRoundsToWaitForConfirmation: 12,
-      maxFee: (2000).microAlgos(),
-    }
-  );
-
-  console.log(`Contrato desplegado con éxito: ${resultCreate.appId}`);
-  console.log(`  AppI:    ${resultCreate.appId}`);
-  console.log(`  Address: ${resultCreate.appAddress}`);
-  console.log(`  TxId:    ${resultCreate.txId}`);
-
-  const resultPayment = await algorand.send.payment(
-    {
-      sender: account.addr,
-      receiver: resultCreate.appAddress,
-      amount: (100).algos(),
-    },
-    {
-      skipWaiting: false,
-      skipSimulate: true,
-      maxRoundsToWaitForConfirmation: 12,
-    }
-  );
-
-  console.log(`Contrato inicializado con éxito: ${resultPayment.txId}`);
-
-  const resultInicializar = await inicializarEleccion (
-    account.addr,
-    resultCreate.appId,
-    [] // No args para inicializar_eleccion
-  )
-
-  console.log(`Contrato inicializado con éxito: ${resultInicializar.txId}`);
-
   return {
-    appId: resultCreate.appId,
-    txId: resultCreate.txId,
-    confirmedRound: resultCreate.confirmation?.confirmedRound ?? 0n,
+    approvalProgram,
+    clearStateProgram,
+    schema: {
+      globalInts,
+      globalByteSlices,
+      localInts,
+      localByteSlices,
+    },
   };
+}
+
+async function leerBaseDatos(cuentaId) {
+  try {
+    console.log('Conectando base de datos ...');
+    const bd = await obtenerDB();
+
+    console.log(`Obtenido datos cuenta ${cuentaId} algorand ...`);
+    const cuentaBlockchain = await daos.cuentaBlockchain.obtenerPorId(bd, { cuentaId });
+
+    console.log('Datos obtenidos con éxito: ', cuentaBlockchain);
+    return {
+      bd,
+      secreto: cuentaBlockchain.accSecret,
+    }
+
+  } catch (error) {
+    await bd.close();
+    throw new Error('Error obtenido datos cuenta: ' + error.message);
+  }
+}
+
+async function escribirBaseDatos(bd, cuentaId, appId, appAddr) {
+  try {
+    console.log('Guardando datos contrato algorand ...');
+    const resultado = await daos.contratoBlockchain.crear(bd, {
+      cuentaId,
+      appId: String(appId),
+      appAddr: String(appAddr),
+    });
+    console.log('Datos guardados con éxito: ', resultado);
+    return { contratoId: resultado };
+  } catch (error) {
+    throw new Error('Error al guardando datos contrato: ' + error.message);
+    // } finally {
+    //   console.log('Desconectando base de datos ...');
+    //   await bd.close();
+  }
 }
 
 async function findFile(dir, suffix) {
@@ -108,3 +189,9 @@ async function readFileDir(dir) {
   const { readdir } = await import('node:fs/promises');
   return readdir(dir);
 }
+
+
+
+
+
+

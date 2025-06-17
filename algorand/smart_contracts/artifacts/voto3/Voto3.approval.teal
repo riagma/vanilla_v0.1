@@ -4,64 +4,218 @@
 // smart_contracts.voto3.contract.Voto3.__algopy_entrypoint_with_init() -> uint64:
 main:
     intcblock 0 1
-    bytecblock "compromisos_registrados" "asset_id"
+    bytecblock "registro_compromisos_cerrado" "registro_raices_cerrado" 0x151f7c75 "registro_anuladores_cerrado" "contador_compromisos" "contador_raices" "contador_anuladores" "registro_compromisos_abierto" "registro_raices_abierto" "registro_anuladores_abierto"
     txn ApplicationID
     bnz main_after_if_else@2
-    // smart_contracts/voto3/contract.py:7
-    // self.compromisos_registrados = UInt64(0)
-    bytec_0 // "compromisos_registrados"
+    // smart_contracts/voto3/contract.py:55-56
+    // # Inicializar contadores
+    // self.contador_compromisos = UInt64(0)
+    bytec 4 // "contador_compromisos"
     intc_0 // 0
     app_global_put
-    // smart_contracts/voto3/contract.py:8
-    // self.asset_id = Asset(0)
-    bytec_1 // "asset_id"
+    // smart_contracts/voto3/contract.py:57
+    // self.contador_raices = UInt64(0)
+    bytec 5 // "contador_raices"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/voto3/contract.py:58
+    // self.contador_anuladores = UInt64(0)
+    bytec 6 // "contador_anuladores"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/voto3/contract.py:60-61
+    // # Inicializar estados de registro
+    // self.registro_compromisos_abierto = False
+    bytec 7 // "registro_compromisos_abierto"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/voto3/contract.py:62
+    // self.registro_compromisos_cerrado = False
+    bytec_0 // "registro_compromisos_cerrado"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/voto3/contract.py:63
+    // self.registro_raices_abierto = False
+    bytec 8 // "registro_raices_abierto"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/voto3/contract.py:64
+    // self.registro_raices_cerrado = False
+    bytec_1 // "registro_raices_cerrado"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/voto3/contract.py:65
+    // self.registro_anuladores_abierto = False
+    bytec 9 // "registro_anuladores_abierto"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/voto3/contract.py:66
+    // self.registro_anuladores_cerrado = False
+    bytec_3 // "registro_anuladores_cerrado"
     intc_0 // 0
     app_global_put
 
 main_after_if_else@2:
-    // smart_contracts/voto3/contract.py:5
+    // smart_contracts/voto3/contract.py:39
     // class Voto3(ARC4Contract):
     txn NumAppArgs
-    bz main_bare_routing@7
-    pushbytess 0xf9a9e7ed 0x0d704f0f // method "inicializar_eleccion()void", method "registrar_compromiso()void"
+    bz main_bare_routing@14
+    pushbytess 0xc7fe93c0 0x88029dd2 0x109b6a61 0x9a7e7651 0x694e96e1 0x9c17a430 0x4e812cf7 0x800678ec 0xb9bdcec1 // method "abrir_registro_compromisos()void", method "cerrar_registro_compromisos()uint64", method "registrar_compromiso()uint64", method "abrir_registro_raices()void", method "cerrar_registro_raices()uint64", method "registrar_raiz()uint64", method "abrir_registro_anuladores()void", method "cerrar_registro_anuladores()uint64", method "registrar_anulador()uint64"
     txna ApplicationArgs 0
-    match main_inicializar_eleccion_route@5 main_registrar_compromiso_route@6
+    match main_abrir_registro_compromisos_route@5 main_cerrar_registro_compromisos_route@6 main_registrar_compromiso_route@7 main_abrir_registro_raices_route@8 main_cerrar_registro_raices_route@9 main_registrar_raiz_route@10 main_abrir_registro_anuladores_route@11 main_cerrar_registro_anuladores_route@12 main_registrar_anulador_route@13
 
-main_after_if_else@9:
-    // smart_contracts/voto3/contract.py:5
+main_after_if_else@16:
+    // smart_contracts/voto3/contract.py:39
     // class Voto3(ARC4Contract):
     intc_0 // 0
     return
 
-main_registrar_compromiso_route@6:
-    // smart_contracts/voto3/contract.py:24
-    // @abimethod(allow_actions=["NoOp"])
+main_registrar_anulador_route@13:
+    // smart_contracts/voto3/contract.py:165
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub registrar_anulador
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_cerrar_registro_anuladores_route@12:
+    // smart_contracts/voto3/contract.py:153
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub cerrar_registro_anuladores
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_abrir_registro_anuladores_route@11:
+    // smart_contracts/voto3/contract.py:141-142
+    // # Métodos para anuladores
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub abrir_registro_anuladores
+    intc_1 // 1
+    return
+
+main_registrar_raiz_route@10:
+    // smart_contracts/voto3/contract.py:130
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub registrar_raiz
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_cerrar_registro_raices_route@9:
+    // smart_contracts/voto3/contract.py:120
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub cerrar_registro_raices
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+main_abrir_registro_raices_route@8:
+    // smart_contracts/voto3/contract.py:108-109
+    // # Métodos para raíces
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub abrir_registro_raices
+    intc_1 // 1
+    return
+
+main_registrar_compromiso_route@7:
+    // smart_contracts/voto3/contract.py:93
+    // @abimethod()
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
     callsub registrar_compromiso
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
     intc_1 // 1
     return
 
-main_inicializar_eleccion_route@5:
-    // smart_contracts/voto3/contract.py:10
-    // @abimethod(allow_actions=["NoOp"])
+main_cerrar_registro_compromisos_route@6:
+    // smart_contracts/voto3/contract.py:79
+    // @abimethod()
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
     txn ApplicationID
     assert // can only call when not creating
-    callsub inicializar_eleccion
+    callsub cerrar_registro_compromisos
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
     intc_1 // 1
     return
 
-main_bare_routing@7:
-    // smart_contracts/voto3/contract.py:5
+main_abrir_registro_compromisos_route@5:
+    // smart_contracts/voto3/contract.py:68-69
+    // # Métodos para compromisos
+    // @abimethod()
+    txn OnCompletion
+    !
+    assert // OnCompletion is not NoOp
+    txn ApplicationID
+    assert // can only call when not creating
+    callsub abrir_registro_compromisos
+    intc_1 // 1
+    return
+
+main_bare_routing@14:
+    // smart_contracts/voto3/contract.py:39
     // class Voto3(ARC4Contract):
     txn OnCompletion
-    bnz main_after_if_else@9
+    bnz main_after_if_else@16
     txn ApplicationID
     !
     assert // can only call when creating
@@ -69,93 +223,400 @@ main_bare_routing@7:
     return
 
 
-// smart_contracts.voto3.contract.Voto3.inicializar_eleccion() -> void:
-inicializar_eleccion:
-    // smart_contracts/voto3/contract.py:12
-    // assert Txn.sender == Global.creator_address, "Solo el creador puede inicializar la elección"
+// smart_contracts.voto3.contract.Voto3.abrir_registro_compromisos() -> void:
+abrir_registro_compromisos:
+    // smart_contracts/voto3/contract.py:72
+    // Txn.sender == Global.creator_address
     txn Sender
     global CreatorAddress
     ==
-    assert // Solo el creador puede inicializar la elección
-    // smart_contracts/voto3/contract.py:13-21
-    // asset_txn = itxn.AssetConfig(
-    //     asset_name=b"PAPELETA",
-    //     unit_name=b"V3P",
-    //     total=UInt64(100000000),
-    //     decimals=0,
-    //     fee=0,
-    //     manager=Global.current_application_address,
-    //     clawback=Global.current_application_address,
-    // ).submit()
-    itxn_begin
-    // smart_contracts/voto3/contract.py:19
-    // manager=Global.current_application_address,
-    global CurrentApplicationAddress
-    // smart_contracts/voto3/contract.py:20
-    // clawback=Global.current_application_address,
-    dup
-    itxn_field ConfigAssetClawback
-    itxn_field ConfigAssetManager
-    // smart_contracts/voto3/contract.py:17
-    // decimals=0,
+    // smart_contracts/voto3/contract.py:71-73
+    // assert (
+    //     Txn.sender == Global.creator_address
+    // ), "Solo el creador puede abrir el registro de compromisos"
+    assert // Solo el creador puede abrir el registro de compromisos
+    // smart_contracts/voto3/contract.py:75
+    // not self.registro_compromisos_cerrado
     intc_0 // 0
-    itxn_field ConfigAssetDecimals
-    // smart_contracts/voto3/contract.py:16
-    // total=UInt64(100000000),
-    pushint 100000000 // 100000000
-    itxn_field ConfigAssetTotal
-    // smart_contracts/voto3/contract.py:15
-    // unit_name=b"V3P",
-    pushbytes 0x563350
-    itxn_field ConfigAssetUnitName
-    // smart_contracts/voto3/contract.py:14
-    // asset_name=b"PAPELETA",
-    pushbytes 0x504150454c455441
-    itxn_field ConfigAssetName
-    // smart_contracts/voto3/contract.py:13
-    // asset_txn = itxn.AssetConfig(
-    pushint 3 // acfg
-    itxn_field TypeEnum
-    // smart_contracts/voto3/contract.py:18
-    // fee=0,
-    intc_0 // 0
-    itxn_field Fee
-    // smart_contracts/voto3/contract.py:13-21
-    // asset_txn = itxn.AssetConfig(
-    //     asset_name=b"PAPELETA",
-    //     unit_name=b"V3P",
-    //     total=UInt64(100000000),
-    //     decimals=0,
-    //     fee=0,
-    //     manager=Global.current_application_address,
-    //     clawback=Global.current_application_address,
-    // ).submit()
-    itxn_submit
-    // smart_contracts/voto3/contract.py:22
-    // self.asset_id = asset_txn.created_asset
-    bytec_1 // "asset_id"
-    itxn CreatedAssetID
+    bytec_0 // "registro_compromisos_cerrado"
+    app_global_get_ex
+    assert // check self.registro_compromisos_cerrado exists
+    !
+    // smart_contracts/voto3/contract.py:74-76
+    // assert (
+    //     not self.registro_compromisos_cerrado
+    // ), "El registro de compromisos ya fue cerrado"
+    assert // El registro de compromisos ya fue cerrado
+    // smart_contracts/voto3/contract.py:77
+    // self.registro_compromisos_abierto = True
+    bytec 7 // "registro_compromisos_abierto"
+    intc_1 // 1
     app_global_put
     retsub
 
 
-// smart_contracts.voto3.contract.Voto3.registrar_compromiso() -> void:
-registrar_compromiso:
-    // smart_contracts/voto3/contract.py:26
-    // assert Txn.sender == Global.creator_address, "Solo el creador puede registrar compromisos"
+// smart_contracts.voto3.contract.Voto3.cerrar_registro_compromisos() -> uint64:
+cerrar_registro_compromisos:
+    // smart_contracts/voto3/contract.py:82
+    // Txn.sender == Global.creator_address
     txn Sender
     global CreatorAddress
     ==
-    assert // Solo el creador puede registrar compromisos
-    // smart_contracts/voto3/contract.py:27
-    // self.compromisos_registrados += UInt64(1)
+    // smart_contracts/voto3/contract.py:81-83
+    // assert (
+    //     Txn.sender == Global.creator_address
+    // ), "Solo el creador puede cerrar el registro de compromisos"
+    assert // Solo el creador puede cerrar el registro de compromisos
+    // smart_contracts/voto3/contract.py:85
+    // self.registro_compromisos_abierto
     intc_0 // 0
-    bytec_0 // "compromisos_registrados"
+    bytec 7 // "registro_compromisos_abierto"
     app_global_get_ex
-    assert // check self.compromisos_registrados exists
+    assert // check self.registro_compromisos_abierto exists
+    // smart_contracts/voto3/contract.py:84-86
+    // assert (
+    //     self.registro_compromisos_abierto
+    // ), "El registro de compromisos no está abierto"
+    assert // El registro de compromisos no está abierto
+    // smart_contracts/voto3/contract.py:88
+    // not self.registro_compromisos_cerrado
+    intc_0 // 0
+    bytec_0 // "registro_compromisos_cerrado"
+    app_global_get_ex
+    assert // check self.registro_compromisos_cerrado exists
+    !
+    // smart_contracts/voto3/contract.py:87-89
+    // assert (
+    //     not self.registro_compromisos_cerrado
+    // ), "El registro de compromisos ya fue cerrado"
+    assert // El registro de compromisos ya fue cerrado
+    // smart_contracts/voto3/contract.py:90
+    // self.registro_compromisos_cerrado = True
+    bytec_0 // "registro_compromisos_cerrado"
+    intc_1 // 1
+    app_global_put
+    // smart_contracts/voto3/contract.py:91
+    // return self.contador_compromisos
+    intc_0 // 0
+    bytec 4 // "contador_compromisos"
+    app_global_get_ex
+    assert // check self.contador_compromisos exists
+    retsub
+
+
+// smart_contracts.voto3.contract.Voto3.registrar_compromiso() -> uint64:
+registrar_compromiso:
+    // smart_contracts/voto3/contract.py:96
+    // Txn.sender == Global.creator_address
+    txn Sender
+    global CreatorAddress
+    ==
+    // smart_contracts/voto3/contract.py:95-97
+    // assert (
+    //     Txn.sender == Global.creator_address
+    // ), "Solo el creador puede registrar compromisos"
+    assert // Solo el creador puede registrar compromisos
+    // smart_contracts/voto3/contract.py:99
+    // self.registro_compromisos_abierto
+    intc_0 // 0
+    bytec 7 // "registro_compromisos_abierto"
+    app_global_get_ex
+    assert // check self.registro_compromisos_abierto exists
+    // smart_contracts/voto3/contract.py:98-100
+    // assert (
+    //     self.registro_compromisos_abierto
+    // ), "El registro de compromisos no está abierto"
+    assert // El registro de compromisos no está abierto
+    // smart_contracts/voto3/contract.py:102
+    // not self.registro_compromisos_cerrado
+    intc_0 // 0
+    bytec_0 // "registro_compromisos_cerrado"
+    app_global_get_ex
+    assert // check self.registro_compromisos_cerrado exists
+    !
+    // smart_contracts/voto3/contract.py:101-103
+    // assert (
+    //     not self.registro_compromisos_cerrado
+    // ), "El registro de compromisos ya fue cerrado"
+    assert // El registro de compromisos ya fue cerrado
+    // smart_contracts/voto3/contract.py:104
+    // current = self.contador_compromisos
+    intc_0 // 0
+    bytec 4 // "contador_compromisos"
+    app_global_get_ex
+    assert // check self.contador_compromisos exists
+    // smart_contracts/voto3/contract.py:105
+    // self.contador_compromisos = current + 1
+    dup
     intc_1 // 1
     +
-    bytec_0 // "compromisos_registrados"
+    bytec 4 // "contador_compromisos"
     swap
     app_global_put
+    // smart_contracts/voto3/contract.py:106
+    // return current
+    retsub
+
+
+// smart_contracts.voto3.contract.Voto3.abrir_registro_raices() -> void:
+abrir_registro_raices:
+    // smart_contracts/voto3/contract.py:112
+    // Txn.sender == Global.creator_address
+    txn Sender
+    global CreatorAddress
+    ==
+    // smart_contracts/voto3/contract.py:111-113
+    // assert (
+    //     Txn.sender == Global.creator_address
+    // ), "Solo el creador puede abrir el registro de raíces"
+    assert // Solo el creador puede abrir el registro de raíces
+    // smart_contracts/voto3/contract.py:115
+    // self.registro_compromisos_cerrado
+    intc_0 // 0
+    bytec_0 // "registro_compromisos_cerrado"
+    app_global_get_ex
+    assert // check self.registro_compromisos_cerrado exists
+    // smart_contracts/voto3/contract.py:114-116
+    // assert (
+    //     self.registro_compromisos_cerrado
+    // ), "El registro de compromisos no está cerrado"
+    assert // El registro de compromisos no está cerrado
+    // smart_contracts/voto3/contract.py:117
+    // assert not self.registro_raices_cerrado, "El registro de raíces ya fue cerrado"
+    intc_0 // 0
+    bytec_1 // "registro_raices_cerrado"
+    app_global_get_ex
+    assert // check self.registro_raices_cerrado exists
+    !
+    assert // El registro de raíces ya fue cerrado
+    // smart_contracts/voto3/contract.py:118
+    // self.registro_raices_abierto = True
+    bytec 8 // "registro_raices_abierto"
+    intc_1 // 1
+    app_global_put
+    retsub
+
+
+// smart_contracts.voto3.contract.Voto3.cerrar_registro_raices() -> uint64:
+cerrar_registro_raices:
+    // smart_contracts/voto3/contract.py:123
+    // Txn.sender == Global.creator_address
+    txn Sender
+    global CreatorAddress
+    ==
+    // smart_contracts/voto3/contract.py:122-124
+    // assert (
+    //     Txn.sender == Global.creator_address
+    // ), "Solo el creador puede cerrar el registro de raíces"
+    assert // Solo el creador puede cerrar el registro de raíces
+    // smart_contracts/voto3/contract.py:125
+    // assert self.registro_raices_abierto, "El registro de raíces no está cerrado"
+    intc_0 // 0
+    bytec 8 // "registro_raices_abierto"
+    app_global_get_ex
+    assert // check self.registro_raices_abierto exists
+    assert // El registro de raíces no está cerrado
+    // smart_contracts/voto3/contract.py:126
+    // assert not self.registro_raices_cerrado, "El registro de raíces ya fue cerrado"
+    intc_0 // 0
+    bytec_1 // "registro_raices_cerrado"
+    app_global_get_ex
+    assert // check self.registro_raices_cerrado exists
+    !
+    assert // El registro de raíces ya fue cerrado
+    // smart_contracts/voto3/contract.py:127
+    // self.registro_raices_cerrado = True
+    bytec_1 // "registro_raices_cerrado"
+    intc_1 // 1
+    app_global_put
+    // smart_contracts/voto3/contract.py:128
+    // return self.contador_raices
+    intc_0 // 0
+    bytec 5 // "contador_raices"
+    app_global_get_ex
+    assert // check self.contador_raices exists
+    retsub
+
+
+// smart_contracts.voto3.contract.Voto3.registrar_raiz() -> uint64:
+registrar_raiz:
+    // smart_contracts/voto3/contract.py:133
+    // Txn.sender == Global.creator_address
+    txn Sender
+    global CreatorAddress
+    ==
+    // smart_contracts/voto3/contract.py:132-134
+    // assert (
+    //     Txn.sender == Global.creator_address
+    // ), "Solo el creador puede registrar raíces"
+    assert // Solo el creador puede registrar raíces
+    // smart_contracts/voto3/contract.py:135
+    // assert self.registro_raices_abierto, "El registro de raíces no está abierto"
+    intc_0 // 0
+    bytec 8 // "registro_raices_abierto"
+    app_global_get_ex
+    assert // check self.registro_raices_abierto exists
+    assert // El registro de raíces no está abierto
+    // smart_contracts/voto3/contract.py:136
+    // assert not self.registro_raices_cerrado, "El registro de raíces ya fue cerrado"
+    intc_0 // 0
+    bytec_1 // "registro_raices_cerrado"
+    app_global_get_ex
+    assert // check self.registro_raices_cerrado exists
+    !
+    assert // El registro de raíces ya fue cerrado
+    // smart_contracts/voto3/contract.py:137
+    // current = self.contador_raices
+    intc_0 // 0
+    bytec 5 // "contador_raices"
+    app_global_get_ex
+    assert // check self.contador_raices exists
+    // smart_contracts/voto3/contract.py:138
+    // self.contador_raices = current + 1
+    dup
+    intc_1 // 1
+    +
+    bytec 5 // "contador_raices"
+    swap
+    app_global_put
+    // smart_contracts/voto3/contract.py:139
+    // return current
+    retsub
+
+
+// smart_contracts.voto3.contract.Voto3.abrir_registro_anuladores() -> void:
+abrir_registro_anuladores:
+    // smart_contracts/voto3/contract.py:145
+    // Txn.sender == Global.creator_address
+    txn Sender
+    global CreatorAddress
+    ==
+    // smart_contracts/voto3/contract.py:144-146
+    // assert (
+    //     Txn.sender == Global.creator_address
+    // ), "Solo el creador puede abrir el registro de anuladores"
+    assert // Solo el creador puede abrir el registro de anuladores
+    // smart_contracts/voto3/contract.py:147
+    // assert self.registro_raices_cerrado, "El registro de raíces no está cerrado"
+    intc_0 // 0
+    bytec_1 // "registro_raices_cerrado"
+    app_global_get_ex
+    assert // check self.registro_raices_cerrado exists
+    assert // El registro de raíces no está cerrado
+    // smart_contracts/voto3/contract.py:149
+    // not self.registro_anuladores_cerrado
+    intc_0 // 0
+    bytec_3 // "registro_anuladores_cerrado"
+    app_global_get_ex
+    assert // check self.registro_anuladores_cerrado exists
+    !
+    // smart_contracts/voto3/contract.py:148-150
+    // assert (
+    //     not self.registro_anuladores_cerrado
+    // ), "El registro de anuladores ya fue cerrado"
+    assert // El registro de anuladores ya fue cerrado
+    // smart_contracts/voto3/contract.py:151
+    // self.registro_anuladores_abierto = True
+    bytec 9 // "registro_anuladores_abierto"
+    intc_1 // 1
+    app_global_put
+    retsub
+
+
+// smart_contracts.voto3.contract.Voto3.cerrar_registro_anuladores() -> uint64:
+cerrar_registro_anuladores:
+    // smart_contracts/voto3/contract.py:156
+    // Txn.sender == Global.creator_address
+    txn Sender
+    global CreatorAddress
+    ==
+    // smart_contracts/voto3/contract.py:155-157
+    // assert (
+    //     Txn.sender == Global.creator_address
+    // ), "Solo el creador puede cerrar el registro de anuladores"
+    assert // Solo el creador puede cerrar el registro de anuladores
+    // smart_contracts/voto3/contract.py:158
+    // assert self.registro_anuladores_abierto, "El registro de raíces no está cerrado"
+    intc_0 // 0
+    bytec 9 // "registro_anuladores_abierto"
+    app_global_get_ex
+    assert // check self.registro_anuladores_abierto exists
+    assert // El registro de raíces no está cerrado
+    // smart_contracts/voto3/contract.py:160
+    // not self.registro_anuladores_cerrado
+    intc_0 // 0
+    bytec_3 // "registro_anuladores_cerrado"
+    app_global_get_ex
+    assert // check self.registro_anuladores_cerrado exists
+    !
+    // smart_contracts/voto3/contract.py:159-161
+    // assert (
+    //     not self.registro_anuladores_cerrado
+    // ), "El registro de raíces ya fue cerrado"
+    assert // El registro de raíces ya fue cerrado
+    // smart_contracts/voto3/contract.py:162
+    // self.registro_anuladores_cerrado = True
+    bytec_3 // "registro_anuladores_cerrado"
+    intc_1 // 1
+    app_global_put
+    // smart_contracts/voto3/contract.py:163
+    // return self.contador_anuladores
+    intc_0 // 0
+    bytec 6 // "contador_anuladores"
+    app_global_get_ex
+    assert // check self.contador_anuladores exists
+    retsub
+
+
+// smart_contracts.voto3.contract.Voto3.registrar_anulador() -> uint64:
+registrar_anulador:
+    // smart_contracts/voto3/contract.py:168
+    // Txn.sender == Global.creator_address
+    txn Sender
+    global CreatorAddress
+    ==
+    // smart_contracts/voto3/contract.py:167-169
+    // assert (
+    //     Txn.sender == Global.creator_address
+    // ), "Solo el creador puede registrar anuladores"
+    assert // Solo el creador puede registrar anuladores
+    // smart_contracts/voto3/contract.py:171
+    // self.registro_anuladores_abierto
+    intc_0 // 0
+    bytec 9 // "registro_anuladores_abierto"
+    app_global_get_ex
+    assert // check self.registro_anuladores_abierto exists
+    // smart_contracts/voto3/contract.py:170-172
+    // assert (
+    //     self.registro_anuladores_abierto
+    // ), "El registro de anuladores no está abierto"
+    assert // El registro de anuladores no está abierto
+    // smart_contracts/voto3/contract.py:174
+    // not self.registro_anuladores_cerrado
+    intc_0 // 0
+    bytec_3 // "registro_anuladores_cerrado"
+    app_global_get_ex
+    assert // check self.registro_anuladores_cerrado exists
+    !
+    // smart_contracts/voto3/contract.py:173-175
+    // assert (
+    //     not self.registro_anuladores_cerrado
+    // ), "El registro de anuladores ya fue cerrado"
+    assert // El registro de anuladores ya fue cerrado
+    // smart_contracts/voto3/contract.py:176
+    // current = self.contador_anuladores
+    intc_0 // 0
+    bytec 6 // "contador_anuladores"
+    app_global_get_ex
+    assert // check self.contador_anuladores exists
+    // smart_contracts/voto3/contract.py:177
+    // self.contador_anuladores = current + 1
+    dup
+    intc_1 // 1
+    +
+    bytec 6 // "contador_anuladores"
+    swap
+    app_global_put
+    // smart_contracts/voto3/contract.py:178
+    // return current
     retsub

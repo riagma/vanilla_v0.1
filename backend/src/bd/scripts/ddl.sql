@@ -24,6 +24,7 @@ CREATE TABLE Eleccion (
   fechaInicioVotacion TEXT NOT NULL,
   fechaFinVotacion TEXT NOT NULL,
   fechaCelebracion TEXT NOT NULL,
+  cuentaId INTEGER,
   estado TEXT NOT NULL
 );
 
@@ -39,8 +40,8 @@ CREATE TABLE PartidoEleccion (
   partidoId TEXT NOT NULL,
   eleccionId INTEGER NOT NULL,
   PRIMARY KEY (partidoId, eleccionId),
-  FOREIGN KEY (partidoId) REFERENCES Partido(siglas) ON DELETE CASCADE,
-  FOREIGN KEY (eleccionId) REFERENCES Eleccion(id) ON DELETE CASCADE
+  FOREIGN KEY (partidoId) REFERENCES Partido(siglas),
+  FOREIGN KEY (eleccionId) REFERENCES Eleccion(id)
 );
 
 -- Tabla: RegistroVotanteEleccion
@@ -52,8 +53,8 @@ CREATE TABLE RegistroVotanteEleccion (
   fechaRegistro TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   datosPrivados TEXT,
   PRIMARY KEY (votanteId, eleccionId),
-  FOREIGN KEY (votanteId) REFERENCES Votante(dni) ON DELETE CASCADE,
-  FOREIGN KEY (eleccionId) REFERENCES Eleccion(id) ON DELETE CASCADE
+  FOREIGN KEY (votanteId) REFERENCES Votante(dni),
+  FOREIGN KEY (eleccionId) REFERENCES Eleccion(id)
 );
 
 CREATE INDEX idx_registro_eleccion ON RegistroVotanteEleccion(eleccionId);
@@ -67,7 +68,7 @@ CREATE TABLE ResultadoEleccion (
   votosBlancos INTEGER NOT NULL DEFAULT 0,
   votosNulos INTEGER NOT NULL DEFAULT 0,
   fechaRecuento TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (eleccionId) REFERENCES Eleccion(id) ON DELETE CASCADE
+  FOREIGN KEY (eleccionId) REFERENCES Eleccion(id)
 );
 
 -- Tabla: ResultadoPartido
@@ -77,6 +78,26 @@ CREATE TABLE ResultadoPartido (
   votos INTEGER NOT NULL DEFAULT 0,
   porcentaje REAL NOT NULL DEFAULT 0,
   PRIMARY KEY (partidoId, eleccionId),
-  FOREIGN KEY (partidoId) REFERENCES Partido(siglas) ON DELETE CASCADE,
-  FOREIGN KEY (eleccionId) REFERENCES ResultadoEleccion(eleccionId) ON DELETE CASCADE
+  FOREIGN KEY (partidoId) REFERENCES Partido(siglas),
+  FOREIGN KEY (eleccionId) REFERENCES ResultadoEleccion(eleccionId)
+);
+
+-- Tabla: CuentaBlockchain
+CREATE TABLE CuentaBlockchain (
+  cuentaId INTEGER PRIMARY KEY AUTOINCREMENT,
+  accNet TEXT NOT NULL,
+  accAddr TEXT NOT NULL,
+  accSecret TEXT NOT NULL,
+  UNIQUE(accNet, accAddr)
+);
+
+-- Tabla: ContratoBlockchain
+CREATE TABLE ContratoBlockchain (
+  contratoId INTEGER PRIMARY KEY AUTOINCREMENT,
+  appId TEXT NOT NULL,
+  appAddr TEXT NOT NULL,
+  cuentaId INTEGER NOT NULL,
+
+  UNIQUE(cuentaId, appId),
+  FOREIGN KEY (cuentaId) REFERENCES CuentaBlockchain(cuentaId)
 );

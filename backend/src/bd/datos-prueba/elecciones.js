@@ -3,15 +3,13 @@ import { addDays, subDays } from 'date-fns';
 const ESTADOS = ['PENDIENTE', 'REGISTRO', 'VOTACION', 'CERRADA'];
 
 export async function cargarElecciones(bd) {
-  console.log('\n📊 Iniciando carga de elecciones...');
+  console.log('\nIniciando carga de elecciones...');
 
   try {
-    // Limpiar tabla
     await bd.run('DELETE FROM Eleccion');
     
     const hoy = new Date();
     
-    // Elecciones de ejemplo
     const elecciones = [
       {
         nombre: "Elecciones Generales 2024",
@@ -76,16 +74,14 @@ export async function cargarElecciones(bd) {
         eleccion.fechaCelebracion.toISOString(),
         eleccion.estado
       ]);
-      console.log(`✔ Creada elección: ${eleccion.nombre}`);
+      console.log(`Creada elección: ${eleccion.nombre}`);
     }
 
     await stmt.finalize();
 
-    // Mostrar resumen
     const total = await bd.get('SELECT COUNT(*) as count FROM Eleccion');
-    console.log(`\n📊 Total elecciones cargadas: ${total.count}`);
+    console.log(`\nTotal elecciones cargadas: ${total.count}`);
 
-    // Mostrar estado actual
     const porEstado = await bd.all(`
       SELECT estado, COUNT(*) as count 
       FROM Eleccion 
@@ -98,7 +94,7 @@ export async function cargarElecciones(bd) {
     });
 
   } catch (error) {
-    console.error('\n❌ Error al cargar elecciones:', error);
+    console.error('\nError al cargar elecciones:', error);
     throw error;
   }
 }

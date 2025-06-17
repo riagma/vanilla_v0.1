@@ -4,7 +4,8 @@
   "description": "This project has been generated using AlgoKit. See below for default getting started instructions.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "generate:voto3": "algokit generate client smart_contracts/artifacts/voto3 --output clients/voto3.ts",
+    "build:voto3": "tsc && cp clients/voto3.js ../backend/src/algorand/voto3.js"
   },
   "keywords": [],
   "author": "",

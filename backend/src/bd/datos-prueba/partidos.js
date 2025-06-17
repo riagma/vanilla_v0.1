@@ -1,12 +1,10 @@
 export async function cargarPartidos(bd) {
-  console.log('\n🏛️  Iniciando carga de partidos políticos...');
+  console.log('\nIniciando carga de partidos políticos...');
 
   try {
-    // Limpiar tablas
     await bd.run('DELETE FROM PartidoEleccion');
     await bd.run('DELETE FROM Partido');
     
-    // Partidos políticos de ejemplo
     const partidos = [
       {
         nombre: 'Partido Progreso Democrático',
@@ -30,21 +28,19 @@ export async function cargarPartidos(bd) {
       }
     ];
 
-    // Insertar partidos
     const stmtPartido = await bd.prepare(
       'INSERT INTO Partido (siglas, nombre, descripcion) VALUES (?, ?, ?)'
     );
 
     for (const partido of partidos) {
       await stmtPartido.run([partido.siglas, partido.nombre, partido.descripcion]);
-      console.log(`✔ Creado partido: ${partido.siglas}`);
+      console.log(`Creado partido: ${partido.siglas}`);
     }
 
     await stmtPartido.finalize();
 
-    // Obtener todas las elecciones
     const elecciones = await bd.all('SELECT id FROM Eleccion');
-    console.log(`\n🔄 Asignando partidos a ${elecciones.length} elecciones...`);
+    console.log(`\nAsignando partidos a ${elecciones.length} elecciones...`);
 
     // Asignar partidos a elecciones
     const stmtAsignacion = await bd.prepare(
@@ -61,7 +57,7 @@ export async function cargarPartidos(bd) {
 
     // Mostrar resumen
     const stats = await bd.get('SELECT COUNT(*) as count FROM PartidoEleccion');
-    console.log(`\n📊 Resumen:`);
+    console.log(`\nResumen:`);
     console.log(`- Partidos creados: ${partidos.length}`);
     console.log(`- Asignaciones a elecciones: ${stats.count}`);
 
@@ -80,7 +76,7 @@ export async function cargarPartidos(bd) {
     });
 
   } catch (error) {
-    console.error('\n❌ Error al cargar partidos:', error);
+    console.error('\nError al cargar partidos:', error);
     throw error;
   }
 }
