@@ -17,7 +17,7 @@ export async function crearCuentaEleccion(nombreEleccion) {
   await algorand.send.payment({
     sender: dispenser,
     receiver: cuentaEleccion,
-    amount: (10).algo(),
+    amount: (1000).algo(),
     note: `Cuenta para la eleccion ${nombreEleccion}`,
   });
 

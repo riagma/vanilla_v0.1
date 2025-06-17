@@ -32,13 +32,6 @@ def deploy() -> None:
             )
         )
 
-        # Llamada de ejemplo: abrir el registro de compromisos
-        response = app_client.send.abrir_registro_compromisos()
-        logger.info(
-            f"Llamado abrir_registro_compromisos en {app_client.app_name} ({app_client.app_id}), "
-            f"resultado: {response.abi_return}"
-        )
-
     logger.info(
         f"Contrato Voto3 desplegado: {app_client.app_name} (ID: {app_client.app_id})"
     )

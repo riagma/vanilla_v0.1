@@ -3,7 +3,7 @@
   "sources": [
     "../../voto3/contract.py"
   ],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAsBQ;;AAA4B;AAA5B;AACA;;AAAuB;AAAvB;AACA;;AAA2B;AAA3B;AAGA;;AAAoC;AAApC;AACA;AAAoC;AAApC;AACA;;AAA+B;AAA/B;AACA;AAA+B;AAA/B;AACA;;AAAmC;AAAnC;AACA;AAAmC;AAAnC;AA3BR;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;AAAA;;AA8FK;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AARA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAPA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;AAAA;;AAVA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AARA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAPA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;AAAA;;AAVA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AARA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AANA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;AAAA;;AA9BL;;AAAA;;;;;;;;;AAgCe;;AAAc;;AAAd;AAAP;AACW;AAAA;AAAA;AAAA;AAAJ;AAAP;AACA;;AAAoC;AAApC;;AAIO;;AAAc;;AAAd;AAAP;AACO;AAAA;;AAAA;AAAA;AAAP;AACW;AAAA;AAAA;AAAA;AAAJ;AAAP;AACA;AAAoC;AAApC;AACO;AAAA;;AAAA;AAAA;AAAP;AAIO;;AAAc;;AAAd;AAAP;AACO;AAAA;;AAAA;AAAA;AAAP;AACW;AAAA;AAAA;AAAA;AAAJ;AAAP;AACU;AAAA;;AAAA;AAAA;AACkB;AAAU;AAAV;AAA5B;;AAAA;AAAA;AACA;AAKO;;AAAc;;AAAd;AAAP;AACO;AAAA;AAAA;AAAA;AAAP;AACW;AAAA;AAAA;AAAA;AAAJ;AAAP;AACA;;AAA+B;AAA/B;;AAIO;;AAAc;;AAAd;AAAP;AACO;AAAA;;AAAA;AAAA;AAAP;AACW;AAAA;AAAA;AAAA;AAAJ;AAAP;AACA;AAA+B;AAA/B;AACO;AAAA;;AAAA;AAAA;AAAP;AAIO;;AAAc;;AAAd;AAAP;AACO;AAAA;;AAAA;AAAA;AAAP;AACW;AAAA;AAAA;AAAA;AAAJ;AAAP;AACU;AAAA;;AAAA;AAAA;AACa;AAAU;AAAV;AAAvB;;AAAA;AAAA;AACA;AAKO;;AAAc;;AAAd;AAAP;AACO;AAAA;AAAA;AAAA;AAAP;AACW;AAAA;AAAA;AAAA;AAAJ;AAAP;AACA;;AAAmC;AAAnC;;AAIO;;AAAc;;AAAd;AAAP;AACO;AAAA;;AAAA;AAAA;AAAP;AACW;AAAA;AAAA;AAAA;AAAJ;AAAP;AACA;AAAmC;AAAnC;AACO;AAAA;;AAAA;AAAA;AAAP;AAIO;;AAAc;;AAAd;AAAP;AACO;AAAA;;AAAA;AAAA;AAAP;AACW;AAAA;AAAA;AAAA;AAAJ;AAAP;AACU;AAAA;;AAAA;AAAA;AACiB;AAAU;AAAV;AAA3B;;AAAA;AAAA;AACA",
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAMQ;AAA+B;AAA/B;AACA;AAAgB;AAAhB;AAHR;;AAAA;;;AAAA;;;;;;;;;;;;AAAA;;;AAAA;;;;;;AAAA;;AAmBK;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;AAAA;;AAdA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;AAAA;;AALL;;AAAA;;;;;;;;;AAOe;;AAAc;;AAAd;AAAP;AACY;AAMA;;AACC;;;;;AAHA;;;AADH;;;;;;;AADI;;;;;;;AADC;;;;;;;;;;;;AADH;;;;AAKJ;;;AALI;AASZ;;;AAAA;;AAIO;;AAAc;;AAAd;AAAP;AACA;AAAA;AAAA;AAAA;AAAgC;AAAhC;AAAA;AAAA;AAAA;",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -14,9 +14,9 @@
       "op": "intcblock 0 1"
     },
     "5": {
-      "op": "bytecblock \"registro_compromisos_cerrado\" \"registro_raices_cerrado\" 0x151f7c75 \"registro_anuladores_cerrado\" \"contador_compromisos\" \"contador_raices\" \"contador_anuladores\" \"registro_compromisos_abierto\" \"registro_raices_abierto\" \"registro_anuladores_abierto\""
+      "op": "bytecblock \"compromisos_registrados\" \"asset_id\""
     },
-    "231": {
+    "40": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%0#0"
@@ -25,195 +25,55 @@
         "tmp%0#0"
       ]
     },
-    "233": {
+    "42": {
       "op": "bnz main_after_if_else@2",
       "stack_out": []
     },
-    "236": {
-      "op": "bytec 4 // \"contador_compromisos\"",
+    "45": {
+      "op": "bytec_0 // \"compromisos_registrados\"",
       "defined_out": [
-        "\"contador_compromisos\""
+        "\"compromisos_registrados\""
       ],
       "stack_out": [
-        "\"contador_compromisos\""
+        "\"compromisos_registrados\""
       ]
     },
-    "238": {
+    "46": {
       "op": "intc_0 // 0",
       "defined_out": [
-        "\"contador_compromisos\"",
+        "\"compromisos_registrados\"",
         "0"
       ],
       "stack_out": [
-        "\"contador_compromisos\"",
+        "\"compromisos_registrados\"",
         "0"
       ]
     },
-    "239": {
+    "47": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "240": {
-      "op": "bytec 5 // \"contador_raices\"",
+    "48": {
+      "op": "bytec_1 // \"asset_id\"",
       "defined_out": [
-        "\"contador_raices\""
+        "\"asset_id\""
       ],
       "stack_out": [
-        "\"contador_raices\""
+        "\"asset_id\""
       ]
     },
-    "242": {
+    "49": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "\"contador_raices\"",
+        "\"asset_id\"",
         "0"
       ]
     },
-    "243": {
+    "50": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "244": {
-      "op": "bytec 6 // \"contador_anuladores\"",
-      "defined_out": [
-        "\"contador_anuladores\""
-      ],
-      "stack_out": [
-        "\"contador_anuladores\""
-      ]
-    },
-    "246": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "\"contador_anuladores\"",
-        "0"
-      ]
-    },
-    "247": {
-      "op": "app_global_put",
-      "stack_out": []
-    },
-    "248": {
-      "op": "bytec 7 // \"registro_compromisos_abierto\"",
-      "defined_out": [
-        "\"registro_compromisos_abierto\""
-      ],
-      "stack_out": [
-        "\"registro_compromisos_abierto\""
-      ]
-    },
-    "250": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "\"registro_compromisos_abierto\"",
-        "0"
-      ]
-    },
-    "251": {
-      "op": "app_global_put",
-      "stack_out": []
-    },
-    "252": {
-      "op": "bytec_0 // \"registro_compromisos_cerrado\"",
-      "defined_out": [
-        "\"registro_compromisos_cerrado\""
-      ],
-      "stack_out": [
-        "\"registro_compromisos_cerrado\""
-      ]
-    },
-    "253": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "\"registro_compromisos_cerrado\"",
-        "0"
-      ]
-    },
-    "254": {
-      "op": "app_global_put",
-      "stack_out": []
-    },
-    "255": {
-      "op": "bytec 8 // \"registro_raices_abierto\"",
-      "defined_out": [
-        "\"registro_raices_abierto\""
-      ],
-      "stack_out": [
-        "\"registro_raices_abierto\""
-      ]
-    },
-    "257": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "\"registro_raices_abierto\"",
-        "0"
-      ]
-    },
-    "258": {
-      "op": "app_global_put",
-      "stack_out": []
-    },
-    "259": {
-      "op": "bytec_1 // \"registro_raices_cerrado\"",
-      "defined_out": [
-        "\"registro_raices_cerrado\""
-      ],
-      "stack_out": [
-        "\"registro_raices_cerrado\""
-      ]
-    },
-    "260": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "\"registro_raices_cerrado\"",
-        "0"
-      ]
-    },
-    "261": {
-      "op": "app_global_put",
-      "stack_out": []
-    },
-    "262": {
-      "op": "bytec 9 // \"registro_anuladores_abierto\"",
-      "defined_out": [
-        "\"registro_anuladores_abierto\""
-      ],
-      "stack_out": [
-        "\"registro_anuladores_abierto\""
-      ]
-    },
-    "264": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "\"registro_anuladores_abierto\"",
-        "0"
-      ]
-    },
-    "265": {
-      "op": "app_global_put",
-      "stack_out": []
-    },
-    "266": {
-      "op": "bytec_3 // \"registro_anuladores_cerrado\"",
-      "defined_out": [
-        "\"registro_anuladores_cerrado\""
-      ],
-      "stack_out": [
-        "\"registro_anuladores_cerrado\""
-      ]
-    },
-    "267": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "\"registro_anuladores_cerrado\"",
-        "0"
-      ]
-    },
-    "268": {
-      "op": "app_global_put",
-      "stack_out": []
-    },
-    "269": {
+    "51": {
       "block": "main_after_if_else@2",
       "stack_in": [],
       "op": "txn NumAppArgs",
@@ -224,68 +84,40 @@
         "tmp%0#2"
       ]
     },
-    "271": {
-      "op": "bz main_bare_routing@14",
+    "53": {
+      "op": "bz main_bare_routing@7",
       "stack_out": []
     },
-    "274": {
-      "op": "pushbytess 0xc7fe93c0 0x88029dd2 0x109b6a61 0x9a7e7651 0x694e96e1 0x9c17a430 0x4e812cf7 0x800678ec 0xb9bdcec1 // method \"abrir_registro_compromisos()void\", method \"cerrar_registro_compromisos()uint64\", method \"registrar_compromiso()uint64\", method \"abrir_registro_raices()void\", method \"cerrar_registro_raices()uint64\", method \"registrar_raiz()uint64\", method \"abrir_registro_anuladores()void\", method \"cerrar_registro_anuladores()uint64\", method \"registrar_anulador()uint64\"",
+    "56": {
+      "op": "pushbytess 0xf9a9e7ed 0x0d704f0f // method \"inicializar_eleccion()void\", method \"registrar_compromiso()void\"",
       "defined_out": [
-        "Method(abrir_registro_anuladores()void)",
-        "Method(abrir_registro_compromisos()void)",
-        "Method(abrir_registro_raices()void)",
-        "Method(cerrar_registro_anuladores()uint64)",
-        "Method(cerrar_registro_compromisos()uint64)",
-        "Method(cerrar_registro_raices()uint64)",
-        "Method(registrar_anulador()uint64)",
-        "Method(registrar_compromiso()uint64)",
-        "Method(registrar_raiz()uint64)"
+        "Method(inicializar_eleccion()void)",
+        "Method(registrar_compromiso()void)"
       ],
       "stack_out": [
-        "Method(abrir_registro_compromisos()void)",
-        "Method(cerrar_registro_compromisos()uint64)",
-        "Method(registrar_compromiso()uint64)",
-        "Method(abrir_registro_raices()void)",
-        "Method(cerrar_registro_raices()uint64)",
-        "Method(registrar_raiz()uint64)",
-        "Method(abrir_registro_anuladores()void)",
-        "Method(cerrar_registro_anuladores()uint64)",
-        "Method(registrar_anulador()uint64)"
+        "Method(inicializar_eleccion()void)",
+        "Method(registrar_compromiso()void)"
       ]
     },
-    "321": {
+    "68": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
-        "Method(abrir_registro_anuladores()void)",
-        "Method(abrir_registro_compromisos()void)",
-        "Method(abrir_registro_raices()void)",
-        "Method(cerrar_registro_anuladores()uint64)",
-        "Method(cerrar_registro_compromisos()uint64)",
-        "Method(cerrar_registro_raices()uint64)",
-        "Method(registrar_anulador()uint64)",
-        "Method(registrar_compromiso()uint64)",
-        "Method(registrar_raiz()uint64)",
+        "Method(inicializar_eleccion()void)",
+        "Method(registrar_compromiso()void)",
         "tmp%2#0"
       ],
       "stack_out": [
-        "Method(abrir_registro_compromisos()void)",
-        "Method(cerrar_registro_compromisos()uint64)",
-        "Method(registrar_compromiso()uint64)",
-        "Method(abrir_registro_raices()void)",
-        "Method(cerrar_registro_raices()uint64)",
-        "Method(registrar_raiz()uint64)",
-        "Method(abrir_registro_anuladores()void)",
-        "Method(cerrar_registro_anuladores()uint64)",
-        "Method(registrar_anulador()uint64)",
+        "Method(inicializar_eleccion()void)",
+        "Method(registrar_compromiso()void)",
         "tmp%2#0"
       ]
     },
-    "324": {
-      "op": "match main_abrir_registro_compromisos_route@5 main_cerrar_registro_compromisos_route@6 main_registrar_compromiso_route@7 main_abrir_registro_raices_route@8 main_cerrar_registro_raices_route@9 main_registrar_raiz_route@10 main_abrir_registro_anuladores_route@11 main_cerrar_registro_anuladores_route@12 main_registrar_anulador_route@13",
+    "71": {
+      "op": "match main_inicializar_eleccion_route@5 main_registrar_compromiso_route@6",
       "stack_out": []
     },
-    "344": {
-      "block": "main_after_if_else@16",
+    "77": {
+      "block": "main_after_if_else@9",
       "stack_in": [],
       "op": "intc_0 // 0",
       "defined_out": [
@@ -295,620 +127,54 @@
         "tmp%0#0"
       ]
     },
-    "345": {
+    "78": {
       "op": "return",
       "stack_out": []
     },
-    "346": {
-      "block": "main_registrar_anulador_route@13",
+    "79": {
+      "block": "main_registrar_compromiso_route@6",
       "stack_in": [],
       "op": "txn OnCompletion",
       "defined_out": [
-        "tmp%40#0"
+        "tmp%7#0"
       ],
       "stack_out": [
-        "tmp%40#0"
+        "tmp%7#0"
       ]
     },
-    "348": {
+    "81": {
       "op": "!",
       "defined_out": [
-        "tmp%41#0"
+        "tmp%8#0"
       ],
       "stack_out": [
-        "tmp%41#0"
+        "tmp%8#0"
       ]
     },
-    "349": {
+    "82": {
       "error": "OnCompletion is not NoOp",
       "op": "assert // OnCompletion is not NoOp",
       "stack_out": []
     },
-    "350": {
+    "83": {
       "op": "txn ApplicationID",
       "defined_out": [
-        "tmp%42#0"
+        "tmp%9#0"
       ],
       "stack_out": [
-        "tmp%42#0"
+        "tmp%9#0"
       ]
     },
-    "352": {
+    "85": {
       "error": "can only call when not creating",
       "op": "assert // can only call when not creating",
       "stack_out": []
     },
-    "353": {
-      "callsub": "smart_contracts.voto3.contract.Voto3.registrar_anulador",
-      "op": "callsub registrar_anulador",
-      "defined_out": [
-        "to_encode%5#0"
-      ],
-      "stack_out": [
-        "to_encode%5#0"
-      ]
-    },
-    "356": {
-      "op": "itob",
-      "defined_out": [
-        "val_as_bytes%5#0"
-      ],
-      "stack_out": [
-        "val_as_bytes%5#0"
-      ]
-    },
-    "357": {
-      "op": "bytec_2 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75",
-        "val_as_bytes%5#0"
-      ],
-      "stack_out": [
-        "val_as_bytes%5#0",
-        "0x151f7c75"
-      ]
-    },
-    "358": {
-      "op": "swap",
-      "stack_out": [
-        "0x151f7c75",
-        "val_as_bytes%5#0"
-      ]
-    },
-    "359": {
-      "op": "concat",
-      "defined_out": [
-        "tmp%44#0"
-      ],
-      "stack_out": [
-        "tmp%44#0"
-      ]
-    },
-    "360": {
-      "op": "log",
-      "stack_out": []
-    },
-    "361": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "362": {
-      "op": "return",
-      "stack_out": []
-    },
-    "363": {
-      "block": "main_cerrar_registro_anuladores_route@12",
-      "stack_in": [],
-      "op": "txn OnCompletion",
-      "defined_out": [
-        "tmp%35#0"
-      ],
-      "stack_out": [
-        "tmp%35#0"
-      ]
-    },
-    "365": {
-      "op": "!",
-      "defined_out": [
-        "tmp%36#0"
-      ],
-      "stack_out": [
-        "tmp%36#0"
-      ]
-    },
-    "366": {
-      "error": "OnCompletion is not NoOp",
-      "op": "assert // OnCompletion is not NoOp",
-      "stack_out": []
-    },
-    "367": {
-      "op": "txn ApplicationID",
-      "defined_out": [
-        "tmp%37#0"
-      ],
-      "stack_out": [
-        "tmp%37#0"
-      ]
-    },
-    "369": {
-      "error": "can only call when not creating",
-      "op": "assert // can only call when not creating",
-      "stack_out": []
-    },
-    "370": {
-      "callsub": "smart_contracts.voto3.contract.Voto3.cerrar_registro_anuladores",
-      "op": "callsub cerrar_registro_anuladores",
-      "defined_out": [
-        "to_encode%4#0"
-      ],
-      "stack_out": [
-        "to_encode%4#0"
-      ]
-    },
-    "373": {
-      "op": "itob",
-      "defined_out": [
-        "val_as_bytes%4#0"
-      ],
-      "stack_out": [
-        "val_as_bytes%4#0"
-      ]
-    },
-    "374": {
-      "op": "bytec_2 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75",
-        "val_as_bytes%4#0"
-      ],
-      "stack_out": [
-        "val_as_bytes%4#0",
-        "0x151f7c75"
-      ]
-    },
-    "375": {
-      "op": "swap",
-      "stack_out": [
-        "0x151f7c75",
-        "val_as_bytes%4#0"
-      ]
-    },
-    "376": {
-      "op": "concat",
-      "defined_out": [
-        "tmp%39#0"
-      ],
-      "stack_out": [
-        "tmp%39#0"
-      ]
-    },
-    "377": {
-      "op": "log",
-      "stack_out": []
-    },
-    "378": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "379": {
-      "op": "return",
-      "stack_out": []
-    },
-    "380": {
-      "block": "main_abrir_registro_anuladores_route@11",
-      "stack_in": [],
-      "op": "txn OnCompletion",
-      "defined_out": [
-        "tmp%31#0"
-      ],
-      "stack_out": [
-        "tmp%31#0"
-      ]
-    },
-    "382": {
-      "op": "!",
-      "defined_out": [
-        "tmp%32#0"
-      ],
-      "stack_out": [
-        "tmp%32#0"
-      ]
-    },
-    "383": {
-      "error": "OnCompletion is not NoOp",
-      "op": "assert // OnCompletion is not NoOp",
-      "stack_out": []
-    },
-    "384": {
-      "op": "txn ApplicationID",
-      "defined_out": [
-        "tmp%33#0"
-      ],
-      "stack_out": [
-        "tmp%33#0"
-      ]
-    },
-    "386": {
-      "error": "can only call when not creating",
-      "op": "assert // can only call when not creating",
-      "stack_out": []
-    },
-    "387": {
-      "callsub": "smart_contracts.voto3.contract.Voto3.abrir_registro_anuladores",
-      "op": "callsub abrir_registro_anuladores"
-    },
-    "390": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "391": {
-      "op": "return",
-      "stack_out": []
-    },
-    "392": {
-      "block": "main_registrar_raiz_route@10",
-      "stack_in": [],
-      "op": "txn OnCompletion",
-      "defined_out": [
-        "tmp%26#0"
-      ],
-      "stack_out": [
-        "tmp%26#0"
-      ]
-    },
-    "394": {
-      "op": "!",
-      "defined_out": [
-        "tmp%27#0"
-      ],
-      "stack_out": [
-        "tmp%27#0"
-      ]
-    },
-    "395": {
-      "error": "OnCompletion is not NoOp",
-      "op": "assert // OnCompletion is not NoOp",
-      "stack_out": []
-    },
-    "396": {
-      "op": "txn ApplicationID",
-      "defined_out": [
-        "tmp%28#0"
-      ],
-      "stack_out": [
-        "tmp%28#0"
-      ]
-    },
-    "398": {
-      "error": "can only call when not creating",
-      "op": "assert // can only call when not creating",
-      "stack_out": []
-    },
-    "399": {
-      "callsub": "smart_contracts.voto3.contract.Voto3.registrar_raiz",
-      "op": "callsub registrar_raiz",
-      "defined_out": [
-        "to_encode%3#0"
-      ],
-      "stack_out": [
-        "to_encode%3#0"
-      ]
-    },
-    "402": {
-      "op": "itob",
-      "defined_out": [
-        "val_as_bytes%3#0"
-      ],
-      "stack_out": [
-        "val_as_bytes%3#0"
-      ]
-    },
-    "403": {
-      "op": "bytec_2 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75",
-        "val_as_bytes%3#0"
-      ],
-      "stack_out": [
-        "val_as_bytes%3#0",
-        "0x151f7c75"
-      ]
-    },
-    "404": {
-      "op": "swap",
-      "stack_out": [
-        "0x151f7c75",
-        "val_as_bytes%3#0"
-      ]
-    },
-    "405": {
-      "op": "concat",
-      "defined_out": [
-        "tmp%30#0"
-      ],
-      "stack_out": [
-        "tmp%30#0"
-      ]
-    },
-    "406": {
-      "op": "log",
-      "stack_out": []
-    },
-    "407": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "408": {
-      "op": "return",
-      "stack_out": []
-    },
-    "409": {
-      "block": "main_cerrar_registro_raices_route@9",
-      "stack_in": [],
-      "op": "txn OnCompletion",
-      "defined_out": [
-        "tmp%21#0"
-      ],
-      "stack_out": [
-        "tmp%21#0"
-      ]
-    },
-    "411": {
-      "op": "!",
-      "defined_out": [
-        "tmp%22#0"
-      ],
-      "stack_out": [
-        "tmp%22#0"
-      ]
-    },
-    "412": {
-      "error": "OnCompletion is not NoOp",
-      "op": "assert // OnCompletion is not NoOp",
-      "stack_out": []
-    },
-    "413": {
-      "op": "txn ApplicationID",
-      "defined_out": [
-        "tmp%23#0"
-      ],
-      "stack_out": [
-        "tmp%23#0"
-      ]
-    },
-    "415": {
-      "error": "can only call when not creating",
-      "op": "assert // can only call when not creating",
-      "stack_out": []
-    },
-    "416": {
-      "callsub": "smart_contracts.voto3.contract.Voto3.cerrar_registro_raices",
-      "op": "callsub cerrar_registro_raices",
-      "defined_out": [
-        "to_encode%2#0"
-      ],
-      "stack_out": [
-        "to_encode%2#0"
-      ]
-    },
-    "419": {
-      "op": "itob",
-      "defined_out": [
-        "val_as_bytes%2#0"
-      ],
-      "stack_out": [
-        "val_as_bytes%2#0"
-      ]
-    },
-    "420": {
-      "op": "bytec_2 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75",
-        "val_as_bytes%2#0"
-      ],
-      "stack_out": [
-        "val_as_bytes%2#0",
-        "0x151f7c75"
-      ]
-    },
-    "421": {
-      "op": "swap",
-      "stack_out": [
-        "0x151f7c75",
-        "val_as_bytes%2#0"
-      ]
-    },
-    "422": {
-      "op": "concat",
-      "defined_out": [
-        "tmp%25#0"
-      ],
-      "stack_out": [
-        "tmp%25#0"
-      ]
-    },
-    "423": {
-      "op": "log",
-      "stack_out": []
-    },
-    "424": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "425": {
-      "op": "return",
-      "stack_out": []
-    },
-    "426": {
-      "block": "main_abrir_registro_raices_route@8",
-      "stack_in": [],
-      "op": "txn OnCompletion",
-      "defined_out": [
-        "tmp%17#0"
-      ],
-      "stack_out": [
-        "tmp%17#0"
-      ]
-    },
-    "428": {
-      "op": "!",
-      "defined_out": [
-        "tmp%18#0"
-      ],
-      "stack_out": [
-        "tmp%18#0"
-      ]
-    },
-    "429": {
-      "error": "OnCompletion is not NoOp",
-      "op": "assert // OnCompletion is not NoOp",
-      "stack_out": []
-    },
-    "430": {
-      "op": "txn ApplicationID",
-      "defined_out": [
-        "tmp%19#0"
-      ],
-      "stack_out": [
-        "tmp%19#0"
-      ]
-    },
-    "432": {
-      "error": "can only call when not creating",
-      "op": "assert // can only call when not creating",
-      "stack_out": []
-    },
-    "433": {
-      "callsub": "smart_contracts.voto3.contract.Voto3.abrir_registro_raices",
-      "op": "callsub abrir_registro_raices"
-    },
-    "436": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "437": {
-      "op": "return",
-      "stack_out": []
-    },
-    "438": {
-      "block": "main_registrar_compromiso_route@7",
-      "stack_in": [],
-      "op": "txn OnCompletion",
-      "defined_out": [
-        "tmp%12#0"
-      ],
-      "stack_out": [
-        "tmp%12#0"
-      ]
-    },
-    "440": {
-      "op": "!",
-      "defined_out": [
-        "tmp%13#0"
-      ],
-      "stack_out": [
-        "tmp%13#0"
-      ]
-    },
-    "441": {
-      "error": "OnCompletion is not NoOp",
-      "op": "assert // OnCompletion is not NoOp",
-      "stack_out": []
-    },
-    "442": {
-      "op": "txn ApplicationID",
-      "defined_out": [
-        "tmp%14#0"
-      ],
-      "stack_out": [
-        "tmp%14#0"
-      ]
-    },
-    "444": {
-      "error": "can only call when not creating",
-      "op": "assert // can only call when not creating",
-      "stack_out": []
-    },
-    "445": {
+    "86": {
       "callsub": "smart_contracts.voto3.contract.Voto3.registrar_compromiso",
-      "op": "callsub registrar_compromiso",
-      "defined_out": [
-        "to_encode%1#0"
-      ],
-      "stack_out": [
-        "to_encode%1#0"
-      ]
+      "op": "callsub registrar_compromiso"
     },
-    "448": {
-      "op": "itob",
-      "defined_out": [
-        "val_as_bytes%1#0"
-      ],
-      "stack_out": [
-        "val_as_bytes%1#0"
-      ]
-    },
-    "449": {
-      "op": "bytec_2 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75",
-        "val_as_bytes%1#0"
-      ],
-      "stack_out": [
-        "val_as_bytes%1#0",
-        "0x151f7c75"
-      ]
-    },
-    "450": {
-      "op": "swap",
-      "stack_out": [
-        "0x151f7c75",
-        "val_as_bytes%1#0"
-      ]
-    },
-    "451": {
-      "op": "concat",
-      "defined_out": [
-        "tmp%16#0"
-      ],
-      "stack_out": [
-        "tmp%16#0"
-      ]
-    },
-    "452": {
-      "op": "log",
-      "stack_out": []
-    },
-    "453": {
+    "89": {
       "op": "intc_1 // 1",
       "defined_out": [
         "tmp%0#0"
@@ -917,114 +183,12 @@
         "tmp%0#0"
       ]
     },
-    "454": {
+    "90": {
       "op": "return",
       "stack_out": []
     },
-    "455": {
-      "block": "main_cerrar_registro_compromisos_route@6",
-      "stack_in": [],
-      "op": "txn OnCompletion",
-      "defined_out": [
-        "tmp%7#0"
-      ],
-      "stack_out": [
-        "tmp%7#0"
-      ]
-    },
-    "457": {
-      "op": "!",
-      "defined_out": [
-        "tmp%8#0"
-      ],
-      "stack_out": [
-        "tmp%8#0"
-      ]
-    },
-    "458": {
-      "error": "OnCompletion is not NoOp",
-      "op": "assert // OnCompletion is not NoOp",
-      "stack_out": []
-    },
-    "459": {
-      "op": "txn ApplicationID",
-      "defined_out": [
-        "tmp%9#0"
-      ],
-      "stack_out": [
-        "tmp%9#0"
-      ]
-    },
-    "461": {
-      "error": "can only call when not creating",
-      "op": "assert // can only call when not creating",
-      "stack_out": []
-    },
-    "462": {
-      "callsub": "smart_contracts.voto3.contract.Voto3.cerrar_registro_compromisos",
-      "op": "callsub cerrar_registro_compromisos",
-      "defined_out": [
-        "to_encode%0#0"
-      ],
-      "stack_out": [
-        "to_encode%0#0"
-      ]
-    },
-    "465": {
-      "op": "itob",
-      "defined_out": [
-        "val_as_bytes%0#0"
-      ],
-      "stack_out": [
-        "val_as_bytes%0#0"
-      ]
-    },
-    "466": {
-      "op": "bytec_2 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75",
-        "val_as_bytes%0#0"
-      ],
-      "stack_out": [
-        "val_as_bytes%0#0",
-        "0x151f7c75"
-      ]
-    },
-    "467": {
-      "op": "swap",
-      "stack_out": [
-        "0x151f7c75",
-        "val_as_bytes%0#0"
-      ]
-    },
-    "468": {
-      "op": "concat",
-      "defined_out": [
-        "tmp%11#0"
-      ],
-      "stack_out": [
-        "tmp%11#0"
-      ]
-    },
-    "469": {
-      "op": "log",
-      "stack_out": []
-    },
-    "470": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "471": {
-      "op": "return",
-      "stack_out": []
-    },
-    "472": {
-      "block": "main_abrir_registro_compromisos_route@5",
+    "91": {
+      "block": "main_inicializar_eleccion_route@5",
       "stack_in": [],
       "op": "txn OnCompletion",
       "defined_out": [
@@ -1034,7 +198,7 @@
         "tmp%3#0"
       ]
     },
-    "474": {
+    "93": {
       "op": "!",
       "defined_out": [
         "tmp%4#0"
@@ -1043,12 +207,12 @@
         "tmp%4#0"
       ]
     },
-    "475": {
+    "94": {
       "error": "OnCompletion is not NoOp",
       "op": "assert // OnCompletion is not NoOp",
       "stack_out": []
     },
-    "476": {
+    "95": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%5#0"
@@ -1057,16 +221,16 @@
         "tmp%5#0"
       ]
     },
-    "478": {
+    "97": {
       "error": "can only call when not creating",
       "op": "assert // can only call when not creating",
       "stack_out": []
     },
-    "479": {
-      "callsub": "smart_contracts.voto3.contract.Voto3.abrir_registro_compromisos",
-      "op": "callsub abrir_registro_compromisos"
+    "98": {
+      "callsub": "smart_contracts.voto3.contract.Voto3.inicializar_eleccion",
+      "op": "callsub inicializar_eleccion"
     },
-    "482": {
+    "101": {
       "op": "intc_1 // 1",
       "defined_out": [
         "tmp%0#0"
@@ -1075,49 +239,49 @@
         "tmp%0#0"
       ]
     },
-    "483": {
+    "102": {
       "op": "return",
       "stack_out": []
     },
-    "484": {
-      "block": "main_bare_routing@14",
+    "103": {
+      "block": "main_bare_routing@7",
       "stack_in": [],
       "op": "txn OnCompletion",
       "defined_out": [
-        "tmp%45#0"
+        "tmp%11#0"
       ],
       "stack_out": [
-        "tmp%45#0"
+        "tmp%11#0"
       ]
     },
-    "486": {
-      "op": "bnz main_after_if_else@16",
+    "105": {
+      "op": "bnz main_after_if_else@9",
       "stack_out": []
     },
-    "489": {
+    "108": {
       "op": "txn ApplicationID",
       "defined_out": [
-        "tmp%46#0"
+        "tmp%12#0"
       ],
       "stack_out": [
-        "tmp%46#0"
+        "tmp%12#0"
       ]
     },
-    "491": {
+    "110": {
       "op": "!",
       "defined_out": [
-        "tmp%47#0"
+        "tmp%13#0"
       ],
       "stack_out": [
-        "tmp%47#0"
+        "tmp%13#0"
       ]
     },
-    "492": {
+    "111": {
       "error": "can only call when creating",
       "op": "assert // can only call when creating",
       "stack_out": []
     },
-    "493": {
+    "112": {
       "op": "intc_1 // 1",
       "defined_out": [
         "tmp%0#0"
@@ -1126,14 +290,14 @@
         "tmp%0#0"
       ]
     },
-    "494": {
+    "113": {
       "op": "return",
       "stack_out": []
     },
-    "495": {
-      "subroutine": "smart_contracts.voto3.contract.Voto3.abrir_registro_compromisos",
+    "114": {
+      "subroutine": "smart_contracts.voto3.contract.Voto3.inicializar_eleccion",
       "params": {},
-      "block": "abrir_registro_compromisos",
+      "block": "inicializar_eleccion",
       "stack_in": [],
       "op": "txn Sender",
       "defined_out": [
@@ -1143,7 +307,7 @@
         "tmp%0#0"
       ]
     },
-    "497": {
+    "116": {
       "op": "global CreatorAddress",
       "defined_out": [
         "tmp%0#0",
@@ -1154,7 +318,7 @@
         "tmp%1#0"
       ]
     },
-    "499": {
+    "118": {
       "op": "==",
       "defined_out": [
         "tmp%2#0"
@@ -1163,12 +327,45 @@
         "tmp%2#0"
       ]
     },
-    "500": {
-      "error": "Solo el creador puede abrir el registro de compromisos",
-      "op": "assert // Solo el creador puede abrir el registro de compromisos",
+    "119": {
+      "error": "Solo el creador puede inicializar la elecci\u00f3n",
+      "op": "assert // Solo el creador puede inicializar la elecci\u00f3n",
       "stack_out": []
     },
-    "501": {
+    "120": {
+      "op": "itxn_begin"
+    },
+    "121": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "inner_txn_params%0%%param_ConfigAssetManager_idx_0#0"
+      ],
+      "stack_out": [
+        "inner_txn_params%0%%param_ConfigAssetManager_idx_0#0"
+      ]
+    },
+    "123": {
+      "op": "dup",
+      "defined_out": [
+        "inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0",
+        "inner_txn_params%0%%param_ConfigAssetManager_idx_0#0"
+      ],
+      "stack_out": [
+        "inner_txn_params%0%%param_ConfigAssetManager_idx_0#0",
+        "inner_txn_params%0%%param_ConfigAssetClawback_idx_0#0"
+      ]
+    },
+    "124": {
+      "op": "itxn_field ConfigAssetClawback",
+      "stack_out": [
+        "inner_txn_params%0%%param_ConfigAssetManager_idx_0#0"
+      ]
+    },
+    "126": {
+      "op": "itxn_field ConfigAssetManager",
+      "stack_out": []
+    },
+    "128": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0"
@@ -1177,268 +374,104 @@
         "0"
       ]
     },
-    "502": {
-      "op": "bytec_0 // \"registro_compromisos_cerrado\"",
-      "defined_out": [
-        "\"registro_compromisos_cerrado\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_compromisos_cerrado\""
-      ]
-    },
-    "503": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%0#0",
-        "maybe_value%0#0"
-      ],
-      "stack_out": [
-        "maybe_value%0#0",
-        "maybe_exists%0#0"
-      ]
-    },
-    "504": {
-      "error": "check self.registro_compromisos_cerrado exists",
-      "op": "assert // check self.registro_compromisos_cerrado exists",
-      "stack_out": [
-        "maybe_value%0#0"
-      ]
-    },
-    "505": {
-      "op": "!",
-      "defined_out": [
-        "tmp%3#0"
-      ],
-      "stack_out": [
-        "tmp%3#0"
-      ]
-    },
-    "506": {
-      "error": "El registro de compromisos ya fue cerrado",
-      "op": "assert // El registro de compromisos ya fue cerrado",
+    "129": {
+      "op": "itxn_field ConfigAssetDecimals",
       "stack_out": []
     },
-    "507": {
-      "op": "bytec 7 // \"registro_compromisos_abierto\"",
+    "131": {
+      "op": "pushint 100000000 // 100000000",
       "defined_out": [
-        "\"registro_compromisos_abierto\""
+        "100000000"
       ],
       "stack_out": [
-        "\"registro_compromisos_abierto\""
+        "100000000"
       ]
     },
-    "509": {
-      "op": "intc_1 // 1",
+    "136": {
+      "op": "itxn_field ConfigAssetTotal",
+      "stack_out": []
+    },
+    "138": {
+      "op": "pushbytes 0x563350",
       "defined_out": [
-        "\"registro_compromisos_abierto\"",
-        "1"
+        "0x563350"
       ],
       "stack_out": [
-        "\"registro_compromisos_abierto\"",
-        "1"
+        "0x563350"
       ]
     },
-    "510": {
+    "143": {
+      "op": "itxn_field ConfigAssetUnitName",
+      "stack_out": []
+    },
+    "145": {
+      "op": "pushbytes 0x504150454c455441",
+      "defined_out": [
+        "0x504150454c455441"
+      ],
+      "stack_out": [
+        "0x504150454c455441"
+      ]
+    },
+    "155": {
+      "op": "itxn_field ConfigAssetName",
+      "stack_out": []
+    },
+    "157": {
+      "op": "pushint 3 // acfg",
+      "defined_out": [
+        "acfg"
+      ],
+      "stack_out": [
+        "acfg"
+      ]
+    },
+    "159": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "161": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "162": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "164": {
+      "op": "itxn_submit"
+    },
+    "165": {
+      "op": "bytec_1 // \"asset_id\"",
+      "defined_out": [
+        "\"asset_id\""
+      ],
+      "stack_out": [
+        "\"asset_id\""
+      ]
+    },
+    "166": {
+      "op": "itxn CreatedAssetID",
+      "defined_out": [
+        "\"asset_id\"",
+        "asset_txn.CreatedAssetID#0"
+      ],
+      "stack_out": [
+        "\"asset_id\"",
+        "asset_txn.CreatedAssetID#0"
+      ]
+    },
+    "168": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "511": {
+    "169": {
       "retsub": true,
       "op": "retsub"
     },
-    "512": {
-      "subroutine": "smart_contracts.voto3.contract.Voto3.cerrar_registro_compromisos",
-      "params": {},
-      "block": "cerrar_registro_compromisos",
-      "stack_in": [],
-      "op": "txn Sender",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "514": {
-      "op": "global CreatorAddress",
-      "defined_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ],
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ]
-    },
-    "516": {
-      "op": "==",
-      "defined_out": [
-        "tmp%2#0"
-      ],
-      "stack_out": [
-        "tmp%2#0"
-      ]
-    },
-    "517": {
-      "error": "Solo el creador puede cerrar el registro de compromisos",
-      "op": "assert // Solo el creador puede cerrar el registro de compromisos",
-      "stack_out": []
-    },
-    "518": {
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "0"
-      ],
-      "stack_out": [
-        "0"
-      ]
-    },
-    "519": {
-      "op": "bytec 7 // \"registro_compromisos_abierto\"",
-      "defined_out": [
-        "\"registro_compromisos_abierto\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_compromisos_abierto\""
-      ]
-    },
-    "521": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%0#0",
-        "maybe_value%0#0"
-      ],
-      "stack_out": [
-        "maybe_value%0#0",
-        "maybe_exists%0#0"
-      ]
-    },
-    "522": {
-      "error": "check self.registro_compromisos_abierto exists",
-      "op": "assert // check self.registro_compromisos_abierto exists",
-      "stack_out": [
-        "maybe_value%0#0"
-      ]
-    },
-    "523": {
-      "error": "El registro de compromisos no est\u00e1 abierto",
-      "op": "assert // El registro de compromisos no est\u00e1 abierto",
-      "stack_out": []
-    },
-    "524": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "525": {
-      "op": "bytec_0 // \"registro_compromisos_cerrado\"",
-      "defined_out": [
-        "\"registro_compromisos_cerrado\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_compromisos_cerrado\""
-      ]
-    },
-    "526": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%1#0",
-        "maybe_value%1#0"
-      ],
-      "stack_out": [
-        "maybe_value%1#0",
-        "maybe_exists%1#0"
-      ]
-    },
-    "527": {
-      "error": "check self.registro_compromisos_cerrado exists",
-      "op": "assert // check self.registro_compromisos_cerrado exists",
-      "stack_out": [
-        "maybe_value%1#0"
-      ]
-    },
-    "528": {
-      "op": "!",
-      "defined_out": [
-        "tmp%3#0"
-      ],
-      "stack_out": [
-        "tmp%3#0"
-      ]
-    },
-    "529": {
-      "error": "El registro de compromisos ya fue cerrado",
-      "op": "assert // El registro de compromisos ya fue cerrado",
-      "stack_out": []
-    },
-    "530": {
-      "op": "bytec_0 // \"registro_compromisos_cerrado\"",
-      "stack_out": [
-        "\"registro_compromisos_cerrado\""
-      ]
-    },
-    "531": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "\"registro_compromisos_cerrado\"",
-        "1"
-      ],
-      "stack_out": [
-        "\"registro_compromisos_cerrado\"",
-        "1"
-      ]
-    },
-    "532": {
-      "op": "app_global_put",
-      "stack_out": []
-    },
-    "533": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "534": {
-      "op": "bytec 4 // \"contador_compromisos\"",
-      "defined_out": [
-        "\"contador_compromisos\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"contador_compromisos\""
-      ]
-    },
-    "536": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%2#0",
-        "maybe_value%2#0"
-      ],
-      "stack_out": [
-        "maybe_value%2#0",
-        "maybe_exists%2#0"
-      ]
-    },
-    "537": {
-      "error": "check self.contador_compromisos exists",
-      "op": "assert // check self.contador_compromisos exists",
-      "stack_out": [
-        "maybe_value%2#0"
-      ]
-    },
-    "538": {
-      "retsub": true,
-      "op": "retsub"
-    },
-    "539": {
+    "170": {
       "subroutine": "smart_contracts.voto3.contract.Voto3.registrar_compromiso",
       "params": {},
       "block": "registrar_compromiso",
@@ -1451,7 +484,7 @@
         "tmp%0#0"
       ]
     },
-    "541": {
+    "172": {
       "op": "global CreatorAddress",
       "defined_out": [
         "tmp%0#0",
@@ -1462,7 +495,7 @@
         "tmp%1#0"
       ]
     },
-    "543": {
+    "174": {
       "op": "==",
       "defined_out": [
         "tmp%2#0"
@@ -1471,12 +504,12 @@
         "tmp%2#0"
       ]
     },
-    "544": {
+    "175": {
       "error": "Solo el creador puede registrar compromisos",
       "op": "assert // Solo el creador puede registrar compromisos",
       "stack_out": []
     },
-    "545": {
+    "176": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0"
@@ -1485,18 +518,18 @@
         "0"
       ]
     },
-    "546": {
-      "op": "bytec 7 // \"registro_compromisos_abierto\"",
+    "177": {
+      "op": "bytec_0 // \"compromisos_registrados\"",
       "defined_out": [
-        "\"registro_compromisos_abierto\"",
+        "\"compromisos_registrados\"",
         "0"
       ],
       "stack_out": [
         "0",
-        "\"registro_compromisos_abierto\""
+        "\"compromisos_registrados\""
       ]
     },
-    "548": {
+    "178": {
       "op": "app_global_get_ex",
       "defined_out": [
         "maybe_exists%0#0",
@@ -1507,1308 +540,52 @@
         "maybe_exists%0#0"
       ]
     },
-    "549": {
-      "error": "check self.registro_compromisos_abierto exists",
-      "op": "assert // check self.registro_compromisos_abierto exists",
+    "179": {
+      "error": "check self.compromisos_registrados exists",
+      "op": "assert // check self.compromisos_registrados exists",
       "stack_out": [
         "maybe_value%0#0"
       ]
     },
-    "550": {
-      "error": "El registro de compromisos no est\u00e1 abierto",
-      "op": "assert // El registro de compromisos no est\u00e1 abierto",
-      "stack_out": []
-    },
-    "551": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "552": {
-      "op": "bytec_0 // \"registro_compromisos_cerrado\"",
-      "defined_out": [
-        "\"registro_compromisos_cerrado\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_compromisos_cerrado\""
-      ]
-    },
-    "553": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%1#0",
-        "maybe_value%1#0"
-      ],
-      "stack_out": [
-        "maybe_value%1#0",
-        "maybe_exists%1#0"
-      ]
-    },
-    "554": {
-      "error": "check self.registro_compromisos_cerrado exists",
-      "op": "assert // check self.registro_compromisos_cerrado exists",
-      "stack_out": [
-        "maybe_value%1#0"
-      ]
-    },
-    "555": {
-      "op": "!",
-      "defined_out": [
-        "tmp%3#0"
-      ],
-      "stack_out": [
-        "tmp%3#0"
-      ]
-    },
-    "556": {
-      "error": "El registro de compromisos ya fue cerrado",
-      "op": "assert // El registro de compromisos ya fue cerrado",
-      "stack_out": []
-    },
-    "557": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "558": {
-      "op": "bytec 4 // \"contador_compromisos\"",
-      "defined_out": [
-        "\"contador_compromisos\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"contador_compromisos\""
-      ]
-    },
-    "560": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "current#0",
-        "maybe_exists%2#0"
-      ],
-      "stack_out": [
-        "current#0",
-        "maybe_exists%2#0"
-      ]
-    },
-    "561": {
-      "error": "check self.contador_compromisos exists",
-      "op": "assert // check self.contador_compromisos exists",
-      "stack_out": [
-        "current#0"
-      ]
-    },
-    "562": {
-      "op": "dup",
-      "defined_out": [
-        "current#0",
-        "current#0 (copy)"
-      ],
-      "stack_out": [
-        "current#0",
-        "current#0 (copy)"
-      ]
-    },
-    "563": {
+    "180": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
-        "current#0",
-        "current#0 (copy)"
+        "maybe_value%0#0"
       ],
       "stack_out": [
-        "current#0",
-        "current#0 (copy)",
+        "maybe_value%0#0",
         "1"
       ]
     },
-    "564": {
+    "181": {
       "op": "+",
       "defined_out": [
-        "current#0",
         "materialized_values%0#0"
       ],
       "stack_out": [
-        "current#0",
         "materialized_values%0#0"
       ]
     },
-    "565": {
-      "op": "bytec 4 // \"contador_compromisos\"",
+    "182": {
+      "op": "bytec_0 // \"compromisos_registrados\"",
       "stack_out": [
-        "current#0",
         "materialized_values%0#0",
-        "\"contador_compromisos\""
+        "\"compromisos_registrados\""
       ]
     },
-    "567": {
+    "183": {
       "op": "swap",
       "stack_out": [
-        "current#0",
-        "\"contador_compromisos\"",
+        "\"compromisos_registrados\"",
         "materialized_values%0#0"
       ]
     },
-    "568": {
-      "op": "app_global_put",
-      "stack_out": [
-        "current#0"
-      ]
-    },
-    "569": {
-      "retsub": true,
-      "op": "retsub"
-    },
-    "570": {
-      "subroutine": "smart_contracts.voto3.contract.Voto3.abrir_registro_raices",
-      "params": {},
-      "block": "abrir_registro_raices",
-      "stack_in": [],
-      "op": "txn Sender",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "572": {
-      "op": "global CreatorAddress",
-      "defined_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ],
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ]
-    },
-    "574": {
-      "op": "==",
-      "defined_out": [
-        "tmp%2#0"
-      ],
-      "stack_out": [
-        "tmp%2#0"
-      ]
-    },
-    "575": {
-      "error": "Solo el creador puede abrir el registro de ra\u00edces",
-      "op": "assert // Solo el creador puede abrir el registro de ra\u00edces",
-      "stack_out": []
-    },
-    "576": {
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "0"
-      ],
-      "stack_out": [
-        "0"
-      ]
-    },
-    "577": {
-      "op": "bytec_0 // \"registro_compromisos_cerrado\"",
-      "defined_out": [
-        "\"registro_compromisos_cerrado\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_compromisos_cerrado\""
-      ]
-    },
-    "578": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%0#0",
-        "maybe_value%0#0"
-      ],
-      "stack_out": [
-        "maybe_value%0#0",
-        "maybe_exists%0#0"
-      ]
-    },
-    "579": {
-      "error": "check self.registro_compromisos_cerrado exists",
-      "op": "assert // check self.registro_compromisos_cerrado exists",
-      "stack_out": [
-        "maybe_value%0#0"
-      ]
-    },
-    "580": {
-      "error": "El registro de compromisos no est\u00e1 cerrado",
-      "op": "assert // El registro de compromisos no est\u00e1 cerrado",
-      "stack_out": []
-    },
-    "581": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "582": {
-      "op": "bytec_1 // \"registro_raices_cerrado\"",
-      "defined_out": [
-        "\"registro_raices_cerrado\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_raices_cerrado\""
-      ]
-    },
-    "583": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%1#0",
-        "maybe_value%1#0"
-      ],
-      "stack_out": [
-        "maybe_value%1#0",
-        "maybe_exists%1#0"
-      ]
-    },
-    "584": {
-      "error": "check self.registro_raices_cerrado exists",
-      "op": "assert // check self.registro_raices_cerrado exists",
-      "stack_out": [
-        "maybe_value%1#0"
-      ]
-    },
-    "585": {
-      "op": "!",
-      "defined_out": [
-        "tmp%3#0"
-      ],
-      "stack_out": [
-        "tmp%3#0"
-      ]
-    },
-    "586": {
-      "error": "El registro de ra\u00edces ya fue cerrado",
-      "op": "assert // El registro de ra\u00edces ya fue cerrado",
-      "stack_out": []
-    },
-    "587": {
-      "op": "bytec 8 // \"registro_raices_abierto\"",
-      "defined_out": [
-        "\"registro_raices_abierto\""
-      ],
-      "stack_out": [
-        "\"registro_raices_abierto\""
-      ]
-    },
-    "589": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "\"registro_raices_abierto\"",
-        "1"
-      ],
-      "stack_out": [
-        "\"registro_raices_abierto\"",
-        "1"
-      ]
-    },
-    "590": {
+    "184": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "591": {
-      "retsub": true,
-      "op": "retsub"
-    },
-    "592": {
-      "subroutine": "smart_contracts.voto3.contract.Voto3.cerrar_registro_raices",
-      "params": {},
-      "block": "cerrar_registro_raices",
-      "stack_in": [],
-      "op": "txn Sender",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "594": {
-      "op": "global CreatorAddress",
-      "defined_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ],
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ]
-    },
-    "596": {
-      "op": "==",
-      "defined_out": [
-        "tmp%2#0"
-      ],
-      "stack_out": [
-        "tmp%2#0"
-      ]
-    },
-    "597": {
-      "error": "Solo el creador puede cerrar el registro de ra\u00edces",
-      "op": "assert // Solo el creador puede cerrar el registro de ra\u00edces",
-      "stack_out": []
-    },
-    "598": {
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "0"
-      ],
-      "stack_out": [
-        "0"
-      ]
-    },
-    "599": {
-      "op": "bytec 8 // \"registro_raices_abierto\"",
-      "defined_out": [
-        "\"registro_raices_abierto\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_raices_abierto\""
-      ]
-    },
-    "601": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%0#0",
-        "maybe_value%0#0"
-      ],
-      "stack_out": [
-        "maybe_value%0#0",
-        "maybe_exists%0#0"
-      ]
-    },
-    "602": {
-      "error": "check self.registro_raices_abierto exists",
-      "op": "assert // check self.registro_raices_abierto exists",
-      "stack_out": [
-        "maybe_value%0#0"
-      ]
-    },
-    "603": {
-      "error": "El registro de ra\u00edces no est\u00e1 cerrado",
-      "op": "assert // El registro de ra\u00edces no est\u00e1 cerrado",
-      "stack_out": []
-    },
-    "604": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "605": {
-      "op": "bytec_1 // \"registro_raices_cerrado\"",
-      "defined_out": [
-        "\"registro_raices_cerrado\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_raices_cerrado\""
-      ]
-    },
-    "606": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%1#0",
-        "maybe_value%1#0"
-      ],
-      "stack_out": [
-        "maybe_value%1#0",
-        "maybe_exists%1#0"
-      ]
-    },
-    "607": {
-      "error": "check self.registro_raices_cerrado exists",
-      "op": "assert // check self.registro_raices_cerrado exists",
-      "stack_out": [
-        "maybe_value%1#0"
-      ]
-    },
-    "608": {
-      "op": "!",
-      "defined_out": [
-        "tmp%3#0"
-      ],
-      "stack_out": [
-        "tmp%3#0"
-      ]
-    },
-    "609": {
-      "error": "El registro de ra\u00edces ya fue cerrado",
-      "op": "assert // El registro de ra\u00edces ya fue cerrado",
-      "stack_out": []
-    },
-    "610": {
-      "op": "bytec_1 // \"registro_raices_cerrado\"",
-      "stack_out": [
-        "\"registro_raices_cerrado\""
-      ]
-    },
-    "611": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "\"registro_raices_cerrado\"",
-        "1"
-      ],
-      "stack_out": [
-        "\"registro_raices_cerrado\"",
-        "1"
-      ]
-    },
-    "612": {
-      "op": "app_global_put",
-      "stack_out": []
-    },
-    "613": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "614": {
-      "op": "bytec 5 // \"contador_raices\"",
-      "defined_out": [
-        "\"contador_raices\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"contador_raices\""
-      ]
-    },
-    "616": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%2#0",
-        "maybe_value%2#0"
-      ],
-      "stack_out": [
-        "maybe_value%2#0",
-        "maybe_exists%2#0"
-      ]
-    },
-    "617": {
-      "error": "check self.contador_raices exists",
-      "op": "assert // check self.contador_raices exists",
-      "stack_out": [
-        "maybe_value%2#0"
-      ]
-    },
-    "618": {
-      "retsub": true,
-      "op": "retsub"
-    },
-    "619": {
-      "subroutine": "smart_contracts.voto3.contract.Voto3.registrar_raiz",
-      "params": {},
-      "block": "registrar_raiz",
-      "stack_in": [],
-      "op": "txn Sender",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "621": {
-      "op": "global CreatorAddress",
-      "defined_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ],
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ]
-    },
-    "623": {
-      "op": "==",
-      "defined_out": [
-        "tmp%2#0"
-      ],
-      "stack_out": [
-        "tmp%2#0"
-      ]
-    },
-    "624": {
-      "error": "Solo el creador puede registrar ra\u00edces",
-      "op": "assert // Solo el creador puede registrar ra\u00edces",
-      "stack_out": []
-    },
-    "625": {
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "0"
-      ],
-      "stack_out": [
-        "0"
-      ]
-    },
-    "626": {
-      "op": "bytec 8 // \"registro_raices_abierto\"",
-      "defined_out": [
-        "\"registro_raices_abierto\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_raices_abierto\""
-      ]
-    },
-    "628": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%0#0",
-        "maybe_value%0#0"
-      ],
-      "stack_out": [
-        "maybe_value%0#0",
-        "maybe_exists%0#0"
-      ]
-    },
-    "629": {
-      "error": "check self.registro_raices_abierto exists",
-      "op": "assert // check self.registro_raices_abierto exists",
-      "stack_out": [
-        "maybe_value%0#0"
-      ]
-    },
-    "630": {
-      "error": "El registro de ra\u00edces no est\u00e1 abierto",
-      "op": "assert // El registro de ra\u00edces no est\u00e1 abierto",
-      "stack_out": []
-    },
-    "631": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "632": {
-      "op": "bytec_1 // \"registro_raices_cerrado\"",
-      "defined_out": [
-        "\"registro_raices_cerrado\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_raices_cerrado\""
-      ]
-    },
-    "633": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%1#0",
-        "maybe_value%1#0"
-      ],
-      "stack_out": [
-        "maybe_value%1#0",
-        "maybe_exists%1#0"
-      ]
-    },
-    "634": {
-      "error": "check self.registro_raices_cerrado exists",
-      "op": "assert // check self.registro_raices_cerrado exists",
-      "stack_out": [
-        "maybe_value%1#0"
-      ]
-    },
-    "635": {
-      "op": "!",
-      "defined_out": [
-        "tmp%3#0"
-      ],
-      "stack_out": [
-        "tmp%3#0"
-      ]
-    },
-    "636": {
-      "error": "El registro de ra\u00edces ya fue cerrado",
-      "op": "assert // El registro de ra\u00edces ya fue cerrado",
-      "stack_out": []
-    },
-    "637": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "638": {
-      "op": "bytec 5 // \"contador_raices\"",
-      "defined_out": [
-        "\"contador_raices\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"contador_raices\""
-      ]
-    },
-    "640": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "current#0",
-        "maybe_exists%2#0"
-      ],
-      "stack_out": [
-        "current#0",
-        "maybe_exists%2#0"
-      ]
-    },
-    "641": {
-      "error": "check self.contador_raices exists",
-      "op": "assert // check self.contador_raices exists",
-      "stack_out": [
-        "current#0"
-      ]
-    },
-    "642": {
-      "op": "dup",
-      "defined_out": [
-        "current#0",
-        "current#0 (copy)"
-      ],
-      "stack_out": [
-        "current#0",
-        "current#0 (copy)"
-      ]
-    },
-    "643": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "1",
-        "current#0",
-        "current#0 (copy)"
-      ],
-      "stack_out": [
-        "current#0",
-        "current#0 (copy)",
-        "1"
-      ]
-    },
-    "644": {
-      "op": "+",
-      "defined_out": [
-        "current#0",
-        "materialized_values%0#0"
-      ],
-      "stack_out": [
-        "current#0",
-        "materialized_values%0#0"
-      ]
-    },
-    "645": {
-      "op": "bytec 5 // \"contador_raices\"",
-      "stack_out": [
-        "current#0",
-        "materialized_values%0#0",
-        "\"contador_raices\""
-      ]
-    },
-    "647": {
-      "op": "swap",
-      "stack_out": [
-        "current#0",
-        "\"contador_raices\"",
-        "materialized_values%0#0"
-      ]
-    },
-    "648": {
-      "op": "app_global_put",
-      "stack_out": [
-        "current#0"
-      ]
-    },
-    "649": {
-      "retsub": true,
-      "op": "retsub"
-    },
-    "650": {
-      "subroutine": "smart_contracts.voto3.contract.Voto3.abrir_registro_anuladores",
-      "params": {},
-      "block": "abrir_registro_anuladores",
-      "stack_in": [],
-      "op": "txn Sender",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "652": {
-      "op": "global CreatorAddress",
-      "defined_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ],
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ]
-    },
-    "654": {
-      "op": "==",
-      "defined_out": [
-        "tmp%2#0"
-      ],
-      "stack_out": [
-        "tmp%2#0"
-      ]
-    },
-    "655": {
-      "error": "Solo el creador puede abrir el registro de anuladores",
-      "op": "assert // Solo el creador puede abrir el registro de anuladores",
-      "stack_out": []
-    },
-    "656": {
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "0"
-      ],
-      "stack_out": [
-        "0"
-      ]
-    },
-    "657": {
-      "op": "bytec_1 // \"registro_raices_cerrado\"",
-      "defined_out": [
-        "\"registro_raices_cerrado\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_raices_cerrado\""
-      ]
-    },
-    "658": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%0#0",
-        "maybe_value%0#0"
-      ],
-      "stack_out": [
-        "maybe_value%0#0",
-        "maybe_exists%0#0"
-      ]
-    },
-    "659": {
-      "error": "check self.registro_raices_cerrado exists",
-      "op": "assert // check self.registro_raices_cerrado exists",
-      "stack_out": [
-        "maybe_value%0#0"
-      ]
-    },
-    "660": {
-      "error": "El registro de ra\u00edces no est\u00e1 cerrado",
-      "op": "assert // El registro de ra\u00edces no est\u00e1 cerrado",
-      "stack_out": []
-    },
-    "661": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "662": {
-      "op": "bytec_3 // \"registro_anuladores_cerrado\"",
-      "defined_out": [
-        "\"registro_anuladores_cerrado\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_anuladores_cerrado\""
-      ]
-    },
-    "663": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%1#0",
-        "maybe_value%1#0"
-      ],
-      "stack_out": [
-        "maybe_value%1#0",
-        "maybe_exists%1#0"
-      ]
-    },
-    "664": {
-      "error": "check self.registro_anuladores_cerrado exists",
-      "op": "assert // check self.registro_anuladores_cerrado exists",
-      "stack_out": [
-        "maybe_value%1#0"
-      ]
-    },
-    "665": {
-      "op": "!",
-      "defined_out": [
-        "tmp%3#0"
-      ],
-      "stack_out": [
-        "tmp%3#0"
-      ]
-    },
-    "666": {
-      "error": "El registro de anuladores ya fue cerrado",
-      "op": "assert // El registro de anuladores ya fue cerrado",
-      "stack_out": []
-    },
-    "667": {
-      "op": "bytec 9 // \"registro_anuladores_abierto\"",
-      "defined_out": [
-        "\"registro_anuladores_abierto\""
-      ],
-      "stack_out": [
-        "\"registro_anuladores_abierto\""
-      ]
-    },
-    "669": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "\"registro_anuladores_abierto\"",
-        "1"
-      ],
-      "stack_out": [
-        "\"registro_anuladores_abierto\"",
-        "1"
-      ]
-    },
-    "670": {
-      "op": "app_global_put",
-      "stack_out": []
-    },
-    "671": {
-      "retsub": true,
-      "op": "retsub"
-    },
-    "672": {
-      "subroutine": "smart_contracts.voto3.contract.Voto3.cerrar_registro_anuladores",
-      "params": {},
-      "block": "cerrar_registro_anuladores",
-      "stack_in": [],
-      "op": "txn Sender",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "674": {
-      "op": "global CreatorAddress",
-      "defined_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ],
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ]
-    },
-    "676": {
-      "op": "==",
-      "defined_out": [
-        "tmp%2#0"
-      ],
-      "stack_out": [
-        "tmp%2#0"
-      ]
-    },
-    "677": {
-      "error": "Solo el creador puede cerrar el registro de anuladores",
-      "op": "assert // Solo el creador puede cerrar el registro de anuladores",
-      "stack_out": []
-    },
-    "678": {
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "0"
-      ],
-      "stack_out": [
-        "0"
-      ]
-    },
-    "679": {
-      "op": "bytec 9 // \"registro_anuladores_abierto\"",
-      "defined_out": [
-        "\"registro_anuladores_abierto\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_anuladores_abierto\""
-      ]
-    },
-    "681": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%0#0",
-        "maybe_value%0#0"
-      ],
-      "stack_out": [
-        "maybe_value%0#0",
-        "maybe_exists%0#0"
-      ]
-    },
-    "682": {
-      "error": "check self.registro_anuladores_abierto exists",
-      "op": "assert // check self.registro_anuladores_abierto exists",
-      "stack_out": [
-        "maybe_value%0#0"
-      ]
-    },
-    "683": {
-      "error": "El registro de ra\u00edces no est\u00e1 cerrado",
-      "op": "assert // El registro de ra\u00edces no est\u00e1 cerrado",
-      "stack_out": []
-    },
-    "684": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "685": {
-      "op": "bytec_3 // \"registro_anuladores_cerrado\"",
-      "defined_out": [
-        "\"registro_anuladores_cerrado\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_anuladores_cerrado\""
-      ]
-    },
-    "686": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%1#0",
-        "maybe_value%1#0"
-      ],
-      "stack_out": [
-        "maybe_value%1#0",
-        "maybe_exists%1#0"
-      ]
-    },
-    "687": {
-      "error": "check self.registro_anuladores_cerrado exists",
-      "op": "assert // check self.registro_anuladores_cerrado exists",
-      "stack_out": [
-        "maybe_value%1#0"
-      ]
-    },
-    "688": {
-      "op": "!",
-      "defined_out": [
-        "tmp%3#0"
-      ],
-      "stack_out": [
-        "tmp%3#0"
-      ]
-    },
-    "689": {
-      "error": "El registro de ra\u00edces ya fue cerrado",
-      "op": "assert // El registro de ra\u00edces ya fue cerrado",
-      "stack_out": []
-    },
-    "690": {
-      "op": "bytec_3 // \"registro_anuladores_cerrado\"",
-      "stack_out": [
-        "\"registro_anuladores_cerrado\""
-      ]
-    },
-    "691": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "\"registro_anuladores_cerrado\"",
-        "1"
-      ],
-      "stack_out": [
-        "\"registro_anuladores_cerrado\"",
-        "1"
-      ]
-    },
-    "692": {
-      "op": "app_global_put",
-      "stack_out": []
-    },
-    "693": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "694": {
-      "op": "bytec 6 // \"contador_anuladores\"",
-      "defined_out": [
-        "\"contador_anuladores\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"contador_anuladores\""
-      ]
-    },
-    "696": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%2#0",
-        "maybe_value%2#0"
-      ],
-      "stack_out": [
-        "maybe_value%2#0",
-        "maybe_exists%2#0"
-      ]
-    },
-    "697": {
-      "error": "check self.contador_anuladores exists",
-      "op": "assert // check self.contador_anuladores exists",
-      "stack_out": [
-        "maybe_value%2#0"
-      ]
-    },
-    "698": {
-      "retsub": true,
-      "op": "retsub"
-    },
-    "699": {
-      "subroutine": "smart_contracts.voto3.contract.Voto3.registrar_anulador",
-      "params": {},
-      "block": "registrar_anulador",
-      "stack_in": [],
-      "op": "txn Sender",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "701": {
-      "op": "global CreatorAddress",
-      "defined_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ],
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ]
-    },
-    "703": {
-      "op": "==",
-      "defined_out": [
-        "tmp%2#0"
-      ],
-      "stack_out": [
-        "tmp%2#0"
-      ]
-    },
-    "704": {
-      "error": "Solo el creador puede registrar anuladores",
-      "op": "assert // Solo el creador puede registrar anuladores",
-      "stack_out": []
-    },
-    "705": {
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "0"
-      ],
-      "stack_out": [
-        "0"
-      ]
-    },
-    "706": {
-      "op": "bytec 9 // \"registro_anuladores_abierto\"",
-      "defined_out": [
-        "\"registro_anuladores_abierto\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_anuladores_abierto\""
-      ]
-    },
-    "708": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%0#0",
-        "maybe_value%0#0"
-      ],
-      "stack_out": [
-        "maybe_value%0#0",
-        "maybe_exists%0#0"
-      ]
-    },
-    "709": {
-      "error": "check self.registro_anuladores_abierto exists",
-      "op": "assert // check self.registro_anuladores_abierto exists",
-      "stack_out": [
-        "maybe_value%0#0"
-      ]
-    },
-    "710": {
-      "error": "El registro de anuladores no est\u00e1 abierto",
-      "op": "assert // El registro de anuladores no est\u00e1 abierto",
-      "stack_out": []
-    },
-    "711": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "712": {
-      "op": "bytec_3 // \"registro_anuladores_cerrado\"",
-      "defined_out": [
-        "\"registro_anuladores_cerrado\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"registro_anuladores_cerrado\""
-      ]
-    },
-    "713": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "maybe_exists%1#0",
-        "maybe_value%1#0"
-      ],
-      "stack_out": [
-        "maybe_value%1#0",
-        "maybe_exists%1#0"
-      ]
-    },
-    "714": {
-      "error": "check self.registro_anuladores_cerrado exists",
-      "op": "assert // check self.registro_anuladores_cerrado exists",
-      "stack_out": [
-        "maybe_value%1#0"
-      ]
-    },
-    "715": {
-      "op": "!",
-      "defined_out": [
-        "tmp%3#0"
-      ],
-      "stack_out": [
-        "tmp%3#0"
-      ]
-    },
-    "716": {
-      "error": "El registro de anuladores ya fue cerrado",
-      "op": "assert // El registro de anuladores ya fue cerrado",
-      "stack_out": []
-    },
-    "717": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "718": {
-      "op": "bytec 6 // \"contador_anuladores\"",
-      "defined_out": [
-        "\"contador_anuladores\"",
-        "0"
-      ],
-      "stack_out": [
-        "0",
-        "\"contador_anuladores\""
-      ]
-    },
-    "720": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "current#0",
-        "maybe_exists%2#0"
-      ],
-      "stack_out": [
-        "current#0",
-        "maybe_exists%2#0"
-      ]
-    },
-    "721": {
-      "error": "check self.contador_anuladores exists",
-      "op": "assert // check self.contador_anuladores exists",
-      "stack_out": [
-        "current#0"
-      ]
-    },
-    "722": {
-      "op": "dup",
-      "defined_out": [
-        "current#0",
-        "current#0 (copy)"
-      ],
-      "stack_out": [
-        "current#0",
-        "current#0 (copy)"
-      ]
-    },
-    "723": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "1",
-        "current#0",
-        "current#0 (copy)"
-      ],
-      "stack_out": [
-        "current#0",
-        "current#0 (copy)",
-        "1"
-      ]
-    },
-    "724": {
-      "op": "+",
-      "defined_out": [
-        "current#0",
-        "materialized_values%0#0"
-      ],
-      "stack_out": [
-        "current#0",
-        "materialized_values%0#0"
-      ]
-    },
-    "725": {
-      "op": "bytec 6 // \"contador_anuladores\"",
-      "stack_out": [
-        "current#0",
-        "materialized_values%0#0",
-        "\"contador_anuladores\""
-      ]
-    },
-    "727": {
-      "op": "swap",
-      "stack_out": [
-        "current#0",
-        "\"contador_anuladores\"",
-        "materialized_values%0#0"
-      ]
-    },
-    "728": {
-      "op": "app_global_put",
-      "stack_out": [
-        "current#0"
-      ]
-    },
-    "729": {
+    "185": {
       "retsub": true,
       "op": "retsub"
     }

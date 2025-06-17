@@ -9,7 +9,6 @@ if (!nombreEleccion) {
 
 try {
     const { direccion, mnemotecnico } = await crearCuentaEleccion(nombreEleccion);
-    
     if (direccion !== undefined)    console.log('  direccion    : ', direccion);
     if (mnemotecnico !== undefined) console.log('  mnemotecnico : ', mnemotecnico);
 } catch (err) {

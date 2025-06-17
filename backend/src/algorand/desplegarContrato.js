@@ -1,11 +1,14 @@
 // src/deployer/deployContract.js
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { randomBytes } from 'node:crypto';
-import crypto from 'node:crypto';
-
-import algorand, { account } from './algorand.js';
 import { stringifyJSON } from 'algosdk';
+
+import algorand, { ELECTION_MNEMONIC } from './algorand.js';
+import { inicializarEleccion } from './voto3.js';
+
+
+const account = algorand.account.fromMnemonic(ELECTION_MNEMONIC);
+console.log(`Cuenta de despliegue: ${account.addr}`);
 
 export async function deployContract(artifactsDir) {
   const approvalFile = (await findFile(artifactsDir, '.approval.teal'));
@@ -36,42 +39,63 @@ export async function deployContract(artifactsDir) {
 
   console.log(`  Global State Schema: ${globalInts} ints, ${globalByteSlices} bytes`);
   console.log(`  Local State Schema : ${localInts} ints, ${localByteSlices} bytes`);
-/**
-  const selector = crypto
-    .createHash('sha512-256')
-    .update('create()void')
-    .digest()
-    .subarray(0, 4);              // Uint8Array [ 0x4c, 0x5c, 0x61, 0xba ]
 
-  console.log(`  Selector: ${selector.toString('hex')}`);
-*/
-  const result = await algorand.send.appCreate({
-    sender: account.addr,
-    approvalProgram,
-    clearStateProgram,
-    schema: {
-      globalInts,
-      globalByteSlices,
-      localInts,
-      localByteSlices,
+  //-------------
+
+  const resultCreate = await algorand.send.appCreate(
+    {
+      sender: account.addr,
+      approvalProgram,
+      clearStateProgram,
+      schema: {
+        globalInts,
+        globalByteSlices,
+        localInts,
+        localByteSlices,
+      },
+      // args: [Uint8Array.from([0x4c, 0x5c, 0x61, 0xba])],
+      // lease: Uint8Array.from(randomBytes(32)),
     },
-    args: [Uint8Array.from([0x4c, 0x5c, 0x61, 0xba])],
-    lease: Uint8Array.from(randomBytes(32)),
+    {
+      skipWaiting: false,
+      skipSimulate: true,
+      maxRoundsToWaitForConfirmation: 12,
+      maxFee: (2000).microAlgos(),
+    }
+  );
 
-    extraFee: (10000000).microAlgo(),
+  console.log(`Contrato desplegado con éxito: ${resultCreate.appId}`);
+  console.log(`  AppI:    ${resultCreate.appId}`);
+  console.log(`  Address: ${resultCreate.appAddress}`);
+  console.log(`  TxId:    ${resultCreate.txId}`);
 
-    skipWaiting: false,
-    skipSimulate: true,
-    maxRoundsToWaitForConfirmation: 12,
-  });
+  const resultPayment = await algorand.send.payment(
+    {
+      sender: account.addr,
+      receiver: resultCreate.appAddress,
+      amount: (100).algos(),
+    },
+    {
+      skipWaiting: false,
+      skipSimulate: true,
+      maxRoundsToWaitForConfirmation: 12,
+    }
+  );
 
-  console.log(`Contrato desplegado con éxito: ${result.appId}`);
-  console.log(`  txID: ${result.txID}`);
+  console.log(`Contrato inicializado con éxito: ${resultPayment.txId}`);
+
+  const resultInicializar = await inicializarEleccion (
+    account.addr,
+    resultCreate.appId,
+    [] // No args para inicializar_eleccion
+  )
+
+  console.log(`Contrato inicializado con éxito: ${resultInicializar.txId}`);
 
   return {
-    appId: result.appId,
-    txId: result.txId,
-    confirmedRound: result.confirmation?.confirmedRound ?? 0n,
+    appId: resultCreate.appId,
+    txId: resultCreate.txId,
+    confirmedRound: resultCreate.confirmation?.confirmedRound ?? 0n,
   };
 }
 
