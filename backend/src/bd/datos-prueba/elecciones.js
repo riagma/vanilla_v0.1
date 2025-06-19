@@ -18,7 +18,7 @@ export async function cargarElecciones(bd) {
         fechaFinRegistro: subDays(hoy, 45),
         fechaInicioVotacion: subDays(hoy, 30),
         fechaFinVotacion: subDays(hoy, 29),
-        fechaCelebracion: subDays(hoy, 29),
+        fechaEscrutinio: subDays(hoy, 29),
         estado: "CERRADA"
       },
       {
@@ -28,7 +28,7 @@ export async function cargarElecciones(bd) {
         fechaFinRegistro: addDays(hoy, 10),
         fechaInicioVotacion: addDays(hoy, 15),
         fechaFinVotacion: addDays(hoy, 16),
-        fechaCelebracion: addDays(hoy, 16),
+        fechaEscrutinio: addDays(hoy, 16),
         estado: "REGISTRO"
       },
       {
@@ -38,7 +38,7 @@ export async function cargarElecciones(bd) {
         fechaFinRegistro: subDays(hoy, 5),
         fechaInicioVotacion: subDays(hoy, 1),
         fechaFinVotacion: addDays(hoy, 1),
-        fechaCelebracion: addDays(hoy, 1),
+        fechaEscrutinio: addDays(hoy, 1),
         estado: "VOTACION"
       },
       {
@@ -48,7 +48,7 @@ export async function cargarElecciones(bd) {
         fechaFinRegistro: addDays(hoy, 45),
         fechaInicioVotacion: addDays(hoy, 60),
         fechaFinVotacion: addDays(hoy, 61),
-        fechaCelebracion: addDays(hoy, 61),
+        fechaEscrutinio: addDays(hoy, 61),
         estado: "PENDIENTE"
       }
     ];
@@ -59,7 +59,7 @@ export async function cargarElecciones(bd) {
         nombre, descripcion,
         fechaInicioRegistro, fechaFinRegistro,
         fechaInicioVotacion, fechaFinVotacion,
-        fechaCelebracion, estado
+        fechaEscrutinio, estado
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
@@ -71,7 +71,7 @@ export async function cargarElecciones(bd) {
         eleccion.fechaFinRegistro.toISOString(),
         eleccion.fechaInicioVotacion.toISOString(),
         eleccion.fechaFinVotacion.toISOString(),
-        eleccion.fechaCelebracion.toISOString(),
+        eleccion.fechaEscrutinio.toISOString(),
         eleccion.estado
       ]);
       console.log(`Creada elección: ${eleccion.nombre}`);

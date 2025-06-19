@@ -6,8 +6,8 @@ export class ResultadoPartidoDAO extends BaseDAO {
   }
 
   // Registrar resultado (puedes usar this.crear directamente)
-  async registrarResultado(bd, partidoId, eleccionId, votos, porcentaje) {
-    return await this.crear(bd, {
+  registrarResultado(bd, partidoId, eleccionId, votos, porcentaje) {
+    return this.crear(bd, {
       partidoId,
       eleccionId,
       votos,
@@ -16,8 +16,8 @@ export class ResultadoPartidoDAO extends BaseDAO {
   }
 
   // Actualizar resultado por partidoId y eleccionId (clave compuesta)
-  async actualizarResultado(bd, partidoId, eleccionId, votos, porcentaje) {
-    return await this.actualizar(
+  actualizarResultado(bd, partidoId, eleccionId, votos, porcentaje) {
+    return this.actualizar(
       bd,
       { partidoId, eleccionId },
       { votos, porcentaje }
@@ -25,36 +25,34 @@ export class ResultadoPartidoDAO extends BaseDAO {
   }
 
   // Eliminar resultado por partidoId y eleccionId (clave compuesta)
-  async eliminarResultado(bd, partidoId, eleccionId) {
-    return await this.eliminar(bd, { partidoId, eleccionId });
+  eliminarResultado(bd, partidoId, eleccionId) {
+    return this.eliminar(bd, { partidoId, eleccionId });
   }
 
   // Obtener resultado por partidoId y eleccionId (clave compuesta)
-  async obtenerPorPartidoYEleccion(bd, partidoId, eleccionId) {
-    return await this.obtenerPorId(bd, { partidoId, eleccionId });
+  obtenerPorPartidoYEleccion(bd, partidoId, eleccionId) {
+    return this.obtenerPorId(bd, { partidoId, eleccionId });
   }
 
   // Obtener todos los resultados de una elección
-  async obtenerPorEleccion(bd, eleccionId) {
-    return await bd.all(
+  obtenerPorEleccion(bd, eleccionId) {
+    return bd.prepare(
       `SELECT rp.*, p.nombre as nombrePartido
        FROM ${this.nombreTabla} rp
        INNER JOIN Partido p ON rp.partidoId = p.siglas
        WHERE rp.eleccionId = ?
-       ORDER BY rp.votos DESC`,
-      [eleccionId]
-    );
+       ORDER BY rp.votos DESC`
+    ).all([eleccionId]);
   }
 
   // Obtener todos los resultados de un partido en todas las elecciones
-  async obtenerPorPartido(bd, partidoId) {
-    return await bd.all(
+  obtenerPorPartido(bd, partidoId) {
+    return bd.prepare(
       `SELECT rp.*, e.nombre as nombreEleccion
        FROM ${this.nombreTabla} rp
        INNER JOIN Eleccion e ON rp.eleccionId = e.id
        WHERE rp.partidoId = ?
-       ORDER BY e.fechaCelebracion DESC`,
-      [partidoId]
-    );
+       ORDER BY e.fechaEscrutinio DESC`
+    ).all([partidoId]);
   }
 }

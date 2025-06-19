@@ -17,50 +17,35 @@ export class BaseDAO {
     }
   }
 
-  async obtenerTodos(bd) {
-    return await bd.all(`SELECT * FROM ${this.nombreTabla}`);
+  obtenerTodos(bd) {
+    return bd.prepare(`SELECT * FROM ${this.nombreTabla}`).all();
   }
 
-  async obtenerPorId(bd, id) {
-    console.log('Obteniendo registro por ID:', id);
+  obtenerPorId(bd, id) {
     const { condiciones, valores } = this.crearWhere(id);
-    console.log('Condiciones de búsqueda:', condiciones, 'Valores:', valores);
-    return await bd.get(
-      `SELECT * FROM ${this.nombreTabla} WHERE ${condiciones}`,
-      valores
-    );
+    return bd.prepare(`SELECT * FROM ${this.nombreTabla} WHERE ${condiciones}`).get(valores);
   }
 
-  async crear(bd, datos) {
+  crear(bd, datos) {
     const campos = Object.keys(datos);
     const valores = Object.values(datos);
     const marcadores = campos.map(() => '?').join(',');
-    const resultado = await bd.run(
-      `INSERT INTO ${this.nombreTabla} (${campos.join(',')}) VALUES (${marcadores})`,
-      valores
-    );
-    return resultado.lastID;
+    const resultado = bd.prepare(`INSERT INTO ${this.nombreTabla} (${campos.join(',')}) VALUES (${marcadores})`).run(valores);
+    return resultado.lastInsertRowid || resultado.changes;
   }
 
-  async actualizar(bd, id, datos) {
+  actualizar(bd, id, datos) {
     const campos = Object.keys(datos);
     const valores = Object.values(datos);
     const actualizaciones = campos.map(campo => `${campo} = ?`).join(',');
     const { condiciones, valores: valoresId } = this.crearWhere(id);
-
-    const resultado = await bd.run(
-      `UPDATE ${this.nombreTabla} SET ${actualizaciones} WHERE ${condiciones}`,
-      [...valores, ...valoresId]
-    );
+    const resultado = bd.run(`UPDATE ${this.nombreTabla} SET ${actualizaciones} WHERE ${condiciones}`).run([...valores, ...valoresId]);
     return resultado.changes;
   }
 
-  async eliminar(bd, id) {
+  eliminar(bd, id) {
     const { condiciones, valores } = this.crearWhere(id);
-    const resultado = await bd.run(
-      `DELETE FROM ${this.nombreTabla} WHERE ${condiciones}`,
-      valores
-    );
+    const resultado = bd.prepare(`DELETE FROM ${this.nombreTabla} WHERE ${condiciones}`).run(valores);
     return resultado.changes;
   }
 }

@@ -15,7 +15,6 @@ export const algorand =
   
   process.env.NODE_ENV === 'MainNet' ? AlgorandClient.mainNet() :
   process.env.NODE_ENV === 'TestNet' ? AlgorandClient.testNet() :
-
   process.env.NODE_ENV === 'LocalNet' ? AlgorandClient.defaultLocalNet() : null;
 
 if(!algorand) {

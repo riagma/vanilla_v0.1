@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { crearCuentaEleccion } from '../algorand/crearCuentaEleccion.js';
+import { crearCuentaEleccion } from './crearCuentaEleccion.js';
 
 const nombreEleccion = process.argv[2];
 if (!nombreEleccion) {

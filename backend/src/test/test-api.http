@@ -82,7 +82,7 @@ Content-Type: application/json
   "fechaFinRegistro": "2024-05-15T00:00:00Z",
   "fechaInicioVotacion": "2024-05-16T00:00:00Z",
   "fechaFinVotacion": "2024-05-17T00:00:00Z",
-  "fechaCelebracion": "2024-05-18T00:00:00Z",
+  "fechaEscrutinio": "2024-05-18T00:00:00Z",
   "estado": "PENDIENTE"
 }
 

@@ -1,39 +1,6 @@
 # smart_contracts/voto3/contract.py
-from algopy import ARC4Contract, UInt64, Asset, Global, Txn, itxn
+from algopy import ARC4Contract, UInt64, Asset, Global, Txn, itxn, String, Bytes
 from algopy.arc4 import abimethod
-
-
-# class Voto3(ARC4Contract):
-#     def __init__(self) -> None:
-#         self.compromisos_registrados = UInt64(0)
-#         self.asset_id = Asset(0)
-
-#     @abimethod(allow_actions=["NoOp"])
-#     def inicializar_eleccion(self) -> None:
-#         assert (
-#             Txn.sender == Global.creator_address
-#         ), "Solo el creador puede inicializar la elección"
-#         asset_txn = itxn.AssetConfig(
-#             asset_name=b"PAPELETA",
-#             unit_name=b"V3P",
-#             total=UInt64(100000000),
-#             decimals=0,
-#             manager=Global.current_application_address,
-#             clawback=Global.current_application_address,
-#         ).submit()
-#         self.asset_id = asset_txn.created_asset
-
-#     @abimethod(allow_actions=["NoOp"])
-#     def registrar_compromiso(self) -> None:
-#         assert (
-#             Txn.sender == Global.creator_address
-#         ), "Solo el creador puede registrar compromisos"
-#         self.compromisos_registrados += UInt64(1)
-
-
-# # pyright: reportMissingModuleSource=false
-# from algopy import ARC4Contract, String, UInt64, Global, Txn, itxn, subroutine
-# from algopy.arc4 import abimethod
 
 
 class Voto3(ARC4Contract):
@@ -41,14 +8,8 @@ class Voto3(ARC4Contract):
     contador_compromisos: UInt64
     contador_raices: UInt64
     contador_anuladores: UInt64
-
-    # Estados de registro
-    registro_compromisos_abierto: bool
-    registro_compromisos_cerrado: bool
-    registro_raices_abierto: bool
-    registro_raices_cerrado: bool
-    registro_anuladores_abierto: bool
-    registro_anuladores_cerrado: bool
+    estado_contrato: UInt64
+    asset_id: Asset
 
     def __init__(self) -> None:
         super().__init__()
@@ -56,14 +17,59 @@ class Voto3(ARC4Contract):
         self.contador_compromisos = UInt64(0)
         self.contador_raices = UInt64(0)
         self.contador_anuladores = UInt64(0)
+        self.estado_contrato = UInt64(0)
+        self.asset_id = Asset(0)
 
-        # Inicializar estados de registro
-        self.registro_compromisos_abierto = False
-        self.registro_compromisos_cerrado = False
-        self.registro_raices_abierto = False
-        self.registro_raices_cerrado = False
-        self.registro_anuladores_abierto = False
-        self.registro_anuladores_cerrado = False
+    # ---------------
+
+    @abimethod(allow_actions=["NoOp"])
+    def inicializar_eleccion(
+        self,
+        asset_name: String,
+        unit_name: String,
+        total: UInt64,
+    ) -> UInt64:
+        assert (
+            Txn.sender == Global.creator_address
+        ), "Solo el creador puede inicializar la elección"
+
+        name_bytes = asset_name.bytes
+        unit_bytes = unit_name.bytes
+
+        assert name_bytes.length <= 32, "asset_name demasiado largo"
+        assert unit_bytes.length <= 8, "unit_name demasiado largo"
+
+        asset_txn = itxn.AssetConfig(
+            asset_name=name_bytes,
+            unit_name=unit_bytes,
+            total=total,
+            decimals=0,
+            manager=Global.current_application_address,
+            clawback=Global.current_application_address,
+        ).submit()
+
+        self.asset_id = asset_txn.created_asset
+        self.estado_contrato = UInt64(1)  # Cambiar estado tras inicialización
+        return self.asset_id.id
+
+    # ---------------
+
+    @abimethod()
+    def leer_estado_contrato(self) -> UInt64:
+        assert (
+            Txn.sender == Global.creator_address
+        ), "Solo el creador puede leer el estado del contrato"
+        return self.estado_contrato
+
+    @abimethod()  # Agregar @abimethod
+    def establecer_estado_contrato(self, nuevo_estado: UInt64) -> UInt64:
+        assert (
+            Txn.sender == Global.creator_address
+        ), "Solo el creador puede establecer el estado del contrato"
+        self.estado_contrato = nuevo_estado
+        return self.estado_contrato
+
+    # --------------
 
     # Métodos para compromisos
     @abimethod()
@@ -71,23 +77,20 @@ class Voto3(ARC4Contract):
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede abrir el registro de compromisos"
-        assert (
-            not self.registro_compromisos_cerrado
-        ), "El registro de compromisos ya fue cerrado"
-        self.registro_compromisos_abierto = True
+        assert self.estado_contrato == UInt64(
+            1
+        ), "El contrato no está en el estado correcto"
+        self.estado_contrato = UInt64(2)
 
     @abimethod()
     def cerrar_registro_compromisos(self) -> UInt64:
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede cerrar el registro de compromisos"
-        assert (
-            self.registro_compromisos_abierto
-        ), "El registro de compromisos no está abierto"
-        assert (
-            not self.registro_compromisos_cerrado
-        ), "El registro de compromisos ya fue cerrado"
-        self.registro_compromisos_cerrado = True
+        assert self.estado_contrato == UInt64(
+            2
+        ), "El contrato no está en el estado correcto"
+        self.estado_contrato = UInt64(3)
         return self.contador_compromisos
 
     @abimethod()
@@ -95,15 +98,14 @@ class Voto3(ARC4Contract):
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede registrar compromisos"
-        assert (
-            self.registro_compromisos_abierto
-        ), "El registro de compromisos no está abierto"
-        assert (
-            not self.registro_compromisos_cerrado
-        ), "El registro de compromisos ya fue cerrado"
+        assert self.estado_contrato == UInt64(
+            2
+        ), "El contrato no está en el estado correcto"
         current = self.contador_compromisos
         self.contador_compromisos = current + 1
         return current
+
+    # --------------
 
     # Métodos para raíces
     @abimethod()
@@ -111,20 +113,20 @@ class Voto3(ARC4Contract):
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede abrir el registro de raíces"
-        assert (
-            self.registro_compromisos_cerrado
-        ), "El registro de compromisos no está cerrado"
-        assert not self.registro_raices_cerrado, "El registro de raíces ya fue cerrado"
-        self.registro_raices_abierto = True
+        assert self.estado_contrato == UInt64(
+            3
+        ), "El contrato no está en el estado correcto"
+        self.estado_contrato = UInt64(4)
 
     @abimethod()
     def cerrar_registro_raices(self) -> UInt64:
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede cerrar el registro de raíces"
-        assert self.registro_raices_abierto, "El registro de raíces no está cerrado"
-        assert not self.registro_raices_cerrado, "El registro de raíces ya fue cerrado"
-        self.registro_raices_cerrado = True
+        assert self.estado_contrato == UInt64(
+            4
+        ), "El contrato no está en el estado correcto"
+        self.estado_contrato = UInt64(5)
         return self.contador_raices
 
     @abimethod()
@@ -132,11 +134,14 @@ class Voto3(ARC4Contract):
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede registrar raíces"
-        assert self.registro_raices_abierto, "El registro de raíces no está abierto"
-        assert not self.registro_raices_cerrado, "El registro de raíces ya fue cerrado"
+        assert self.estado_contrato == UInt64(
+            4
+        ), "El contrato no está en el estado correcto"
         current = self.contador_raices
         self.contador_raices = current + 1
         return current
+
+    # --------------
 
     # Métodos para anuladores
     @abimethod()
@@ -144,22 +149,20 @@ class Voto3(ARC4Contract):
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede abrir el registro de anuladores"
-        assert self.registro_raices_cerrado, "El registro de raíces no está cerrado"
-        assert (
-            not self.registro_anuladores_cerrado
-        ), "El registro de anuladores ya fue cerrado"
-        self.registro_anuladores_abierto = True
+        assert self.estado_contrato == UInt64(
+            5
+        ), "El contrato no está en el estado correcto"
+        self.estado_contrato = UInt64(6)
 
     @abimethod()
     def cerrar_registro_anuladores(self) -> UInt64:
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede cerrar el registro de anuladores"
-        assert self.registro_anuladores_abierto, "El registro de raíces no está cerrado"
-        assert (
-            not self.registro_anuladores_cerrado
-        ), "El registro de raíces ya fue cerrado"
-        self.registro_anuladores_cerrado = True
+        assert self.estado_contrato == UInt64(
+            6
+        ), "El contrato no está en el estado correcto"
+        self.estado_contrato = UInt64(7)
         return self.contador_anuladores
 
     @abimethod()
@@ -167,12 +170,9 @@ class Voto3(ARC4Contract):
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede registrar anuladores"
-        assert (
-            self.registro_anuladores_abierto
-        ), "El registro de anuladores no está abierto"
-        assert (
-            not self.registro_anuladores_cerrado
-        ), "El registro de anuladores ya fue cerrado"
+        assert self.estado_contrato == UInt64(
+            6
+        ), "El contrato no está en el estado correcto"
         current = self.contador_anuladores
         self.contador_anuladores = current + 1
         return current

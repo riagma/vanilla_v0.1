@@ -1,5 +1,5 @@
 // src/deployer/deployContract.js
-import { daos } from '../bd/DAOs.js';
+import { eleccionDAO } from '../bd/DAOs.js';
 
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -11,37 +11,13 @@ import { establecerClienteVoto3 } from './serviciosVoto3.js';
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
-export async function desplegarContrato(bd, cuentaId) {
+export async function asociarContratoEleccion(bd, contratoId, eleccionId) {
 
-  console.log(`Desplegando contrato: ${cuentaId} - ${process.env.ARTIFACTS_DIR}`);
+  console.log(`Asociando contrato: ${contratoId} a elección ${eleccionId}`);
 
-  const { approvalProgram, clearStateProgram, schema } = await _leerArtefactos(process.env.ARTIFACTS_DIR);
+  const eleccion = eleccionDAO.obtenerPorId(eleccionId);
 
-  const { secreto } = _leerBaseDatos(bd, cuentaId);
-
-  //-------------
-
-  const account = algorand.account.fromMnemonic(secreto);
-  console.log(`Cuenta de despliegue: ${account.addr}`);
-
-  const resultCreate = await algorand.send.appCreate(
-    {
-      sender: account.addr,
-      approvalProgram,
-      clearStateProgram,
-      schema,
-      // args: [Uint8Array.from([0x4c, 0x5c, 0x61, 0xba])],
-      // lease: Uint8Array.from(randomBytes(32)),
-    },
-    {
-      skipWaiting: false,
-      skipSimulate: true,
-      maxRoundsToWaitForConfirmation: 12,
-      maxFee: (2000).microAlgos(),
-    }
-  );
-
-  const { contratoId } = _escribirBaseDatos(bd, cuentaId, resultCreate.appId, resultCreate.appAddress);
+  console.log
 
   //-------------
 

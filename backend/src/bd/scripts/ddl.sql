@@ -23,8 +23,8 @@ CREATE TABLE Eleccion (
   fechaFinRegistro TEXT NOT NULL,
   fechaInicioVotacion TEXT NOT NULL,
   fechaFinVotacion TEXT NOT NULL,
-  fechaCelebracion TEXT NOT NULL,
-  cuentaId INTEGER,
+  fechaEscrutinio TEXT NOT NULL,
+  contratoId INTEGER
   estado TEXT NOT NULL
 );
 

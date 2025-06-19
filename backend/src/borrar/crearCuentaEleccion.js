@@ -1,4 +1,4 @@
-import algorand, { dispenser }  from "./algorand.js";
+import algorand, { dispenser }  from "../algorand/algorand.js";
 import algosdk from 'algosdk';
 
 export async function crearCuentaEleccion(nombreEleccion) {

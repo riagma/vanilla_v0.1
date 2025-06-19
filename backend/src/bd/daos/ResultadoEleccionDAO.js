@@ -6,40 +6,41 @@ export class ResultadoEleccionDAO extends BaseDAO {
   }
 
   // Crear resultado (puedes usar this.crear directamente si los campos coinciden)
-  async crearResultado(bd, datos) {
-    return await this.crear(bd, {
+  crearResultado(bd, datos) {
+    return this.crear(bd, {
       ...datos,
       fechaRecuento: datos.fechaRecuento || new Date().toISOString()
     });
   }
 
   // Obtener resultado por eleccionId (clave alternativa)
-  async obtenerPorEleccionId(bd, eleccionId) {
-    return await this.obtenerPorId(bd, { eleccionId });
+  obtenerPorEleccionId(bd, eleccionId) {
+    return bd.prepare(
+      'SELECT * FROM ResultadoEleccion WHERE eleccionId = ?'
+    ).get([eleccionId]);
   }
 
   // Actualizar por eleccionId (clave alternativa)
-  async actualizarPorEleccionId(bd, eleccionId, datos) {
-    return await this.actualizar(bd, { eleccionId }, datos);
+  actualizarPorEleccionId(bd, eleccionId, datos) {
+    return this.actualizar(bd, { eleccionId }, datos);
   }
 
   // Eliminar por eleccionId (clave alternativa)
-  async eliminarPorEleccionId(bd, eleccionId) {
-    return await this.eliminar(bd, { eleccionId });
+  eliminarPorEleccionId(bd, eleccionId) {
+    return this.eliminar(bd, { eleccionId });
   }
 
   // Obtener resultado completo con partidos
-  async obtenerResultadoCompleto(bd, eleccionId) {
-    const resultado = await this.obtenerPorId(bd, { eleccionId });
+  obtenerResultadoCompleto(bd, eleccionId) {
+    const resultado = this.obtenerPorId(bd, { eleccionId });
     if (!resultado) return null;
 
-    const partidosResultados = await bd.all(
+    const partidosResultados = bd.prepare(
       `SELECT p.nombre, p.siglas, rp.votos, rp.porcentaje
        FROM ResultadoPartido rp
        INNER JOIN Partido p ON rp.partidoId = p.siglas
-       WHERE rp.eleccionId = ?`,
-      [eleccionId]
-    );
+       WHERE rp.eleccionId = ?`
+    ).all([eleccionId]);
 
     return {
       ...resultado,

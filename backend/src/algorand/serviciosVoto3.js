@@ -1,18 +1,19 @@
-import { algorand, algod } from './algorand.js';
-import { ABIMethod } from 'algosdk';
-import { Voto3Client } from './voto3.js';
-import { daos } from '../bd/daos.js';
-
-
 import { randomBytes } from 'node:crypto';
+import { ABIMethod } from 'algosdk';
+import { algorand } from './algorand.js';
+import { daos } from '../bd/DAOs.js';
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
 const ABIinicializarEleccion = new ABIMethod({
   name: 'inicializar_eleccion',
-  args: [],
-  returns: { type: 'void' },
+  args: [
+    { type: 'string', name: 'asset_name' },
+    { type: 'string', name: 'unit_name' },
+    { type: 'uint64', name: 'total' }
+  ],
+  returns: { type: 'uint64' },
 });
 
 //--------------
@@ -35,85 +36,190 @@ const ABIregistrarCompromiso = new ABIMethod({
   returns: { type: 'void' },
 });
 
+//--------------
+
+const ABIabrirRegistroRaices = new ABIMethod({
+  name: 'abrir_registro_raices',
+  args: [],
+  returns: { type: 'void' },
+});
+
+const ABIcerrarRegistroRaices = new ABIMethod({
+  name: 'cerrar_registro_raices',
+  args: [],
+  returns: { type: 'void' },
+});
+
+const ABIregistrarRaiz = new ABIMethod({
+  name: 'registrar_raiz',
+  args: [],
+  returns: { type: 'void' },
+});
+
+//--------------
+
+const ABIabrirRegistroAnuladores = new ABIMethod({
+  name: 'abrir_registro_anuladores',
+  args: [],
+  returns: { type: 'void' },
+});
+
+const ABIcerrarRegistroAnuladores = new ABIMethod({
+  name: 'cerrar_registro_anuladores',
+  args: [],
+  returns: { type: 'void' },
+});
+
+const ABIregistrarAnulador = new ABIMethod({
+  name: 'registrar_anulador',
+  args: [],
+  returns: { type: 'void' },
+});
+
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
-export async function inicializarEleccion(bd, { contratoId, args = [] }) {
-  const { sender, appId } = establecerClienteVoto3(bd, { contratoId });
-  const { txId, confirmation } = await algorand.send.appCallMethodCall({
+async function _llamarMetodoVoto3(bd, { contratoId, method, args = [], note, lease, extraFee }) {
+  console.log(`Ejecutando llamada al método ${method.name}`);
+  const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
+  const params = {
     sender,
     appId,
-    method: ABIinicializarEleccion,
+    method,
     args,
     skipWaiting: false,
     skipSimulate: true,
     maxRoundsToWaitForConfirmation: 12,
     maxFee: (2000).microAlgos(),
+  };
+  if (note) params.note = note;
+  if (lease) params.lease = lease;
+  if (extraFee) params.extraFee = extraFee;
+  const resultado = await algorand.send.appCallMethodCall(params);
+  
+  console.log(`Llamada ejecutad con éxito ${resultado.confirmation?.confirmedRound} - ${resultado.txIds}`);
+  return resultado;
+}
+
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
+export async function inicializarEleccion(bd,
+  {
+    contratoId,
+    nombreToken,
+    nombreUnidades,
+    numeroUnidades,
+  }) {
+
+  const args = [nombreToken, nombreUnidades, BigInt(numeroUnidades) ];
+
+  const resultado = await _llamarMetodoVoto3(bd, {
+    contratoId,
+    method: ABIinicializarEleccion,
+    args,
     extraFee: (1000).microAlgos(),
   });
-  console.log(`Elección inicializada en la ronda ${confirmation?.confirmedRound}`);
-  return { txId, confirmedRound: confirmation?.confirmedRound ?? 0n };
+  return resultado.returns;
 }
 
 //----------------------------------------------------------------------------
 
 export async function abrirRegistroCompromisos(bd, { contratoId }) {
-  const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
-  console.log(`Abriendo registro compromisos ${appId}`);
-  const { txId, confirmation } = await algorand.send.appCallMethodCall({
-    sender,
-    appId,
+  const resultado = await _llamarMetodoVoto3(bd, {
+    contratoId,
     method: ABIabrirRegistroCompromisos,
-    args: [],
-    lease: Uint8Array.from(randomBytes(32)),
-    skipWaiting: false,
-    skipSimulate: true,
-    maxRoundsToWaitForConfirmation: 12,
-    maxFee: (2000).microAlgos(),
   });
-  console.log(`Abierto registro de compromisos en la ronda ${confirmation?.confirmedRound}`);
-  return { txId, confirmedRound: confirmation?.confirmedRound ?? 0n };
+  return resultado.returns;
 }
 
 //----------------------------------------------------------------------------
 
 export async function registrarCompromiso(bd, { contratoId, compromiso }) {
-  const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
   console.log("Registrando compromiso:", compromiso);
-  const { txId, confirmation } = await algorand.send.appCallMethodCall({
-    sender,
-    appId,
+  const resultado = await _llamarMetodoVoto3(bd, {
+    contratoId,
     method: ABIregistrarCompromiso,
-    args: [],
     lease: Uint8Array.from(randomBytes(32)),
-    skipWaiting: false,
-    skipSimulate: true,
-    maxRoundsToWaitForConfirmation: 12,
-    maxFee: (2000).microAlgos(),
-    note: compromiso
+    note: compromiso,
   });
-  console.log(`Compromiso registrado en la ronda ${confirmation?.confirmedRound}`);
-  return { txId, confirmedRound: confirmation?.confirmedRound ?? 0n };
+  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
 }
 
 //----------------------------------------------------------------------------
 
 export async function cerrarRegistroCompromisos(bd, { contratoId }) {
-  const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
-  console.log("Cerrando registro compromisos");
-  const { txId, confirmation } = await algorand.send.appCallMethodCall({
-    sender,
-    appId,
-    method: ABIabrirRegistroCompromisos,
-    args: [],
-    // lease: Uint8Array.from(randomBytes(32)),
-    skipWaiting: false,
-    skipSimulate: true,
-    maxRoundsToWaitForConfirmation: 12,
-    maxFee: (2000).microAlgos(),
+  const resultado = await _llamarMetodoVoto3(bd, {
+    contratoId,
+    method: ABIcerrarRegistroCompromisos,
   });
-  console.log(`Cerrando registro de compromisos en la ronda ${confirmation?.confirmedRound}`);
-  return { txId, confirmedRound: confirmation?.confirmedRound ?? 0n };
+  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+}
+
+//----------------------------------------------------------------------------
+
+export async function abrirRegistroRaices(bd, { contratoId }) {
+  const resultado = await _llamarMetodoVoto3(bd, {
+    contratoId,
+    method: ABIabrirRegistroRaices,
+  });
+  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+}
+
+//----------------------------------------------------------------------------
+
+export async function registrarRaiz(bd, { contratoId, raiz }) {
+  console.log("Registrando raíz:", raiz);
+  const resultado = await _llamarMetodoVoto3(bd, {
+    contratoId,
+    method: ABIregistrarRaiz,
+    lease: Uint8Array.from(randomBytes(32)),
+    note: raiz,
+  });
+  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+}
+
+//----------------------------------------------------------------------------
+
+export async function cerrarRegistroRaices(bd, { contratoId }) {
+  const resultado = await _llamarMetodoVoto3(bd, {
+    contratoId,
+    method: ABIcerrarRegistroRaices,
+  });
+  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+}
+
+//----------------------------------------------------------------------------
+
+export async function abrirRegistroAnuladores(bd, { contratoId }) {
+  const resultado = await _llamarMetodoVoto3(bd, {
+    contratoId,
+    method: ABIabrirRegistroAnuladores,
+  });
+  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+}
+
+//----------------------------------------------------------------------------
+
+export async function registrarAnulador(bd, { contratoId, anulador }) {
+  console.log("Registrando anulador:", anulador);
+  const resultado = await _llamarMetodoVoto3(bd, {
+    contratoId,
+    method: ABIregistrarAnulador,
+    lease: Uint8Array.from(randomBytes(32)),
+    note: anulador,
+  });
+  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+}
+
+//----------------------------------------------------------------------------
+
+export async function cerrarRegistroAnuladores(bd, { contratoId }) {
+  const resultado = await _llamarMetodoVoto3(bd, {
+    contratoId,
+    method: ABIcerrarRegistroAnuladores,
+  });
+  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
 }
 
 //----------------------------------------------------------------------------
@@ -148,7 +254,7 @@ export async function establecerClienteVoto3(bd, { contratoId }) {
 
 //----------------------------------------------------------------------------
 
-async function leerContratoBaseDatos(bd, contratoId) {
+export async function leerContratoBaseDatos(bd, contratoId) {
   try {
     console.log(`Obtenido datos del contrato ${contratoId} ...`);
     const contratoBlockchain = await daos.contratoBlockchain.obtenerPorId(bd, { contratoId });
@@ -162,7 +268,7 @@ async function leerContratoBaseDatos(bd, contratoId) {
 
 //----------------------------------------------------------------------------
 
-async function leerCuentaBaseDatos(bd, cuentaId) {
+export async function leerCuentaBaseDatos(bd, cuentaId) {
   try {
     console.log(`Obtenido datos cuenta ${cuentaId} algorand ...`);
     const cuentaBlockchain = await daos.cuentaBlockchain.obtenerPorId(bd, { cuentaId });
@@ -181,6 +287,3 @@ async function leerCuentaBaseDatos(bd, cuentaId) {
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-
-
-

@@ -31,7 +31,7 @@ export const esquemaEleccion = z.object({
   fechaFinRegistro: z.string().datetime({ message: "Fecha de fin de registro inválida" }),
   fechaInicioVotacion: z.string().datetime({ message: "Fecha de inicio de votación inválida" }),
   fechaFinVotacion: z.string().datetime({ message: "Fecha de fin de votación inválida" }),
-  fechaCelebracion: z.string().datetime({ message: "Fecha de celebración inválida" }),
+  fechaEscrutinio: z.string().datetime({ message: "Fecha de celebración inválida" }),
   estado: z.enum(Object.values(EstadosEleccion), {
     message: "Estado de elección inválido"
   })

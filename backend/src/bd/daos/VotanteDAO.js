@@ -5,20 +5,17 @@ export class VotanteDAO extends BaseDAO {
     super('Votante');
   }
 
-  async obtenerPorDNI(bd, dni) {
+  obtenerPorDNI(bd, dni) {
     console.log('Obteniendo votante por DNI:', dni);
-    return await this.obtenerPorId(bd, { dni });
+    return this.obtenerPorId(bd, { dni });
   }
 
-  async obtenerPorCorreo(bd, correo) {
-    return await bd.get(
-      'SELECT * FROM Votante WHERE correoElectronico = ?',
-      [correo]
-    );
+  obtenerPorEmail(bd, email) {
+    return bd.get('SELECT * FROM Votante WHERE email = ?', [email]);
   }
 
   async actualizarContrasena(bd, dni, hashContrasena) {
-    return await this.actualizar(
+    return this.actualizar(
       bd,
       { dni },
       { hashContrasena }

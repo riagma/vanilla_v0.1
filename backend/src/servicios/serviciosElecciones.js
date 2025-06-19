@@ -108,7 +108,7 @@ function validarFechasEleccion(datosEleccion) {
     fechaFinRegistro,
     fechaInicioVotacion,
     fechaFinVotacion,
-    fechaCelebracion
+    fechaEscrutinio
   } = datosEleccion;
 
   const fechas = {
@@ -116,7 +116,7 @@ function validarFechasEleccion(datosEleccion) {
     fechaFinRegistro: new Date(fechaFinRegistro),
     fechaInicioVotacion: new Date(fechaInicioVotacion),
     fechaFinVotacion: new Date(fechaFinVotacion),
-    fechaCelebracion: new Date(fechaCelebracion)
+    fechaEscrutinio: new Date(fechaEscrutinio)
   };
 
   // Validar orden cronológico
@@ -129,7 +129,7 @@ function validarFechasEleccion(datosEleccion) {
   if (fechas.fechaInicioVotacion >= fechas.fechaFinVotacion) {
     throw new Error('La fecha de inicio de votación debe ser anterior a la de fin');
   }
-  if (fechas.fechaFinVotacion >= fechas.fechaCelebracion) {
+  if (fechas.fechaFinVotacion >= fechas.fechaEscrutinio) {
     throw new Error('La fecha de fin de votación debe ser anterior a la celebración');
   }
 
@@ -142,7 +142,7 @@ function algunaFechaCambia(nuevos, existentes) {
     'fechaFinRegistro',
     'fechaInicioVotacion',
     'fechaFinVotacion',
-    'fechaCelebracion'
+    'fechaEscrutinio'
   ];
 
   return camposFecha.some(campo =>

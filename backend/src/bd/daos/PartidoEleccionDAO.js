@@ -5,34 +5,32 @@ export class PartidoEleccionDAO extends BaseDAO {
     super('PartidoEleccion');
   }
 
-  async asignarPartidoEleccion(bd, partidoId, eleccionId) {
-    return await this.crear(bd, { partidoId, eleccionId });
+  asignarPartidoEleccion(bd, partidoId, eleccionId) {
+    return this.crear(bd, { partidoId, eleccionId });
   }
 
-  async eliminarPartidoEleccion(bd, partidoId, eleccionId) {
-    return await bd.run(
-      'DELETE FROM PartidoEleccion WHERE partidoId = ? AND eleccionId = ?',
-      [partidoId, eleccionId]
-    );
+  eliminarPartidoEleccion(bd, partidoId, eleccionId) {
+    return bd
+    .prepare('DELETE FROM PartidoEleccion WHERE partidoId = ? AND eleccionId = ?')
+    .run([partidoId, eleccionId])
+    
   }
 
-  async obtenerPartidosEleccion(bd, eleccionId) {
-    return await bd.all(
+  obtenerPartidosEleccion(bd, eleccionId) {
+    return bd.prepare(
       `SELECT p.*, pe.eleccionId 
        FROM Partido p
        INNER JOIN PartidoEleccion pe ON p.siglas = pe.partidoId
-       WHERE pe.eleccionId = ?`,
-      [eleccionId]
-    );
+       WHERE pe.eleccionId = ?`
+      ).all(  [eleccionId]);
   }
 
-  async obtenerEleccionesPartido(bd, partidoId) {
-    return await bd.all(
+  obtenerEleccionesPartido(bd, partidoId) {
+    return bd.prepare(
       `SELECT e.*, pe.partidoId 
        FROM Eleccion e
        INNER JOIN PartidoEleccion pe ON e.id = pe.eleccionId
-       WHERE pe.partidoId = ?`,
-      [partidoId]
-    );
+       WHERE pe.partidoId = ?`
+    ).all([partidoId]);
   }
 }
