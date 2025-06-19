@@ -1,4 +1,4 @@
-import sqlite3 from 'sqlite3';
+import Database from 'better-sqlite3';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import fs from 'fs/promises';
@@ -49,18 +49,12 @@ async function inicializarBaseDatos() {
         await fs.mkdir(directorioBD, { recursive: true });
 
         const sentenciasSQL = await fs.readFile(archivoSQL, 'utf-8');
-        
-        const bd = new sqlite3.Database(RUTA_BD);
-        
-        const ejecutar = (sql) => new Promise((resolver, rechazar) => {
-            bd.exec(sql, (error) => {
-                if (error) rechazar(error);
-                else resolver();
-            });
-        });
+        console.log(RUTA_BD);
+
+        const bd = new Database(RUTA_BD);
 
         console.log(`\nInicializando base de datos en: ${RUTA_BD}`);
-        await ejecutar(sentenciasSQL);
+        bd.exec(sentenciasSQL);
         console.log('Base de datos creada exitosamente.');
         
         bd.close((error) => {

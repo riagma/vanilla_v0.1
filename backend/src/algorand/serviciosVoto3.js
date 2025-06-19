@@ -1,3 +1,5 @@
+import { microAlgos } from '@algorandfoundation/algokit-utils';
+
 import { randomBytes } from 'node:crypto';
 import { ABIMethod } from 'algosdk';
 import { algorand } from './algorand.js';
@@ -90,13 +92,12 @@ async function _llamarMetodoVoto3(bd, { contratoId, method, args = [], note, lea
     skipWaiting: false,
     skipSimulate: true,
     maxRoundsToWaitForConfirmation: 12,
-    maxFee: (2000).microAlgos(),
+    maxFee: microAlgos((extraFee ?? 0) + 2000),
   };
   if (note) params.note = note;
   if (lease) params.lease = lease;
   if (extraFee) params.extraFee = extraFee;
   const resultado = await algorand.send.appCallMethodCall(params);
-  
   console.log(`Llamada ejecutad con éxito ${resultado.confirmation?.confirmedRound} - ${resultado.txIds}`);
   return resultado;
 }
@@ -112,13 +113,17 @@ export async function inicializarEleccion(bd,
     numeroUnidades,
   }) {
 
-  const args = [nombreToken, nombreUnidades, BigInt(numeroUnidades) ];
+  const assetName = nombreToken.length > 32 ? nombreToken.substring(0, 32) : nombreToken;
+  const unitName = nombreUnidades.length > 8 ? nombreUnidades.substring(0, 8) : nombreUnidades;
+  const total = BigInt(numeroUnidades);
+
+  const args = [assetName, unitName, total];
 
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIinicializarEleccion,
     args,
-    extraFee: (1000).microAlgos(),
+    extraFee: (100000).microAlgos(),
   });
   return resultado.returns;
 }

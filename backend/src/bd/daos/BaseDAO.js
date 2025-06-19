@@ -39,7 +39,7 @@ export class BaseDAO {
     const valores = Object.values(datos);
     const actualizaciones = campos.map(campo => `${campo} = ?`).join(',');
     const { condiciones, valores: valoresId } = this.crearWhere(id);
-    const resultado = bd.run(`UPDATE ${this.nombreTabla} SET ${actualizaciones} WHERE ${condiciones}`).run([...valores, ...valoresId]);
+    const resultado = bd.prepare(`UPDATE ${this.nombreTabla} SET ${actualizaciones} WHERE ${condiciones}`).run(...valores, ...valoresId);
     return resultado.changes;
   }
 

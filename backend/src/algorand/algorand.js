@@ -1,24 +1,14 @@
 import { AlgorandClient } from '@algorandfoundation/algokit-utils';
-
-import { config } from 'dotenv';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-process.env.NODE_ENV = process.env.NODE_ENV || 'LocalNet';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url)) + '/../..';
-const dotenvPath = path.join(__dirname, `.env.${process.env.NODE_ENV}`);
-console.log(`Cargando configuración desde: ${dotenvPath}`);
-config({ path: dotenvPath });
+import { CONFIG } from '../utiles/constantes.js';
 
 export const algorand = 
   
-  process.env.NODE_ENV === 'MainNet' ? AlgorandClient.mainNet() :
-  process.env.NODE_ENV === 'TestNet' ? AlgorandClient.testNet() :
-  process.env.NODE_ENV === 'LocalNet' ? AlgorandClient.defaultLocalNet() : null;
+  CONFIG.ALGO_ENV === 'mainnet' ? AlgorandClient.mainNet() :
+  CONFIG.ALGO_ENV === 'testnet' ? AlgorandClient.testNet() :
+  CONFIG.ALGO_ENV === 'localnet' ? AlgorandClient.defaultLocalNet() : null;
 
 if(!algorand) {
-  throw new Error(`Entorno de Algorand no configurado correctamente: ${process.env.NODE_ENV}`);
+  throw new Error(`Entorno de Algorand no configurado correctamente: ${CONFIG.ALGO_ENV}`);
 } 
 
 export const algod = algorand.client.algod;

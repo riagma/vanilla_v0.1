@@ -2,11 +2,11 @@ import { addDays, subDays } from 'date-fns';
 
 const ESTADOS = ['PENDIENTE', 'REGISTRO', 'VOTACION', 'CERRADA'];
 
-export async function cargarElecciones(bd) {
+export function cargarElecciones(bd) {
   console.log('\nIniciando carga de elecciones...');
 
   try {
-    await bd.run('DELETE FROM Eleccion');
+    bd.prepare('DELETE FROM Eleccion').run();
     
     const hoy = new Date();
     
@@ -19,6 +19,7 @@ export async function cargarElecciones(bd) {
         fechaInicioVotacion: subDays(hoy, 30),
         fechaFinVotacion: subDays(hoy, 29),
         fechaEscrutinio: subDays(hoy, 29),
+        contratoId: null,
         estado: "CERRADA"
       },
       {
@@ -29,6 +30,7 @@ export async function cargarElecciones(bd) {
         fechaInicioVotacion: addDays(hoy, 15),
         fechaFinVotacion: addDays(hoy, 16),
         fechaEscrutinio: addDays(hoy, 16),
+        contratoId: null,
         estado: "REGISTRO"
       },
       {
@@ -39,6 +41,7 @@ export async function cargarElecciones(bd) {
         fechaInicioVotacion: subDays(hoy, 1),
         fechaFinVotacion: addDays(hoy, 1),
         fechaEscrutinio: addDays(hoy, 1),
+        contratoId: null,
         estado: "VOTACION"
       },
       {
@@ -49,22 +52,25 @@ export async function cargarElecciones(bd) {
         fechaInicioVotacion: addDays(hoy, 60),
         fechaFinVotacion: addDays(hoy, 61),
         fechaEscrutinio: addDays(hoy, 61),
+        contratoId: null,
         estado: "PENDIENTE"
       }
     ];
 
     // Preparar statement para mejor rendimiento
-    const stmt = await bd.prepare(`
+    const stmt = bd.prepare(`
       INSERT INTO Eleccion (
         nombre, descripcion,
         fechaInicioRegistro, fechaFinRegistro,
         fechaInicioVotacion, fechaFinVotacion,
-        fechaEscrutinio, estado
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        fechaEscrutinio, contratoId, estado
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
+    bd.exec('BEGIN');
+
     for (const eleccion of elecciones) {
-      await stmt.run([
+      stmt.run(
         eleccion.nombre,
         eleccion.descripcion,
         eleccion.fechaInicioRegistro.toISOString(),
@@ -72,21 +78,22 @@ export async function cargarElecciones(bd) {
         eleccion.fechaInicioVotacion.toISOString(),
         eleccion.fechaFinVotacion.toISOString(),
         eleccion.fechaEscrutinio.toISOString(),
+        eleccion.contratoId,
         eleccion.estado
-      ]);
+      );
       console.log(`Creada elección: ${eleccion.nombre}`);
     }
 
-    await stmt.finalize();
+    bd.exec('COMMIT');
 
-    const total = await bd.get('SELECT COUNT(*) as count FROM Eleccion');
+    const total = bd.prepare('SELECT COUNT(*) as count FROM Eleccion').get();
     console.log(`\nTotal elecciones cargadas: ${total.count}`);
 
-    const porEstado = await bd.all(`
+    const porEstado = bd.prepare(`
       SELECT estado, COUNT(*) as count 
       FROM Eleccion 
       GROUP BY estado
-    `);
+    `).all();
     
     console.log('\nDistribución por estado:');
     porEstado.forEach(({estado, count}) => {
@@ -94,6 +101,9 @@ export async function cargarElecciones(bd) {
     });
 
   } catch (error) {
+    if (bd.inTransaction) {
+      bd.exec('ROLLBACK');
+    }
     console.error('\nError al cargar elecciones:', error);
     throw error;
   }

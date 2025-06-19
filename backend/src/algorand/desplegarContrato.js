@@ -6,16 +6,16 @@ import path from 'node:path';
 import { stringifyJSON } from 'algosdk';
 
 import { algorand } from './algorand.js';
-import { establecerClienteVoto3 } from './serviciosVoto3.js';
+import { CONFIG } from '../utiles/constantes.js';
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
 export async function desplegarContrato(bd, cuentaId) {
 
-  console.log(`Desplegando contrato: ${cuentaId} - ${process.env.ARTIFACTS_DIR}`);
+  console.log(`Desplegando contrato: ${cuentaId} - ${CONFIG.ARTIFACTS_DIR}`);
 
-  const { approvalProgram, clearStateProgram, schema } = await _leerArtefactos(process.env.ARTIFACTS_DIR);
+  const { approvalProgram, clearStateProgram, schema } = await _leerArtefactos(CONFIG.ARTIFACTS_DIR);
 
   const { secreto } = _leerBaseDatos(bd, cuentaId);
 
@@ -45,22 +45,22 @@ export async function desplegarContrato(bd, cuentaId) {
 
   //-------------
 
-  const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
+  // const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
 
-  console.log(`Cliente Voto3 establecido para contrato: ${appId}`);
+  // console.log(`Cliente Voto3 establecido para contrato: ${appId}`);
 
-  const resultPayment = await algorand.send.payment(
-    {
-      sender: sender,
-      receiver: resultCreate.appAddress,
-      amount: (1).algos(),
-    },
-    {
-      skipWaiting: false,
-      skipSimulate: true,
-      maxRoundsToWaitForConfirmation: 12,
-    }
-  );
+  // const resultPayment = await algorand.send.payment(
+  //   {
+  //     sender: sender,
+  //     receiver: resultCreate.appAddress,
+  //     amount: (1).algos(),
+  //   },
+  //   {
+  //     skipWaiting: false,
+  //     skipSimulate: true,
+  //     maxRoundsToWaitForConfirmation: 12,
+  //   }
+  // );
 
   //--------------
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { cerrarConexionBD, abrirConexionBD } from '../bd/BD.js';
 import { desplegarContrato } from '../algorand/desplegarContrato.js';
+import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
 
 const cuentaId = process.argv[2] || 0;
 

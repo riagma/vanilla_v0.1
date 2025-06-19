@@ -11,6 +11,7 @@ export class ConexionBD {
 
   abrir() {
     if (!this.db) {
+      console.log(`Abriendo conexión con base de datos: ${this.ruta}`);
       this.db = new Database(this.ruta, { fileMustExist: true });
     }
     return this.db;

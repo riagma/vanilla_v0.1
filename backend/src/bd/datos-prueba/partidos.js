@@ -1,9 +1,9 @@
-export async function cargarPartidos(bd) {
+export function cargarPartidos(bd) {
   console.log('\nIniciando carga de partidos políticos...');
 
   try {
-    await bd.run('DELETE FROM PartidoEleccion');
-    await bd.run('DELETE FROM Partido');
+    bd.prepare('DELETE FROM PartidoEleccion').run;
+    bd.prepare('DELETE FROM Partido').run;
     
     const partidos = [
       {
@@ -28,47 +28,47 @@ export async function cargarPartidos(bd) {
       }
     ];
 
-    const stmtPartido = await bd.prepare(
+    const stmtPartido = bd.prepare(
       'INSERT INTO Partido (siglas, nombre, descripcion) VALUES (?, ?, ?)'
     );
 
+    bd.exec('BEGIN');
+
     for (const partido of partidos) {
-      await stmtPartido.run([partido.siglas, partido.nombre, partido.descripcion]);
+      stmtPartido.run(partido.siglas, partido.nombre, partido.descripcion);
       console.log(`Creado partido: ${partido.siglas}`);
     }
 
-    await stmtPartido.finalize();
-
-    const elecciones = await bd.all('SELECT id FROM Eleccion');
+    const elecciones = bd.prepare('SELECT id FROM Eleccion').all();
     console.log(`\nAsignando partidos a ${elecciones.length} elecciones...`);
 
     // Asignar partidos a elecciones
-    const stmtAsignacion = await bd.prepare(
+    const stmtAsignacion = bd.prepare(
       'INSERT INTO PartidoEleccion (partidoId, eleccionId) VALUES (?, ?)'
     );
 
     for (const eleccion of elecciones) {
       for (const partido of partidos) {
-        await stmtAsignacion.run([partido.siglas, eleccion.id]);
+        stmtAsignacion.run(partido.siglas, eleccion.id);
       }
     }
 
-    await stmtAsignacion.finalize();
+    bd.exec('COMMIT');
 
     // Mostrar resumen
-    const stats = await bd.get('SELECT COUNT(*) as count FROM PartidoEleccion');
+    const stats = bd.prepare('SELECT COUNT(*) as count FROM PartidoEleccion').get();
     console.log(`\nResumen:`);
     console.log(`- Partidos creados: ${partidos.length}`);
     console.log(`- Asignaciones a elecciones: ${stats.count}`);
 
     // Mostrar detalle de partidos
-    const partidosDetalle = await bd.all(`
+    const partidosDetalle = bd.prepare(`
       SELECT p.siglas, p.nombre, COUNT(pe.eleccionId) as numElecciones
       FROM Partido p
       LEFT JOIN PartidoEleccion pe ON p.siglas = pe.partidoId
       GROUP BY p.siglas
       ORDER BY p.siglas
-    `);
+    `).all();
 
     console.log('\nDetalle de partidos:');
     partidosDetalle.forEach(p => {
@@ -76,6 +76,7 @@ export async function cargarPartidos(bd) {
     });
 
   } catch (error) {
+    bd.exec('ROLLBACK');
     console.error('\nError al cargar partidos:', error);
     throw error;
   }

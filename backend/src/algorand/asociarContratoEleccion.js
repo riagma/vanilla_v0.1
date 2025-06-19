@@ -1,12 +1,8 @@
 // src/deployer/deployContract.js
-import { eleccionDAO } from '../bd/DAOs.js';
-
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
-import { stringifyJSON } from 'algosdk';
+import { contratoBlockchainDAO, eleccionDAO } from '../bd/DAOs.js';
 
 import { algorand } from './algorand.js';
-import { establecerClienteVoto3 } from './serviciosVoto3.js';
+import { establecerClienteVoto3, inicializarEleccion } from './serviciosVoto3.js';
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -15,20 +11,16 @@ export async function asociarContratoEleccion(bd, contratoId, eleccionId) {
 
   console.log(`Asociando contrato: ${contratoId} a elección ${eleccionId}`);
 
-  const eleccion = eleccionDAO.obtenerPorId(eleccionId);
-
-  console.log
-
   //-------------
 
-  const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
+  const { sender } = await establecerClienteVoto3(bd, {contratoId});
 
-  console.log(`Cliente Voto3 establecido para contrato: ${appId}`);
+  const contrato = contratoBlockchainDAO.obtenerPorId(bd, {contratoId});
 
   const resultPayment = await algorand.send.payment(
     {
       sender: sender,
-      receiver: resultCreate.appAddress,
+      receiver: contrato.appAddr,
       amount: (1).algos(),
     },
     {
@@ -38,116 +30,29 @@ export async function asociarContratoEleccion(bd, contratoId, eleccionId) {
     }
   );
 
+  console.log(`Pago enviado con éxito: ${resultPayment.confirmation?.confirmedRound} - ${resultPayment.txIds}`);
+
   //--------------
 
-  console.log(`Contrato desplegado con éxito:`);
-  console.log(`  contratoId: ${contratoId}`);
-  console.log(`  appId:      ${resultCreate.appId}`);
-  console.log(`  appAddr:    ${resultCreate.appAddress}`);
-
-  return {
+  const resultadoInicializacion = await inicializarEleccion(bd, {
     contratoId,
-    appId: resultCreate.appId,
-    appAddr: resultCreate.appAddress
-  };
-}
+    nombreToken: 'VOTO3',
+    nombreUnidades: 'VT3',
+    numeroUnidades: BigInt(100000000),
+  });
 
-//----------------------------------------------------------------------------
-//----------------------------------------------------------------------------
+  console.log(`Elección inicializada con éxito: ${resultadoInicializacion}`);
 
-async function _leerArtefactos(artifactsDir) {
+  //--------------
 
-  const approvalFile = (await findFile(artifactsDir, '.approval.teal'));
-  const clearFile = (await findFile(artifactsDir, '.clear.teal'));
+  const resultado = eleccionDAO.actualizarContratoEleccion(bd, eleccionId, contratoId);
 
-  console.log(`  Approval TEAL: ${approvalFile}`);
-  console.log(`  Clear TEAL   : ${clearFile}`);
-
-  if (!approvalFile || !clearFile) {
-    throw new Error('No se encontraron los TEAL de approval o clear en ' + artifactsDir);
+  if(resultado !== 1) {
+    throw new Error(`No se pudo asociar el contrato ${contratoId} a la elección ${eleccionId}`);
   }
 
-  const approvalProgram = await readFile(path.join(artifactsDir, approvalFile), 'utf8');
-  const clearStateProgram = await readFile(path.join(artifactsDir, clearFile), 'utf8');
-
-  // Intenta cargar schema desde appspec, si existe
-  let globalInts = 0, globalByteSlices = 0, localInts = 0, localByteSlices = 0;
-  const specFile = (await findFile(artifactsDir, '.json'));
-  if (specFile) {
-    const specJson = JSON.parse(await readFile(path.join(artifactsDir, specFile), 'utf8'));
-    console.log(`  Cargando esquema desde: ${stringifyJSON(specJson.state.schema)}`);
-    globalInts = specJson.state.schema.global?.ints ?? 0;
-    globalByteSlices = specJson.state.schema.global?.bytes ?? 0;
-    localInts = specJson.state.schema.local?.ints ?? 0;
-    localByteSlices = specJson.state.schema.local?.bytes ?? 0;
-  }
-
-  console.log(`  Global State Schema: ${globalInts} ints, ${globalByteSlices} bytes`);
-  console.log(`  Local State Schema : ${localInts} ints, ${localByteSlices} bytes`);
-
-  return {
-    approvalProgram,
-    clearStateProgram,
-    schema: {
-      globalInts,
-      globalByteSlices,
-      localInts,
-      localByteSlices,
-    },
-  };
-}
-
-//----------------------------------------------------------------------------
-
- function _leerBaseDatos(bd, cuentaId) {
-  try {
-    console.log(`Obtenido datos cuenta ${cuentaId} algorand ...`);
-    const cuentaBlockchain = daos.cuentaBlockchain.obtenerPorId(bd, { cuentaId });
-
-    console.log('Datos obtenidos con éxito: ', cuentaBlockchain);
-    return {
-      bd,
-      secreto: cuentaBlockchain.accSecret,
-    }
-
-  } catch (error) {
-    throw new Error('Error obtenido datos cuenta: ' + error.message);
-  }
-}
-
-//----------------------------------------------------------------------------
-
-function _escribirBaseDatos(bd, cuentaId, appId, appAddr) {
-  try {
-    console.log('Guardando datos contrato algorand ...');
-    const resultado = daos.contratoBlockchain.crear(bd, {
-      cuentaId,
-      appId: String(appId),
-      appAddr: String(appAddr),
-    });
-    console.log('Datos guardados con éxito: ', resultado);
-    return { contratoId: resultado };
-  } catch (error) {
-    throw new Error('Error al guardando datos contrato: ' + error.message);
-  }
-}
-
-//----------------------------------------------------------------------------
-
-async function findFile(dir, suffix) {
-  const files = await readFileDir(dir);
-  return files.find((f) => f.toLowerCase().endsWith(suffix));
-}
-
-async function readFileDir(dir) {
-  const { readdir } = await import('node:fs/promises');
-  return readdir(dir);
+  console.log(`Contrato ${contratoId} asociado a la elección ${eleccionId} con éxito.`);
 }
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-
-
-
-
-

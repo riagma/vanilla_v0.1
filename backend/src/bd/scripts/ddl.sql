@@ -24,8 +24,11 @@ CREATE TABLE Eleccion (
   fechaInicioVotacion TEXT NOT NULL,
   fechaFinVotacion TEXT NOT NULL,
   fechaEscrutinio TEXT NOT NULL,
-  contratoId INTEGER
-  estado TEXT NOT NULL
+  contratoId INTEGER,
+  estado TEXT NOT NULL,
+  FOREIGN KEY (contratoId) 
+    REFERENCES ContratoBlockchain(contratoId) 
+    ON DELETE SET NULL
 );
 
 -- Tabla: Partido

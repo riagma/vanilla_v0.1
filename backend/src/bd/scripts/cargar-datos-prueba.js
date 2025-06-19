@@ -1,4 +1,7 @@
-import { obtenerDB } from '../bd.js';
+import Database from 'better-sqlite3';
+import bcrypt from 'bcrypt';
+
+import { RUTA_BD } from '../../utiles/constantes.js';
 import { cargarVotantes } from '../datos-prueba/votantes.js';
 import { cargarElecciones } from '../datos-prueba/elecciones.js';
 import { cargarPartidos } from '../datos-prueba/partidos.js';
@@ -13,16 +16,19 @@ async function cargarDatosPrueba() {
   }
 
   console.log('Iniciando carga de datos de prueba...');
-  const bd = await obtenerDB();
+  console.log(RUTA_BD);
+  const bd = new Database(RUTA_BD, { fileMustExist: true });
 
   try {
+    const hashContrasena = await bcrypt.hash('Password123!', 10);
+
     // Cargar datos en orden por dependencias
-    await cargarVotantes(bd, cantidad);
-    await cargarElecciones(bd);
-    await cargarPartidos(bd);
+    cargarVotantes(bd, hashContrasena, cantidad);
+    cargarElecciones(bd);
+    cargarPartidos(bd);
 
     // Actualizar resumen final para incluir partidos
-    const stats = await bd.all(`
+    const stats = bd.prepare(`
       SELECT 'Votantes' as tabla, COUNT(*) as total FROM Votante
       UNION ALL
       SELECT 'Elecciones', COUNT(*) FROM Eleccion
@@ -30,14 +36,14 @@ async function cargarDatosPrueba() {
       SELECT 'Partidos', COUNT(*) FROM Partido
       UNION ALL
       SELECT 'Asignaciones', COUNT(*) FROM PartidoEleccion
-    `);
+    `).get();
 
     console.log('Datos de prueba cargados exitosamente.', stats);
   } catch (error) {
     console.error('Error al cargar datos de prueba:', error);
     process.exit(1);
   } finally {
-    await bd.close();
+    bd.close();
   }
 }
 

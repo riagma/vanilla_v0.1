@@ -32,6 +32,7 @@ class Voto3(ARC4Contract):
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede inicializar la elección"
+        assert self.estado_contrato == UInt64(0), "El contrato ya está inicializado"
 
         name_bytes = asset_name.bytes
         unit_bytes = unit_name.bytes
