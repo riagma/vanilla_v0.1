@@ -24,3 +24,8 @@ export function poseidonOfSha256(str) {
   const sha256 = createHash('sha256').update(str).digest('hex');
   return poseidon([BigInt('0x' + sha256)]);
 }
+
+export function calcularSha256(str) {
+  return createHash('sha256').update(str).digest('hex');
+}
+

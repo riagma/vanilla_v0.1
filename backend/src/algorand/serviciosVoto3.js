@@ -5,6 +5,8 @@ import { ABIMethod } from 'algosdk';
 import { algorand } from './algorand.js';
 import { daos } from '../bd/DAOs.js';
 
+import { toNote } from './algoUtiles.js';
+
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
@@ -14,6 +16,20 @@ const ABIinicializarEleccion = new ABIMethod({
     { type: 'string', name: 'asset_name' },
     { type: 'string', name: 'unit_name' },
     { type: 'uint64', name: 'total' }
+  ],
+  returns: { type: 'uint64' },
+});
+
+const ABIleerEstadoContrato = new ABIMethod({
+  name: 'leer_estado_contrato',
+  args: [],
+  returns: { type: 'uint64' },
+});
+
+const ABIestablecerEstadoContrato = new ABIMethod({
+  name: 'establecer_estado_contrato',
+  args: [ 
+    { type: 'uint64', name: 'nuevo_estado' } 
   ],
   returns: { type: 'uint64' },
 });
@@ -98,7 +114,7 @@ async function _llamarMetodoVoto3(bd, { contratoId, method, args = [], note, lea
   if (lease) params.lease = lease;
   if (extraFee) params.extraFee = extraFee;
   const resultado = await algorand.send.appCallMethodCall(params);
-  console.log(`Llamada ejecutad con éxito ${resultado.confirmation?.confirmedRound} - ${resultado.txIds}`);
+  console.log(`Llamada ejecutada con éxito ${resultado.confirmation?.confirmedRound} - ${resultado.txIds}`);
   return resultado;
 }
 
@@ -125,7 +141,29 @@ export async function inicializarEleccion(bd,
     args,
     extraFee: (100000).microAlgos(),
   });
-  return resultado.returns;
+  return resultado.returns[0]; // Retorna el ID del activo creado
+}
+
+//----------------------------------------------------------------------------
+
+export async function leerEstadoContrato(bd, { contratoId }) {
+  const resultado = await _llamarMetodoVoto3(bd, {
+    contratoId,
+    method: ABIleerEstadoContrato,
+  });
+  return resultado.returns[0].returnValue; // Retorna el estado del contrato
+}
+
+//----------------------------------------------------------------------------
+
+export async function establecerEstadoContrato(bd, { contratoId, estado }) {
+  const args = [BigInt(estado)];
+  const resultado = await _llamarMetodoVoto3(bd, {
+    contratoId,
+    method: ABIleerEstadoContrato,
+    args,
+  });
+  return resultado.returns[0].returnValue; // Retorna el estado del contrato
 }
 
 //----------------------------------------------------------------------------
@@ -135,18 +173,20 @@ export async function abrirRegistroCompromisos(bd, { contratoId }) {
     contratoId,
     method: ABIabrirRegistroCompromisos,
   });
-  return resultado.returns;
+  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
 }
 
 //----------------------------------------------------------------------------
 
 export async function registrarCompromiso(bd, { contratoId, compromiso }) {
   console.log("Registrando compromiso:", compromiso);
+  const noteCompromiso = toNote(compromiso);
+  console.log("Registrando compromiso:", noteCompromiso);
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIregistrarCompromiso,
     lease: Uint8Array.from(randomBytes(32)),
-    note: compromiso,
+    note: noteCompromiso,
   });
   return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
 }

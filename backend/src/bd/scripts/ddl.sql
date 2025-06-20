@@ -52,6 +52,7 @@ CREATE TABLE RegistroVotanteEleccion (
   votanteId TEXT NOT NULL,
   eleccionId INTEGER NOT NULL,
   compromiso TEXT NOT NULL,
+  compromisoIdx INTEGER NOT NULL,
   transaccion TEXT NOT NULL,
   fechaRegistro TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   datosPrivados TEXT,
@@ -61,6 +62,7 @@ CREATE TABLE RegistroVotanteEleccion (
 );
 
 CREATE INDEX idx_registro_eleccion ON RegistroVotanteEleccion(eleccionId);
+CREATE INDEX idx_registro_compromiso ON RegistroVotanteEleccion(eleccionId, compromisoIdx);
 
 -- Tabla: ResultadoEleccion
 CREATE TABLE ResultadoEleccion (

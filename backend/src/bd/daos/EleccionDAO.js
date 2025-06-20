@@ -6,7 +6,7 @@ export class EleccionDAO extends BaseDAO {
   }
 
   actualizarContratoEleccion(bd, id, contratoId) {
-    const resultado = bd.prepare('UPDATE Eleccion SET contratoId = ? WHERE id = ?').run(id, contratoId);
+    const resultado = bd.prepare('UPDATE Eleccion SET contratoId = ? WHERE id = ?').run(contratoId, id);
     return resultado.changes;
   }
 }
