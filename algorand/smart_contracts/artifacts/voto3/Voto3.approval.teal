@@ -192,7 +192,7 @@ main_abrir_registro_compromisos_route@8:
 
 main_establecer_estado_contrato_route@7:
     // smart_contracts/voto3/contract.py:65
-    // @abimethod()  # Agregar @abimethod
+    // @abimethod(allow_actions=["NoOp"])
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -203,7 +203,7 @@ main_establecer_estado_contrato_route@7:
     txna ApplicationArgs 1
     btoi
     // smart_contracts/voto3/contract.py:65
-    // @abimethod()  # Agregar @abimethod
+    // @abimethod(allow_actions=["NoOp"])
     callsub establecer_estado_contrato
     itob
     bytec_1 // 0x151f7c75
@@ -215,7 +215,7 @@ main_establecer_estado_contrato_route@7:
 
 main_leer_estado_contrato_route@6:
     // smart_contracts/voto3/contract.py:58
-    // @abimethod()
+    // @abimethod(allow_actions=["NoOp"])
     txn OnCompletion
     !
     assert // OnCompletion is not NoOp
@@ -399,7 +399,7 @@ leer_estado_contrato:
 // smart_contracts.voto3.contract.Voto3.establecer_estado_contrato(nuevo_estado: uint64) -> uint64:
 establecer_estado_contrato:
     // smart_contracts/voto3/contract.py:65-66
-    // @abimethod()  # Agregar @abimethod
+    // @abimethod(allow_actions=["NoOp"])
     // def establecer_estado_contrato(self, nuevo_estado: UInt64) -> UInt64:
     proto 1 1
     // smart_contracts/voto3/contract.py:68

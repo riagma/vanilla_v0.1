@@ -45,22 +45,20 @@ export async function desplegarContrato(bd, cuentaId) {
 
   //-------------
 
-  // const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
+  const resultPayment = await algorand.send.payment(
+    {
+      sender: account.addr,
+      receiver: resultCreate.appAddress,
+      amount: (1).algos(),
+    },
+    {
+      skipWaiting: false,
+      skipSimulate: true,
+      maxRoundsToWaitForConfirmation: 12,
+    }
+  );
 
-  // console.log(`Cliente Voto3 establecido para contrato: ${appId}`);
-
-  // const resultPayment = await algorand.send.payment(
-  //   {
-  //     sender: sender,
-  //     receiver: resultCreate.appAddress,
-  //     amount: (1).algos(),
-  //   },
-  //   {
-  //     skipWaiting: false,
-  //     skipSimulate: true,
-  //     maxRoundsToWaitForConfirmation: 12,
-  //   }
-  // );
+  console.log(`Pago enviado con éxito: ${resultPayment.confirmation?.confirmedRound} - ${resultPayment.txIds}`);
 
   //--------------
 
@@ -81,8 +79,8 @@ export async function desplegarContrato(bd, cuentaId) {
 
 async function _leerArtefactos(artifactsDir) {
 
-  const approvalFile = (await findFile(artifactsDir, '.approval.teal'));
-  const clearFile = (await findFile(artifactsDir, '.clear.teal'));
+  const approvalFile = (await _findFile(artifactsDir, '.approval.teal'));
+  const clearFile = (await _findFile(artifactsDir, '.clear.teal'));
 
   console.log(`  Approval TEAL: ${approvalFile}`);
   console.log(`  Clear TEAL   : ${clearFile}`);
@@ -96,7 +94,7 @@ async function _leerArtefactos(artifactsDir) {
 
   // Intenta cargar schema desde appspec, si existe
   let globalInts = 0, globalByteSlices = 0, localInts = 0, localByteSlices = 0;
-  const specFile = (await findFile(artifactsDir, '.json'));
+  const specFile = (await _findFile(artifactsDir, '.json'));
   if (specFile) {
     const specJson = JSON.parse(await readFile(path.join(artifactsDir, specFile), 'utf8'));
     console.log(`  Cargando esquema desde: ${stringifyJSON(specJson.state.schema)}`);
@@ -158,12 +156,12 @@ function _escribirBaseDatos(bd, cuentaId, appId, appAddr) {
 
 //----------------------------------------------------------------------------
 
-async function findFile(dir, suffix) {
-  const files = await readFileDir(dir);
+async function _findFile(dir, suffix) {
+  const files = await _readFileDir(dir);
   return files.find((f) => f.toLowerCase().endsWith(suffix));
 }
 
-async function readFileDir(dir) {
+async function _readFileDir(dir) {
   const { readdir } = await import('node:fs/promises');
   return readdir(dir);
 }

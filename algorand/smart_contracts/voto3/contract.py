@@ -55,14 +55,14 @@ class Voto3(ARC4Contract):
 
     # ---------------
 
-    @abimethod()
+    @abimethod(allow_actions=["NoOp"])
     def leer_estado_contrato(self) -> UInt64:
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede leer el estado del contrato"
         return self.estado_contrato
 
-    @abimethod()  # Agregar @abimethod
+    @abimethod(allow_actions=["NoOp"])
     def establecer_estado_contrato(self, nuevo_estado: UInt64) -> UInt64:
         assert (
             Txn.sender == Global.creator_address

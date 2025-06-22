@@ -1,6 +1,8 @@
 import { Buffer } from 'node:buffer';
-import { createHash } from 'node:crypto';
-import { poseidon } from 'circomlibjs';
+import { randomBytes, createHash } from 'node:crypto';
+import * as circomlibjs from 'circomlibjs';
+
+const poseidon = await circomlibjs.buildPoseidon();
 
 /**
  * Calcula el hash Poseidon de una cadena de entrada.
@@ -8,7 +10,7 @@ import { poseidon } from 'circomlibjs';
  * @param {string} inputString La cadena de entrada para hashear.
  * @returns {string} El hash Poseidon como una cadena hexadecimal (prefijada con '0x').
  */
-export function calculatePoseidonHash(inputString) {
+export function calcularPoseidonHash(inputString) {
   // Convertir la cadena a Buffer (UTF-8)
   const buffer = Buffer.from(inputString, 'utf-8');
   const hexString = buffer.toString('hex');
@@ -20,12 +22,21 @@ export function calculatePoseidonHash(inputString) {
   return '0x' + hash.toString(16);
 }
 
-export function poseidonOfSha256(str) {
-  const sha256 = createHash('sha256').update(str).digest('hex');
-  return poseidon([BigInt('0x' + sha256)]);
+export function calcularSha256(str) {
+  return createHash('sha256').update(str).digest('hex').toUpperCase();
 }
 
-export function calcularSha256(str) {
-  return createHash('sha256').update(str).digest('hex');
+export function randomSha256() {
+  // Generar 32 bytes aleatorios (256 bits)
+  const aleatorio = randomBytes(32);
+
+  // Hashear con SHA-256 (devuelve Buffer)
+  const hash = createHash('sha256').update(aleatorio).digest('hex').toUpperCase();
+
+  // console.log('Random:', aleatorio.toString('hex'));
+  // console.log('SHA-256:', hash);
+
+  return hash; // Retornar el hash en formato hexadecimal
 }
+
 

@@ -1,7 +1,13 @@
 // src/deployer/deployContract.js
 import { votanteDAO, eleccionDAO, registroVotanteEleccionDAO } from '../bd/DAOs.js';
 
-import { abrirRegistroCompromisos, cerrarRegistroCompromisos, registrarCompromiso } from './serviciosVoto3.js';
+import { 
+  leerEstadoContrato,
+  abrirRegistroCompromisos, 
+  cerrarRegistroCompromisos, 
+  registrarCompromiso 
+
+} from './serviciosVoto3.js';
 
 import { calcularSha256 } from '../utiles/utiles.js';
 
@@ -26,15 +32,15 @@ export async function abrirRegistroCompromisosEleccion(bd, { eleccionId, contrat
   const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId });
   console.log(`Estado del contrato ${contratoId}: ${resultadoLeerEstado}`);
 
-  if (resultadoLeerEstado === 1) {
+  if (resultadoLeerEstado === 1n) {
     const resultadoAbrir = await abrirRegistroCompromisos(bd, { contratoId });
-    console.log(`Registro de compromisos abierto para el contrato ${contratoId}: ${resultadoAbrir}`);
+    console.log(`Registro de compromisos abierto para el contrato ${contratoId}: ${resultadoAbrir.txId}`);
 
-  } else if (resultadoLeerEstado === 2) {
+  } else if (resultadoLeerEstado === 2n) {
     console.log(`El contrato ${contratoId} ya estaba abierto.`);
 
   } else {
-    console.log(`El contrato ${contratoId} no está en estado ${resultadoLeerEstado} adecuando.`);
+    console.log(`El contrato ${contratoId} no está en estado ${resultadoLeerEstado} adecuando (1).`);
   }
 }
 
@@ -95,7 +101,7 @@ export async function registrarVotanteEleccion(bd, { eleccionId, contratoId, vot
   const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId });
   console.log(`Estado del contrato ${contratoId}: ${resultadoLeerEstado}`);
 
-  if (resultadoLeerEstado === 3) {
+  if (resultadoLeerEstado === 2n) {
 
     const votante = votanteDAO.obtenerPorId(bd, { dni: votanteId });
 
@@ -117,9 +123,16 @@ export async function registrarVotanteEleccion(bd, { eleccionId, contratoId, vot
       compromiso,
     };
 
-    const resultadoRegistrar = await registrarCompromiso(bd, { contratoId, compromisoNote });
+    const resultadoRegistrar = await registrarCompromiso(bd, { contratoId, compromiso: compromisoNote });
 
-    console.log(`Registro de compromisos cerrado para el contrato ${contratoId}: ${resultadoAbrir}`);
+    registroVotanteEleccionDAO.actualizarTransaccion(bd, {
+      votanteId,
+      eleccionId,
+      transaccion: resultadoRegistrar.txId
+    });
+
+    console.log(`Compromiso registrado para el votante ${votanteId} en la elección ${eleccionId}: ${JSON.stringify(compromisoNote)}`);
+    console.log(`Transacción registrada: ${resultadoRegistrar.txId}`);
 
   } else {
     throw new Error(`El contrato ${contratoId} no está en estado ${resultadoLeerEstado} adecuando.`);

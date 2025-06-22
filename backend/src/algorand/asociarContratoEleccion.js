@@ -9,35 +9,18 @@ import { establecerClienteVoto3, inicializarEleccion, leerEstadoContrato } from 
 
 export async function asociarContratoEleccion(bd, contratoId, eleccionId) {
 
-  console.log(`Asociando contrato: ${contratoId} a elección ${eleccionId}`);
+  console.log(`Asociando contrato ${contratoId} a elección ${eleccionId}`);
 
   //-------------
 
-  const { sender } = await establecerClienteVoto3(bd, { contratoId });
+  // const { sender } = await establecerClienteVoto3(bd, { contratoId });
 
-  const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId });
+  // const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId });
 
   const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId });
   console.log(`Estado del contrato ${contratoId}: ${resultadoLeerEstado}`);
 
-  if (resultadoLeerEstado === 0) {
-
-    const resultPayment = await algorand.send.payment(
-      {
-        sender: sender,
-        receiver: contrato.appAddr,
-        amount: (1).algos(),
-      },
-      {
-        skipWaiting: false,
-        skipSimulate: true,
-        maxRoundsToWaitForConfirmation: 12,
-      }
-    );
-
-    console.log(`Pago enviado con éxito: ${resultPayment.confirmation?.confirmedRound} - ${resultPayment.txIds}`);
-
-    //--------------
+  if (resultadoLeerEstado === 0n) {
 
     const resultadoInicializacion = await inicializarEleccion(bd, {
       contratoId,

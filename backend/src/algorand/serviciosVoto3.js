@@ -51,7 +51,7 @@ const ABIcerrarRegistroCompromisos = new ABIMethod({
 const ABIregistrarCompromiso = new ABIMethod({
   name: 'registrar_compromiso',
   args: [],
-  returns: { type: 'void' },
+  returns: { type: 'uint64' },
 });
 
 //--------------
@@ -97,6 +97,8 @@ const ABIregistrarAnulador = new ABIMethod({
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
+let contadorNote = 0;
+
 async function _llamarMetodoVoto3(bd, { contratoId, method, args = [], note, lease, extraFee }) {
   console.log(`Ejecutando llamada al método ${method.name}`);
   const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
@@ -109,8 +111,9 @@ async function _llamarMetodoVoto3(bd, { contratoId, method, args = [], note, lea
     skipSimulate: true,
     maxRoundsToWaitForConfirmation: 12,
     maxFee: microAlgos((extraFee ?? 0) + 2000),
+    debug: false,
   };
-  if (note) params.note = note;
+  params.note = note ? toNote(note) : toNote(`voto3-${method.name}-${++contadorNote}`);
   if (lease) params.lease = lease;
   if (extraFee) params.extraFee = extraFee;
   const resultado = await algorand.send.appCallMethodCall(params);
@@ -141,7 +144,7 @@ export async function inicializarEleccion(bd,
     args,
     extraFee: (100000).microAlgos(),
   });
-  return resultado.returns[0]; // Retorna el ID del activo creado
+  return resultado.returns[0];
 }
 
 //----------------------------------------------------------------------------
@@ -151,7 +154,7 @@ export async function leerEstadoContrato(bd, { contratoId }) {
     contratoId,
     method: ABIleerEstadoContrato,
   });
-  return resultado.returns[0].returnValue; // Retorna el estado del contrato
+  return resultado.returns[0].returnValue;
 }
 
 //----------------------------------------------------------------------------
@@ -163,7 +166,7 @@ export async function establecerEstadoContrato(bd, { contratoId, estado }) {
     method: ABIleerEstadoContrato,
     args,
   });
-  return resultado.returns[0].returnValue; // Retorna el estado del contrato
+  return resultado.returns[0].returnValue;
 }
 
 //----------------------------------------------------------------------------
@@ -180,15 +183,12 @@ export async function abrirRegistroCompromisos(bd, { contratoId }) {
 
 export async function registrarCompromiso(bd, { contratoId, compromiso }) {
   console.log("Registrando compromiso:", compromiso);
-  const noteCompromiso = toNote(compromiso);
-  console.log("Registrando compromiso:", noteCompromiso);
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIregistrarCompromiso,
-    lease: Uint8Array.from(randomBytes(32)),
-    note: noteCompromiso,
+    note: compromiso,
   });
-  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+  return { txId: resultado.txIds, idx: resultado.returns[0].returnValue };
 }
 
 //----------------------------------------------------------------------------

@@ -6,21 +6,21 @@ import { RUTA_BD } from '../utiles/constantes.js';
 export class ConexionBD {
   constructor(ruta = RUTA_BD) {
     this.ruta = ruta;
-    this.db = null;
+    this.bd = null;
   }
 
   abrir() {
-    if (!this.db) {
+    if (!this.bd) {
       console.log(`Abriendo conexión con base de datos: ${this.ruta}`);
-      this.db = new Database(this.ruta, { fileMustExist: true });
+      this.bd = new Database(this.ruta, { fileMustExist: true });
     }
-    return this.db;
+    return this.bd;
   }
 
   cerrar() {
-    if (this.db) {
-      this.db.close();
-      this.db = null;
+    if (this.bd) {
+      this.bd.close();
+      this.bd = null;
     }
   }
 }
@@ -37,7 +37,7 @@ export function abrirConexionBD() {
     instancia = new ConexionBD();
     instancia.abrir();
   }
-  return instancia.db;
+  return instancia.bd;
 }
 
 export function cerrarConexionBD() {
