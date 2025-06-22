@@ -18,20 +18,24 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
     ).all([votanteId]);
   }
 
+  obtenerSiguienteIdx(bd, votanteId) {
+    return bd.prepare(`
+      SELECT COALESCE(MAX(compromisoIdx), -1) + 1 AS nuevo_idx 
+      FROM RegistroVotanteEleccion
+      WHERE eleccionId = ?
+    `).get(eleccionId);
+  }
+
   registrarVotanteEleccion(bd, { eleccionId, votanteId, compromiso }) {
 
     const registrarVotante = bd.transaction((eleccionId, votanteId, compromiso) => {
-      const { nuevo_idx } = bd.prepare(`
-        SELECT COALESCE(MAX(compromisoIdx), -1) + 1 AS nuevo_idx 
-        FROM RegistroVotanteEleccion
-        WHERE eleccionId = ?
-      `).get(eleccionId);
+      const siguienteIdx = this.obtenerSiguienteIdx(bd, votanteId);
 
       const registro = {
         votanteId,
         eleccionId,
         compromiso,
-        compromisoIdx: nuevo_idx,
+        compromisoIdx: siguienteIdx,
         transaccion: 'temporal',
         fechaRegistro: new Date().toISOString(),
         datosPrivados: null
@@ -65,4 +69,18 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
 
     return actualizarTransaccionStmt(eleccionId, votanteId, transaccion);
   }
+
+  obtenerCompromisosEleccion(bd, eleccionId, compromisoIdx, max) {
+    
+    return bd.prepare(`
+      
+      SELECT compromiso, compromisoIdx
+      FROM RegistroVotanteEleccion 
+      WHERE eleccionId = @eleccionId
+      AND compromisoIdx >= @compromisoIdx
+      ORDER BY compromisoIdx LIMIT @max
+    
+    `).all({ eleccionId, compromisoIdx, max });
+  }
+
 }
