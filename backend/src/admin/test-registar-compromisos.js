@@ -2,7 +2,7 @@
 import { registrarVotanteEleccion } from '../algorand/registrarCompromiso.js';
 import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
 import { eleccionDAO, contratoBlockchainDAO, votanteDAO } from '../bd/DAOs.js';
-import { randomSha256 } from '../utiles/utiles.js';
+import { randomSha256 } from '../utiles/utilesCrypto.js';
 
 
 const eleccionId = process.argv[2];

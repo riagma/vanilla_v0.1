@@ -24,7 +24,7 @@ export const INDEXER_TOKEN = process.env.INDEXER_TOKEN;
 export const INDEXER_SERVER = process.env.INDEXER_SERVER;
 export const INDEXER_PORT = process.env.INDEXER_PORT;
 
-export const ARTIFACTS_DIR = '../../../' + process.env.ARTIFACTS_DIR ?? './algorand/smart_contracts/artifacts/voto3/';
+export const ARTIFACTS_DIR = '../../' + process.env.ARTIFACTS_DIR ?? '../algorand/smart_contracts/artifacts/voto3/';
 
 // Rutas y configuración de BD
 export const RUTA_BD = process.env.NODE_ENV === 'production'

@@ -9,7 +9,7 @@ import {
 
 } from './serviciosVoto3.js';
 
-import { calcularSha256 } from '../utiles/utiles.js';
+import { calcularSha256 } from '../utiles/utilesCrypto.js';
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------

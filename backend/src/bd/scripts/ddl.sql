@@ -106,3 +106,29 @@ CREATE TABLE ContratoBlockchain (
   UNIQUE(cuentaId, appId),
   FOREIGN KEY (cuentaId) REFERENCES CuentaBlockchain(cuentaId)
 );
+
+-- Tabla: PruebaZK
+CREATE TABLE PruebaZK (
+  pruebaId INTEGER PRIMARY KEY,
+  bloques INTEGER NOT NULL,
+  resto INTEGER NOT NULL,
+  urlCircuit TEXT NOT NULL,
+  ipfsCircuit TEXT NOT NULL,
+  FOREIGN KEY (pruebaId) REFERENCES Eleccion(id)
+);
+
+-- Tabla: RaizZK
+CREATE TABLE RaizZK (
+  pruebaId INTEGER NOT NULL,
+  bloqueIdx INTEGER NOT NULL,
+  urlMerkle TEXT NOT NULL,
+  ipfsMerkle TEXT NOT NULL,
+  txnId_0 TEXT NOT NULL,
+  txnId_1 TEXT,
+  txnId_10 TEXT,
+  txnId_100 TEXT,
+  PRIMARY KEY (pruebaId, bloqueIdx),
+  FOREIGN KEY (pruebaId) REFERENCES PruebaZK(pruebaId)
+);
+
+

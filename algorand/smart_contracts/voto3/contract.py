@@ -11,6 +11,9 @@ class Voto3(ARC4Contract):
     estado_contrato: UInt64
     asset_id: Asset
 
+    bloques_zk: UInt64
+    resto_zk: UInt64
+
     def __init__(self) -> None:
         super().__init__()
         # Inicializar contadores
@@ -110,13 +113,15 @@ class Voto3(ARC4Contract):
 
     # Métodos para raíces
     @abimethod()
-    def abrir_registro_raices(self) -> None:
+    def abrir_registro_raices(self, bloques_zk: UInt64, resto_zk: UInt64) -> None:
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede abrir el registro de raíces"
         assert self.estado_contrato == UInt64(
             3
         ), "El contrato no está en el estado correcto"
+        self.bloques_zk = bloques_zk
+        self.resto_zk = resto_zk
         self.estado_contrato = UInt64(4)
 
     @abimethod()
