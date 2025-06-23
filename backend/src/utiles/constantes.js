@@ -26,6 +26,10 @@ export const INDEXER_PORT = process.env.INDEXER_PORT;
 
 export const ARTIFACTS_DIR = '../../' + process.env.ARTIFACTS_DIR ?? '../algorand/smart_contracts/artifacts/voto3/';
 
+export const PUBLIC_DIR = process.env.PUBLIC_DIR ?? './public/';
+export const CIRCUIT_DIR = process.env.CIRCUIT_DIR ?? './public/circuits/';
+
+
 // Rutas y configuración de BD
 export const RUTA_BD = process.env.NODE_ENV === 'production'
   ? '/var/lib/vanilla-voting/vanilla.db'

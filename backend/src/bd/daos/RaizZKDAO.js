@@ -5,7 +5,11 @@ export class RaizZKDAO extends BaseDAO {
     super('RaizZK');
   }
 
-  eliminarPruebaZK(bd, pruebaId) {
-    return bd.prepare(`DELETE FROM RaizZK WHERE pruebaId = ?`).run(pruebaId).changes;
+  obtenerPorPruebaId(bd, pruebaId) {
+    return bd.prepare('SELECT * FROM RaizZK WHERE pruebaId = ?').all(pruebaId);
+  }
+  
+  eliminarPorPruebaId(bd, pruebaId) {
+    return bd.prepare('DELETE FROM RaizZK WHERE pruebaId = ?').run(pruebaId).changes;
   }
 }

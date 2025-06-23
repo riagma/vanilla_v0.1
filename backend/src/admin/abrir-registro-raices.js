@@ -1,8 +1,9 @@
 #!/usr/bin/env node
+import e from 'express';
 import { abrirRegistroRaicesEleccion } from '../algorand/registrarRaices.js';
 import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
 
-const eleccionId = process.argv[2];
+const eleccionId = process.argv[2] ? parseInt(process.argv[2]) : undefined;
 
 if (!eleccionId) {
     console.error(`Uso: node ${process.argv[1]} <elección-id>`);
@@ -12,10 +13,10 @@ if (!eleccionId) {
 try {
     const bd = abrirConexionBD();
 
-    await abrirRegistroRaicesEleccion(bd, { eleccionId: parseInt(eleccionId)  });
+    await abrirRegistroRaicesEleccion(bd, eleccionId);
 
 } catch (err) {
-    console.error('Error abriendo el registro de compromisos:', err);
+    console.error('Error abriendo el registro de raices:', err);
     process.exit(1);
 
 } finally {

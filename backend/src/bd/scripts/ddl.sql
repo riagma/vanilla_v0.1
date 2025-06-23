@@ -110,10 +110,11 @@ CREATE TABLE ContratoBlockchain (
 -- Tabla: PruebaZK
 CREATE TABLE PruebaZK (
   pruebaId INTEGER PRIMARY KEY,
-  bloques INTEGER NOT NULL,
-  resto INTEGER NOT NULL,
-  urlCircuit TEXT NOT NULL,
-  ipfsCircuit TEXT NOT NULL,
+  numBloques INTEGER NOT NULL,
+  tamBloque INTEGER NOT NULL,
+  tamResto INTEGER NOT NULL,
+  urlCircuito TEXT NOT NULL,
+  ipfsCircuito TEXT NOT NULL,
   FOREIGN KEY (pruebaId) REFERENCES Eleccion(id)
 );
 
@@ -121,8 +122,9 @@ CREATE TABLE PruebaZK (
 CREATE TABLE RaizZK (
   pruebaId INTEGER NOT NULL,
   bloqueIdx INTEGER NOT NULL,
-  urlMerkle TEXT NOT NULL,
-  ipfsMerkle TEXT NOT NULL,
+  urlCompromisos TEXT NOT NULL,
+  ipfsCompromisos TEXT NOT NULL,
+  raiz: TEXT NOT NULL,
   txnId_0 TEXT NOT NULL,
   txnId_1 TEXT,
   txnId_10 TEXT,
@@ -130,5 +132,8 @@ CREATE TABLE RaizZK (
   PRIMARY KEY (pruebaId, bloqueIdx),
   FOREIGN KEY (pruebaId) REFERENCES PruebaZK(pruebaId)
 );
+
+CREATE INDEX idx_RaizZK_raiz ON RaizZK(raiz);
+
 
 

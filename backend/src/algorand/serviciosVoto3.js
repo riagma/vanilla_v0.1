@@ -42,14 +42,14 @@ const ABIabrirRegistroCompromisos = new ABIMethod({
   returns: { type: 'void' },
 });
 
-const ABIcerrarRegistroCompromisos = new ABIMethod({
-  name: 'cerrar_registro_compromisos',
-  args: [],
-  returns: { type: 'void' },
-});
-
 const ABIregistrarCompromiso = new ABIMethod({
   name: 'registrar_compromiso',
+  args: [],
+  returns: { type: 'uint64' },
+});
+
+const ABIcerrarRegistroCompromisos = new ABIMethod({
+  name: 'cerrar_registro_compromisos',
   args: [],
   returns: { type: 'uint64' },
 });
@@ -58,18 +58,21 @@ const ABIregistrarCompromiso = new ABIMethod({
 
 const ABIabrirRegistroRaices = new ABIMethod({
   name: 'abrir_registro_raices',
-  args: [],
-  returns: { type: 'void' },
-});
-
-const ABIcerrarRegistroRaices = new ABIMethod({
-  name: 'cerrar_registro_raices',
-  args: [],
+  args: [
+    { type: 'uint64', name: 'bloques_zk' },
+    { type: 'uint64', name: 'resto_zk' }
+  ],
   returns: { type: 'void' },
 });
 
 const ABIregistrarRaiz = new ABIMethod({
   name: 'registrar_raiz',
+  args: [],
+  returns: { type: 'uint64' },
+});
+
+const ABIcerrarRegistroRaices = new ABIMethod({
+  name: 'cerrar_registro_raices',
   args: [],
   returns: { type: 'void' },
 });
@@ -170,6 +173,7 @@ export async function establecerEstadoContrato(bd, { contratoId, estado }) {
 }
 
 //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 export async function abrirRegistroCompromisos(bd, { contratoId }) {
   const resultado = await _llamarMetodoVoto3(bd, {
@@ -202,13 +206,16 @@ export async function cerrarRegistroCompromisos(bd, { contratoId }) {
 }
 
 //----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
-export async function abrirRegistroRaices(bd, { contratoId }) {
+export async function abrirRegistroRaices(bd, { contratoId, bloquesZK = 0, restoZK = 0 }) {
+  const args = [bloquesZK, restoZK];
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIabrirRegistroRaices,
+    args,
   });
-  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+  return { txId: resultado.txIds[0], confirmedRound: resultado.confirmation?.confirmedRound };
 }
 
 //----------------------------------------------------------------------------
@@ -221,7 +228,7 @@ export async function registrarRaiz(bd, { contratoId, raiz }) {
     lease: Uint8Array.from(randomBytes(32)),
     note: raiz,
   });
-  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+  return { txId: resultado.txIds[0], num: resultado.returns[0].returnValue };
 }
 
 //----------------------------------------------------------------------------
@@ -231,9 +238,10 @@ export async function cerrarRegistroRaices(bd, { contratoId }) {
     contratoId,
     method: ABIcerrarRegistroRaices,
   });
-  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+  return { txId: resultado.txIds[0], confirmedRound: resultado.confirmation?.confirmedRound };
 }
 
+//----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
 export async function abrirRegistroAnuladores(bd, { contratoId }) {
@@ -241,7 +249,7 @@ export async function abrirRegistroAnuladores(bd, { contratoId }) {
     contratoId,
     method: ABIabrirRegistroAnuladores,
   });
-  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+  return { txId: resultado.txIds[0], confirmedRound: resultado.confirmation?.confirmedRound };
 }
 
 //----------------------------------------------------------------------------
@@ -254,7 +262,7 @@ export async function registrarAnulador(bd, { contratoId, anulador }) {
     lease: Uint8Array.from(randomBytes(32)),
     note: anulador,
   });
-  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+  return { txId: resultado.txIds[0], confirmedRound: resultado.confirmation?.confirmedRound };
 }
 
 //----------------------------------------------------------------------------
@@ -264,7 +272,7 @@ export async function cerrarRegistroAnuladores(bd, { contratoId }) {
     contratoId,
     method: ABIcerrarRegistroAnuladores,
   });
-  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+  return { txId: resultado.txIds[0], confirmedRound: resultado.confirmation?.confirmedRound };
 }
 
 //----------------------------------------------------------------------------

@@ -64,12 +64,12 @@ export async function cerrarRegistroCompromisosEleccion(bd, { eleccionId, contra
   const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId });
   console.log(`Estado del contrato ${contratoId}: ${resultadoLeerEstado}`);
 
-  if (resultadoLeerEstado === 2) {
+  if (resultadoLeerEstado === 2n) {
     const resultadoCerrar = await cerrarRegistroCompromisos(bd, { contratoId });
     console.log(`Registro de compromisos cerrado para el contrato ${contratoId}: ${resultadoCerrar}`);
 
-  } else if (resultadoLeerEstado === 3) {
-    console.log(`El contrato ${contratoId} ya estaba abierto.`);
+  } else if (resultadoLeerEstado === 3n) {
+    console.log(`El contrato ${contratoId} ya estaba cerrado.`);
 
   } else {
     console.log(`El contrato ${contratoId} no está en estado ${resultadoLeerEstado} adecuando.`);

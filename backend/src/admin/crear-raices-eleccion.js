@@ -1,12 +1,15 @@
 #!/usr/bin/env node
-import e from 'express';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createInterface } from 'readline';
+
 import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
 import { eleccionDAO, pruebaZKDAO, raizZKDAO, registroVotanteEleccionDAO } from '../bd/DAOs.js';
 import { calcularBloqueIndice, calcularDatosArbol, construirArbolPoseidon } from '../utiles/arbolMerkle.js';
-
+import { CIRCUIT_DIR } from '../utiles/constantes.js';
 
 const eleccionId = process.argv[2] ? parseInt(process.argv[2]) : undefined;
-const indice = process.argv[3] ? parseInt(process.argv[3]) : 0;
 
 if (!eleccionId) {
   console.error(`Uso: node ${process.argv[1]} <elección-id>`);
@@ -34,7 +37,7 @@ try {
     if (reemplazarla) {
       console.log(`Reemplazando la prueba ZK de la elección con ID ${eleccionId}`);
       raizZKDAO.eliminarPruebaZK(bd, eleccionId);
-      pruebaZKDAO.eliminarPorId(bd, { pruebaId: eleccionId });
+      pruebaZKDAO.eliminar(bd, { pruebaId: eleccionId });
     } else {
       console.log('Operación cancelada.');
       process.exit(0);
@@ -50,6 +53,25 @@ try {
   const indiceArbol = calcularBloqueIndice(datosArbol.tamBloque, datosArbol.tamResto, indice);
   console.log(`Índice del árbol: Bloque=${indiceArbol.bloque}, Índice en bloque=${indiceArbol.bloqueIdx}`);
 
+  const nuevaPruebaZK = {
+    pruebaId: eleccionId,
+    tamBloque: datosArbol.tamBloque,
+    tamResto: datosArbol.tamResto,
+    numBloques: datosArbol.numBloques,
+    urlCircuito: 'urlCircuito',
+    ipfsCircuito: 'ipfsCircuito',
+  };
+
+  const resultadoPruebaZK = pruebaZKDAO.crear(bd, nuevaPruebaZK);
+  console.log(`Prueba ZK creada con ID: ${resultadoPruebaZK.pruebaId}`);
+
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const dirPruebaZK = path.join(__dirname, '../../', CIRCUIT_DIR, `pruebaZK-${eleccionId}`);
+  console.log(`Directorio de prueba ZK: ${dirPruebaZK}`);
+
+  if (!fs.existsSync(dirPruebaZK)) {
+    fs.mkdirSync(dirPruebaZK, { recursive: true });
+  }
 
   for (let bloque = 0, compromisoIdx = 0; bloque < datosArbol.numBloques; bloque++) {
 
@@ -58,7 +80,7 @@ try {
     console.log(`Procesando bloque ${bloque} con tamaño ${tamBloque}`);
 
     const registros = registroVotanteEleccionDAO.obtenerCompromisosEleccion(
-      bd, 
+      bd,
       eleccionId,
       compromisoIdx,
       tamBloque
@@ -70,8 +92,26 @@ try {
 
     const compromisos = registros.map(r => r.compromiso);
     const arbol = construirArbolPoseidon(compromisos);
-  }
 
+    const archivoCompromisos = path.join(dirPruebaZK, `compromisos-bloque-${bloque}.json`);
+    console.log(`Guardando compromisos en: ${archivoCompromisos}`);
+    fs.writeFileSync(archivoCompromisos, JSON.stringify(compromisos, null, 2), 'utf8');
+
+    const nuevaRaizZK = {
+      pruebaId: eleccionId,
+      bloqueIdx: bloque,
+      urlCompromisos: `urlCompromisos-${bloque}`,
+      ipfsCompromisos: `ipfsCompromisos-${bloque}`, 
+      raiz: arbol.getRoot().toString('hex'),
+      txnId_0: 'temporal',
+      txnId_1: null,
+      txnId_10: null,
+      txnId_100: null,
+    };
+
+    const resultadoRaizZK = raizZKDAO.crear(bd, nuevaRaizZK);
+    console.log(`Raíz ZK creada para el bloque ${bloque} con ID: ${JSON.stringify(resultadoRaizZK)}`);
+  }
 
 } catch (err) {
   console.error('Error creando raíces de elección:', err);

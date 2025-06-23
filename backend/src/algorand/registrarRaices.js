@@ -1,46 +1,56 @@
 // src/deployer/deployContract.js
-import { votanteDAO, eleccionDAO, registroVotanteEleccionDAO } from '../bd/DAOs.js';
+import { votanteDAO, eleccionDAO, registroVotanteEleccionDAO, pruebaZKDAO, raizZKDAO } from '../bd/DAOs.js';
 
-import { 
+import {
   leerEstadoContrato,
-  abrirRegistroRaices, 
-  cerrarRegistroRaices, 
-  registrarRaiz 
+  abrirRegistroRaices,
+  cerrarRegistroRaices,
+  registrarRaiz
 
 } from './serviciosVoto3.js';
 
-import { calcularSha256 } from '../utiles/utiles.js';
+import { calcularSha256 } from '../utiles/utilesCrypto.js';
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
-export async function abrirRegistroRaicesEleccion(bd, { eleccionId, contratoId }) {
+export async function abrirRegistroRaicesEleccion(bd, eleccionId) {
 
-  console.log(`Abriendo registro de raices para la elección ${eleccionId} con contrato ${contratoId}`);
+  console.log(`Abriendo registro de raices para la elección ${eleccionId}`);
 
   //-------------
 
-  if (!contratoId && eleccionId) {
-    const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
-    contratoId = eleccion.contratoId;
+  const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
+  if (!eleccion) {
+    throw new Error(`No se ha encontrado la elección con ID ${eleccionId}`);
   }
 
+  const contratoId = eleccion.contratoId;
   if (!contratoId) {
-    throw new Error(`No se ha proporcionado un contratoId para la elección ${eleccionId}`);
+    throw new Error(`No se ha encontrado un contratoId para la elección ${eleccionId}`);
+  }
+
+  const pruebaZK = pruebaZKDAO.obtenerPorId(bd, { pruebaId: eleccionId });
+  if (!pruebaZK) {
+    throw new Error(`No se ha encontrado una prueba ZK para la elección ${eleccionId}`);
   }
 
   const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId });
   console.log(`Estado del contrato ${contratoId}: ${resultadoLeerEstado}`);
 
   if (resultadoLeerEstado === 3n) {
-    const resultadoAbrir = await abrirRegistroRaices(bd, { contratoId });
+    const resultadoAbrir = await abrirRegistroRaices(bd, {
+      contratoId,
+      bloquesZK: pruebaZK.tamBloque,
+      restoZK: pruebaZK.tamResto,
+    });
     console.log(`Registro de raices abierto para el contrato ${contratoId}: ${resultadoAbrir.txId}`);
 
   } else if (resultadoLeerEstado === 4n) {
     console.log(`El contrato ${contratoId} ya estaba abierto.`);
 
   } else {
-    console.log(`El contrato ${contratoId} no está en estado ${resultadoLeerEstado} adecuando (1).`);
+    console.log(`El contrato ${contratoId} no está en estado ${resultadoLeerEstado} adecuando (4).`);
   }
 }
 
@@ -78,61 +88,88 @@ export async function cerrarRegistroRaicesEleccion(bd, { eleccionId, contratoId 
 
 //----------------------------------------------------------------------------
 
-export async function registrarRaizEleccion(bd, { eleccionId, contratoId, votanteId, raiz }) {
+export async function registrarRaicesEleccion(bd, { eleccionId }) {
 
-  console.log(`Registrando raiz para ${eleccionId} del votante ${votanteId}`);
-  console.log(`Raiz: ${JSON.stringify(raiz)}`);
+  console.log(`Registrando raices para ${eleccionId}`);
 
   //-------------
 
-  if (!contratoId && eleccionId) {
-    const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
-    contratoId = eleccion.contratoId;
+  const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
+  if (!eleccion) {
+    throw new Error(`No se ha encontrado la elección con ID ${eleccionId}`);
   }
 
+  const contratoId = eleccion.contratoId;
   if (!contratoId) {
-    throw new Error(`No se ha proporcionado un contratoId para la elección ${eleccionId}`);
+    throw new Error(`No se ha encontrado un contratoId para la elección ${eleccionId}`);
   }
 
-  if (!votanteId) {
-    throw new Error(`No se ha proporcionado un votanteId para la elección ${eleccionId}`);
+  const pruebaZK = pruebaZKDAO.obtenerPorId(bd, { pruebaId: eleccionId });
+  if (!pruebaZK) {
+    throw new Error(`No se ha encontrado una prueba ZK para la elección ${eleccionId}`);
   }
 
   const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId });
   console.log(`Estado del contrato ${contratoId}: ${resultadoLeerEstado}`);
 
-  if (resultadoLeerEstado === 2n) {
+  let txnId_1 = '';
+  let txnId_10 = '';
+  let txnId_100 = '';
 
-    const votante = votanteDAO.obtenerPorId(bd, { dni: votanteId });
+  if (resultadoLeerEstado === 4n) {
+    const raices = raizZKDAO.obtenerPorPruebaId(bd, eleccionId );
 
-    if (!votante) {
-      throw new Error(`No se encontró el votante con DNI ${votanteId}`);
+    for (let idx = raices.length - 1; idx >= 0; idx--) {
+
+      const raiz = raices[idx];
+      
+      console.log(`Registrando raiz: ${raiz.bloqueIdx} - ${raiz.raiz}`);
+
+      if (idx + 1 < raices.length) {
+        txnId_1 = raices[idx + 1].txnId_0;
+        console.log(raices[idx + 1]);
+        console.log(typeof raices[idx + 1].txnId_0, raices[idx + 1].txnId_0);       
+      }
+      if (idx + 10 < raices.length) {
+        txnId_10 = raices[idx + 10].txnId_0;
+      }
+      if (idx + 100 < raices.length) {
+        txnId_100 = raices[idx + 100].txnId_0;
+      }
+
+      if (raiz.txnId_0 !== 'temporal') {
+
+        const raizNote = {
+          idx: raiz.bloqueIdx.toString(),
+          raiz: raiz.raiz,
+          ipfs: raiz.ipfsCompromisos,
+          t1: txnId_1,
+          t10: txnId_10,
+          t100: txnId_100,
+        };
+
+        const resultadoRegistrar = await registrarRaiz(bd, { contratoId, raiz: raizNote });
+
+        raiz.txnId_0 = resultadoRegistrar.txId;
+        raiz.txnId_1 = txnId_1;
+        raiz.txnId_10 = txnId_10;
+        raiz.txnId_100 = txnId_100;
+
+        raizZKDAO.actualizar(bd,
+          {
+            pruebaId: raiz.pruebaId,
+            bloqueIdx: raiz.bloqueIdx,
+          },
+          {
+            txnId_0: raiz.txnId_0,
+            txnId_1: raiz.txnId_1,
+            txnId_10: raiz.txnId_10,
+            txnId_100: raiz.txnId_100,
+          });
+      }
+
+      console.log(`Raiz registrada: ${raiz.txnId_0}`);
     }
-
-    const registro = registroVotanteEleccionDAO.registrarRaizEleccion(bd, {
-      votanteId,
-      eleccionId,
-      raiz
-    });
-
-    const dniHash = calcularSha256(JSON.stringify(raiz));
-
-    const raizNote = {
-      idx: registro.raizIdx,
-      dni: dniHash,
-      raiz,
-    };
-
-    const resultadoRegistrar = await registrarRaiz(bd, { contratoId, raiz: raizNote });
-
-    registroVotanteEleccionDAO.actualizarTransaccion(bd, {
-      votanteId,
-      eleccionId,
-      transaccion: resultadoRegistrar.txId
-    });
-
-    console.log(`Raiz registrado para el votante ${votanteId} en la elección ${eleccionId}: ${JSON.stringify(raizNote)}`);
-    console.log(`Transacción registrada: ${resultadoRegistrar.txId}`);
 
   } else {
     throw new Error(`El contrato ${contratoId} no está en estado ${resultadoLeerEstado} adecuando.`);

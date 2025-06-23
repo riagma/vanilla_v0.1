@@ -11,8 +11,11 @@ class Voto3(ARC4Contract):
     estado_contrato: UInt64
     asset_id: Asset
 
-    bloques_zk: UInt64
-    resto_zk: UInt64
+    num_bloques: UInt64
+    tam_bloque: UInt64
+    tam_resto: UInt64
+
+    txid_raiz: String
 
     def __init__(self) -> None:
         super().__init__()
@@ -113,16 +116,30 @@ class Voto3(ARC4Contract):
 
     # Métodos para raíces
     @abimethod()
-    def abrir_registro_raices(self, bloques_zk: UInt64, resto_zk: UInt64) -> None:
+    def abrir_registro_raices(self, num_bloques: UInt64, tam_bloque: UInt64, tam_resto: UInt64) -> None:
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede abrir el registro de raíces"
         assert self.estado_contrato == UInt64(
             3
         ), "El contrato no está en el estado correcto"
-        self.bloques_zk = bloques_zk
-        self.resto_zk = resto_zk
+        self.num_bloques = num_bloques
+        self.tam_bloque = tam_bloque
+        self.tam_resto = tam_resto
         self.estado_contrato = UInt64(4)
+
+    @abimethod()
+    def registrar_raiz(self, txid_raiz) -> UInt64:
+        assert (
+            Txn.sender == Global.creator_address
+        ), "Solo el creador puede registrar raíces"
+        assert self.estado_contrato == UInt64(
+            4
+        ), "El contrato no está en el estado correcto"
+        current = self.contador_raices
+        self.contador_raices = current + 1
+        self.txid_raiz = txid_raiz
+        return self.contador_raices
 
     @abimethod()
     def cerrar_registro_raices(self) -> UInt64:
@@ -136,16 +153,11 @@ class Voto3(ARC4Contract):
         return self.contador_raices
 
     @abimethod()
-    def registrar_raiz(self) -> UInt64:
-        assert (
-            Txn.sender == Global.creator_address
-        ), "Solo el creador puede registrar raíces"
-        assert self.estado_contrato == UInt64(
+    def leer_datos_raices(self) -> Tuple[UInt64, UInt64, UInt64, String]:
+        assert self.estado_contrato >= UInt64(
             4
-        ), "El contrato no está en el estado correcto"
-        current = self.contador_raices
-        self.contador_raices = current + 1
-        return current
+        ), "El contrato no está en el estado correcto"  
+        return(self.num_bloques, self.tam_bloque, self.tam_resto, self.txid_raiz)
 
     # --------------
 

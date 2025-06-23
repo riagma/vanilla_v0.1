@@ -81,7 +81,7 @@ export function construirArbolPoseidon(compromisos) {
 // Guarda el árbol Merkle (objeto) en un fichero JSON
 export function guardarArbolEnFichero(arbol, rutaFichero) {
   fs.writeFileSync(rutaFichero, JSON.stringify(arbol, null, 2));
-  console.log(`✅ Árbol Merkle guardado en ${rutaFichero}`);
+  console.log(`Árbol Merkle guardado en ${rutaFichero}`);
 }
 
 // Lee un árbol Merkle desde un fichero JSON y lo devuelve como objeto
