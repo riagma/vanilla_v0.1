@@ -1,5 +1,6 @@
 import e from 'express';
 import { BaseDAO } from './BaseDAO.js';
+import { el } from '@faker-js/faker';
 
 export class RegistroVotanteEleccionDAO extends BaseDAO {
   constructor() {
@@ -19,20 +20,36 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
   }
 
   obtenerSiguienteIdx(bd, eleccionId) {
-    const siguienteIdx = bd.prepare(`
-      SELECT COALESCE(MAX(compromisoIdx), -1) + 1 AS nuevo_idx 
+
+    const registroPrevio = bd.prepare(`
+      SELECT transaccion, compromisoIdx
       FROM RegistroVotanteEleccion
       WHERE eleccionId = ?
+      ORDER BY compromisoIdx DESC
+      LIMIT 1
     `).get(eleccionId);
-    return siguienteIdx.nuevo_idx;
+
+    if (registroPrevio) {
+      return { siguienteIdx: registroPrevio.compromisoIdx + 1, txnIdprevio: registroPrevio.transaccion };
+    } else {
+      return { siguienteIdx: 0, txnIdprevio: null };
+    }
+
+    // const siguienteIdx = bd.prepare(`
+    //     SELECT COALESCE(MAX(compromisoIdx), -1) + 1 AS nuevo_idx, transaccion AS txnIdprevio
+    //     FROM RegistroVotanteEleccion
+    //     WHERE eleccionId = ?
+    //   `).get(eleccionId);
+    //   return { siguienteIdx: siguienteIdx.nuevo_idx, txnIdprevio: siguienteIdx.txnIdprevio };
   }
 
   //----------------------------------------------------------------------------
 
-  registrarVotanteEleccion(bd, { eleccionId, votanteId, compromiso }) {
+  registrarVotanteEleccion(bd, { votanteId, eleccionId, compromiso, datosPrivados = null }) {
 
-    const registrarVotante = bd.transaction((eleccionId, votanteId, compromiso) => {
-      const siguienteIdx = this.obtenerSiguienteIdx(bd, eleccionId);
+    const registrarVotante = bd.transaction((votanteId, eleccionId, compromiso) => {
+
+      const { siguienteIdx, txnIdprevio } = this.obtenerSiguienteIdx(bd, eleccionId);
 
       const registro = {
         votanteId,
@@ -41,24 +58,25 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
         compromisoIdx: siguienteIdx,
         transaccion: 'temporal',
         fechaRegistro: new Date().toISOString(),
-        datosPrivados: null
+        datosPrivados
       };
 
       console.log(registro);
-
       this.crear(bd, registro);
+
+      registro.transaccion = txnIdprevio;
 
       return registro;
     });
 
-    return registrarVotante(eleccionId, votanteId, compromiso);
+    return registrarVotante(votanteId, eleccionId, compromiso);
   }
 
   //----------------------------------------------------------------------------
 
-  actualizarTransaccion(bd, { eleccionId, votanteId, transaccion }) {
+  actualizarTransaccion(bd, { votanteId, eleccionId, transaccion }) {
 
-    const actualizarTransaccionStmt = bd.transaction((eleccionId, votanteId, transaccion) => {
+    const actualizarTransaccionStmt = bd.transaction((votanteId, eleccionId, transaccion) => {
 
       const registro = this.obtenerPorId(bd, { votanteId, eleccionId });
 
@@ -69,10 +87,9 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
       const actualizado = this.actualizar(bd, { votanteId, eleccionId }, { transaccion });
 
       return actualizado;
-
     });
 
-    return actualizarTransaccionStmt(eleccionId, votanteId, transaccion);
+    return actualizarTransaccionStmt(votanteId, eleccionId, transaccion);
   }
 
   //----------------------------------------------------------------------------
@@ -89,5 +106,4 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
     
     `).all({ eleccionId, compromisoIdx, max });
   }
-
 }

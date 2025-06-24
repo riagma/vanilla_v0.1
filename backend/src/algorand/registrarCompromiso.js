@@ -1,5 +1,5 @@
 // src/deployer/deployContract.js
-import { votanteDAO, eleccionDAO, registroVotanteEleccionDAO } from '../bd/DAOs.js';
+import { votanteDAO, eleccionDAO, registroVotanteEleccionDAO, contratoBlockchainDAO } from '../bd/DAOs.js';
 
 import { 
   leerEstadoContrato,
@@ -14,92 +14,44 @@ import { calcularSha256 } from '../utiles/utilesCrypto.js';
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
-export async function abrirRegistroCompromisosEleccion(bd, { eleccionId, contratoId }) {
+export async function abrirRegistroCompromisosEleccion(bd, eleccionId) {
 
-  console.log(`Abriendo registro de compromisos para la elección ${eleccionId} con contrato ${contratoId}`);
-
-  //-------------
-
-  if (!contratoId && eleccionId) {
-    const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
-    contratoId = eleccion.contratoId;
+  const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
+  if (!contrato) {
+    throw new Error(`No se encontró el contrato para la elección ${eleccionId}`);
   }
 
-  if (!contratoId) {
-    throw new Error(`No se ha proporcionado un contratoId para la elección ${eleccionId}`);
-  }
-
-  const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId });
-  console.log(`Estado del contrato ${contratoId}: ${resultadoLeerEstado}`);
+  const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId: eleccionId });
+  console.log(`Estado de la elección ${eleccionId}: ${resultadoLeerEstado}`);
 
   if (resultadoLeerEstado === 1n) {
-    const resultadoAbrir = await abrirRegistroCompromisos(bd, { contratoId });
-    console.log(`Registro de compromisos abierto para el contrato ${contratoId}: ${resultadoAbrir.txId}`);
+    console.log(`Abriendo registro de compromisos para la elección ${eleccionId}:${contrato.appId}`);
+    const resultadoAbrir = await abrirRegistroCompromisos(bd, { contratoId: eleccionId });
+    console.log(`Registro de compromisos abierto para la elección ${eleccionId}:${contrato.appId}`);
 
   } else if (resultadoLeerEstado === 2n) {
-    console.log(`El contrato ${contratoId} ya estaba abierto.`);
+    console.log(`La elección ${eleccionId} ya estaba abierta.`);
 
   } else {
-    console.log(`El contrato ${contratoId} no está en estado ${resultadoLeerEstado} adecuando (1).`);
+    console.log(`La elección ${eleccionId}:${contrato.appId} no está en estado adecuado (1) != (${resultadoLeerEstado}).`);
   }
 }
 
 //----------------------------------------------------------------------------
 
-export async function cerrarRegistroCompromisosEleccion(bd, { eleccionId, contratoId }) {
+export async function registrarVotanteEleccion(bd, { votanteId, eleccionId, compromiso, datosPrivados = null }) {
 
-  console.log(`Cerrando registro de compromisos para la elección ${eleccionId} con contrato ${contratoId}`);
-
-  //-------------
-
-  if (!contratoId && eleccionId) {
-    const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
-    contratoId = eleccion.contratoId;
-  }
-
-  if (!contratoId) {
-    throw new Error(`No se ha proporcionado un contratoId para la elección ${eleccionId}`);
-  }
-
-  const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId });
-  console.log(`Estado del contrato ${contratoId}: ${resultadoLeerEstado}`);
-
-  if (resultadoLeerEstado === 2n) {
-    const resultadoCerrar = await cerrarRegistroCompromisos(bd, { contratoId });
-    console.log(`Registro de compromisos cerrado para el contrato ${contratoId}: ${resultadoCerrar}`);
-
-  } else if (resultadoLeerEstado === 3n) {
-    console.log(`El contrato ${contratoId} ya estaba cerrado.`);
-
-  } else {
-    console.log(`El contrato ${contratoId} no está en estado ${resultadoLeerEstado} adecuando.`);
-  }
-}
-
-//----------------------------------------------------------------------------
-
-export async function registrarVotanteEleccion(bd, { eleccionId, contratoId, votanteId, compromiso }) {
-
-  console.log(`Registrando compromiso para ${eleccionId} del votante ${votanteId}`);
-  console.log(`Compromiso: ${JSON.stringify(compromiso)}`);
+  console.log(`Registrando ${compromiso} para ${eleccionId} del votante ${votanteId}`);
 
   //-------------
 
-  if (!contratoId && eleccionId) {
-    const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
-    contratoId = eleccion.contratoId;
+  const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
+  if (!contrato) {
+    throw new Error(`No se encontró el contrato para la elección ${eleccionId}`);
   }
 
-  if (!contratoId) {
-    throw new Error(`No se ha proporcionado un contratoId para la elección ${eleccionId}`);
-  }
-
-  if (!votanteId) {
-    throw new Error(`No se ha proporcionado un votanteId para la elección ${eleccionId}`);
-  }
-
-  const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId });
-  console.log(`Estado del contrato ${contratoId}: ${resultadoLeerEstado}`);
+  const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId: eleccionId });
+  console.log(`Estado de la elección ${eleccionId}: ${resultadoLeerEstado}`);
 
   if (resultadoLeerEstado === 2n) {
 
@@ -112,18 +64,21 @@ export async function registrarVotanteEleccion(bd, { eleccionId, contratoId, vot
     const registro = registroVotanteEleccionDAO.registrarVotanteEleccion(bd, {
       votanteId,
       eleccionId,
-      compromiso
+      compromiso,
+      datosPrivados
     });
-
-    const dniHash = calcularSha256(JSON.stringify(compromiso));
 
     const compromisoNote = {
       idx: registro.compromisoIdx,
-      dni: dniHash,
-      compromiso,
+      txp: registro.transaccion,
+      dni: calcularSha256(votanteId),
+      cpm: compromiso,
     };
 
-    const resultadoRegistrar = await registrarCompromiso(bd, { contratoId, compromiso: compromisoNote });
+    const resultadoRegistrar = await registrarCompromiso(bd, { 
+      contratoId: eleccionId, 
+      compromiso: compromisoNote 
+    });
 
     registroVotanteEleccionDAO.actualizarTransaccion(bd, {
       votanteId,
@@ -135,7 +90,34 @@ export async function registrarVotanteEleccion(bd, { eleccionId, contratoId, vot
     console.log(`Transacción registrada: ${resultadoRegistrar.txId}`);
 
   } else {
-    throw new Error(`El contrato ${contratoId} no está en estado ${resultadoLeerEstado} adecuando.`);
+    console.log(`La elección ${eleccionId}:${contrato.appId} no está en estado adecuado (2) != (${resultadoLeerEstado}).`);
+  }
+}
+
+//----------------------------------------------------------------------------
+
+export async function cerrarRegistroCompromisosEleccion(bd, eleccionId) {
+
+  const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
+  if (!contrato) {
+    throw new Error(`No se encontró el contrato para la elección ${eleccionId}`);
+  }
+
+  const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId: eleccionId });
+  console.log(`Estado de la elección ${eleccionId}: ${resultadoLeerEstado}`);
+
+  if (resultadoLeerEstado === 2n) {
+    console.log(`Cerrando registro de compromisos para la elección ${eleccionId}:${contrato.appId}`);
+    const resultadoCerrar = await cerrarRegistroCompromisos(bd, { contratoId: eleccionId });
+    console.log(`Registro de compromisos cerrado para la elección ${eleccionId}:${contrato.appId}`);
+
+  } else if (resultadoLeerEstado === 3n) {
+    console.log(`La elección ${eleccionId}:${contrato.appId} ya estaba cerrada.`);
+
+  } else {
+    console.log(`
+      La elección ${eleccionId}:${contrato.appId} 
+      no está en estado adecuado (2) != (${resultadoLeerEstado}).`);
   }
 }
 

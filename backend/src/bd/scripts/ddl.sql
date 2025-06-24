@@ -24,11 +24,7 @@ CREATE TABLE Eleccion (
   fechaInicioVotacion TEXT NOT NULL,
   fechaFinVotacion TEXT NOT NULL,
   fechaEscrutinio TEXT NOT NULL,
-  contratoId INTEGER,
-  estado TEXT NOT NULL,
-  FOREIGN KEY (contratoId) 
-    REFERENCES ContratoBlockchain(contratoId) 
-    ON DELETE SET NULL
+  estado TEXT NOT NULL
 );
 
 -- Tabla: Partido
@@ -98,13 +94,23 @@ CREATE TABLE CuentaBlockchain (
 
 -- Tabla: ContratoBlockchain
 CREATE TABLE ContratoBlockchain (
-  contratoId INTEGER PRIMARY KEY AUTOINCREMENT,
+  contratoId INTEGER PRIMARY KEY,
   appId TEXT NOT NULL,
   appAddr TEXT NOT NULL,
   cuentaId INTEGER NOT NULL,
 
   UNIQUE(cuentaId, appId),
+  FOREIGN KEY (contratoId) REFERENCES Eleccion(id),
   FOREIGN KEY (cuentaId) REFERENCES CuentaBlockchain(cuentaId)
+);
+
+-- Tabla: ContratoReciclado
+CREATE TABLE ContratoReciclado (
+  recicladoId INTEGER PRIMARY KEY AUTOINCREMENT,
+  contratoId INTEGER NOT NULL,
+  appId TEXT NOT NULL,
+  appAddr TEXT NOT NULL,
+  cuentaId INTEGER NOT NULL
 );
 
 -- Tabla: PruebaZK
@@ -115,6 +121,8 @@ CREATE TABLE PruebaZK (
   tamResto INTEGER NOT NULL,
   urlCircuito TEXT NOT NULL,
   ipfsCircuito TEXT NOT NULL,
+  claveVotoPublica TEXT,
+  claveVotoPrivada TEXT,
   FOREIGN KEY (pruebaId) REFERENCES Eleccion(id)
 );
 
@@ -124,11 +132,8 @@ CREATE TABLE RaizZK (
   bloqueIdx INTEGER NOT NULL,
   urlCompromisos TEXT NOT NULL,
   ipfsCompromisos TEXT NOT NULL,
-  raiz: TEXT NOT NULL,
-  txnId_0 TEXT NOT NULL,
-  txnId_1 TEXT,
-  txnId_10 TEXT,
-  txnId_100 TEXT,
+  raiz TEXT NOT NULL,
+  txnId TEXT NOT NULL,
   PRIMARY KEY (pruebaId, bloqueIdx),
   FOREIGN KEY (pruebaId) REFERENCES PruebaZK(pruebaId)
 );

@@ -8,6 +8,7 @@ import { ResultadoEleccionDAO } from './daos/ResultadoEleccionDAO.js';
 import { ResultadoPartidoDAO } from './daos/ResultadoPartidoDAO.js';
 import { CuentaBlockchainDAO } from './daos/CuentaBlockchainDAO.js';
 import { ContratoBlockchainDAO } from './daos/ContratoBlockchainDAO.js';
+import { ContratoRecicladoDAO } from './daos/ContratoRecicladoDAO.js';
 import { PruebaZKDAO } from './daos/PruebaZKDAO.js';
 import { RaizZKDAO } from './daos/RaizZKDAO.js';
 
@@ -22,6 +23,7 @@ const resultadoEleccionDAO = new ResultadoEleccionDAO();
 const resultadoPartidoDAO = new ResultadoPartidoDAO();
 const cuentaBlockchainDAO = new CuentaBlockchainDAO();
 const contratoBlockchainDAO = new ContratoBlockchainDAO();
+const contratoRecicladoDAO = new ContratoRecicladoDAO();
 const pruebaZKDAO = new PruebaZKDAO();
 const raizZKDAO = new RaizZKDAO(); 
 
@@ -37,6 +39,7 @@ export const daos = Object.freeze({
   resultadoPartido: resultadoPartidoDAO,
   cuentaBlockchain: cuentaBlockchainDAO,
   contratoBlockchain: contratoBlockchainDAO,
+  contratoReciclado: contratoRecicladoDAO,
   pruebaZK: pruebaZKDAO,
   raizZK: raizZKDAO,
 });
@@ -53,6 +56,7 @@ export {
   resultadoPartidoDAO,
   cuentaBlockchainDAO,
   contratoBlockchainDAO,
+  contratoRecicladoDAO,
   pruebaZKDAO,
   raizZKDAO,
 };

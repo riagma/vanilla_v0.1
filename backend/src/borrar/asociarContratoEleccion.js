@@ -1,8 +1,8 @@
 // src/deployer/deployContract.js
 import { contratoBlockchainDAO, eleccionDAO } from '../bd/DAOs.js';
 
-import { algorand } from './algorand.js';
-import { establecerClienteVoto3, inicializarEleccion, leerEstadoContrato } from './serviciosVoto3.js';
+import { algorand } from '../algorand/algorand.js';
+import { establecerClienteVoto3, inicializarEleccion, leerEstadoContrato } from '../algorand/serviciosVoto3.js';
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------

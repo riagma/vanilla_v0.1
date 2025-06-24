@@ -1,19 +1,18 @@
-// src/deployer/deployContract.js
-import { daos } from '../bd/DAOs.js';
-
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { stringifyJSON } from 'algosdk';
 
-import { algorand } from './algorand.js';
+import { daos } from '../bd/DAOs.js';
 import { CONFIG } from '../utiles/constantes.js';
+import { algorand } from './algorand.js';
+import { inicializarEleccion } from './serviciosVoto3.js';
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
-export async function desplegarContrato(bd, cuentaId) {
+export async function desplegarContrato(bd, eleccionId, cuentaId = 0) {
 
-  console.log(`Desplegando contrato: ${cuentaId} - ${CONFIG.ARTIFACTS_DIR}`);
+  console.log(`Desplegando contrato: ${eleccionId} - ${cuentaId} - ${CONFIG.ARTIFACTS_DIR}`);
 
   const { approvalProgram, clearStateProgram, schema } = await _leerArtefactos(CONFIG.ARTIFACTS_DIR);
 
@@ -30,8 +29,6 @@ export async function desplegarContrato(bd, cuentaId) {
       approvalProgram,
       clearStateProgram,
       schema,
-      // args: [Uint8Array.from([0x4c, 0x5c, 0x61, 0xba])],
-      // lease: Uint8Array.from(randomBytes(32)),
     },
     {
       skipWaiting: false,
@@ -41,7 +38,7 @@ export async function desplegarContrato(bd, cuentaId) {
     }
   );
 
-  const { contratoId } = _escribirBaseDatos(bd, cuentaId, resultCreate.appId, resultCreate.appAddress);
+  const { contratoId } = _escribirBaseDatos(bd, eleccionId, cuentaId, resultCreate.appId, resultCreate.appAddress);
 
   //-------------
 
@@ -58,7 +55,18 @@ export async function desplegarContrato(bd, cuentaId) {
     }
   );
 
-  console.log(`Pago enviado con éxito: ${resultPayment.confirmation?.confirmedRound} - ${resultPayment.txIds}`);
+  console.log(`Pago enviado con éxito: ${resultPayment.confirmation?.confirmedRound} - ${resultPayment.txIds[0]}`);
+
+  //-------------
+
+  const resultadoInicializacion = await inicializarEleccion(bd, {
+    contratoId,
+    nombreToken: 'VOTO3',
+    nombreUnidades: 'VT3',
+    numeroUnidades: BigInt(100000000),
+  });
+
+  console.log(`Contrato inicializado con éxito, con asset id = ${resultadoInicializacion}`);
 
   //--------------
 
@@ -121,7 +129,7 @@ async function _leerArtefactos(artifactsDir) {
 
 //----------------------------------------------------------------------------
 
- function _leerBaseDatos(bd, cuentaId) {
+function _leerBaseDatos(bd, cuentaId) {
   try {
     console.log(`Obtenido datos cuenta ${cuentaId} algorand ...`);
     const cuentaBlockchain = daos.cuentaBlockchain.obtenerPorId(bd, { cuentaId });
@@ -139,10 +147,11 @@ async function _leerArtefactos(artifactsDir) {
 
 //----------------------------------------------------------------------------
 
-function _escribirBaseDatos(bd, cuentaId, appId, appAddr) {
+function _escribirBaseDatos(bd, contratoId, cuentaId, appId, appAddr) {
   try {
     console.log('Guardando datos contrato algorand ...');
     const resultado = daos.contratoBlockchain.crear(bd, {
+      contratoId,
       cuentaId,
       appId: String(appId),
       appAddr: String(appAddr),
@@ -168,8 +177,3 @@ async function _readFileDir(dir) {
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-
-
-
-
-

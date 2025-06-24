@@ -12,7 +12,7 @@ if (!eleccionId) {
 try {
     const bd = abrirConexionBD();
 
-    await abrirRegistroCompromisosEleccion(bd, { eleccionId: parseInt(eleccionId)  });
+    await abrirRegistroCompromisosEleccion(bd, parseInt(eleccionId));
 
 } catch (err) {
     console.error('Error abriendo el registro de compromisos:', err);

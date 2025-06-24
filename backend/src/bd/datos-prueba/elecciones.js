@@ -19,7 +19,6 @@ export function cargarElecciones(bd) {
         fechaInicioVotacion: subDays(hoy, 30),
         fechaFinVotacion: subDays(hoy, 29),
         fechaEscrutinio: subDays(hoy, 29),
-        contratoId: null,
         estado: "CERRADA"
       },
       {
@@ -30,7 +29,6 @@ export function cargarElecciones(bd) {
         fechaInicioVotacion: addDays(hoy, 15),
         fechaFinVotacion: addDays(hoy, 16),
         fechaEscrutinio: addDays(hoy, 16),
-        contratoId: null,
         estado: "REGISTRO"
       },
       {
@@ -41,7 +39,6 @@ export function cargarElecciones(bd) {
         fechaInicioVotacion: subDays(hoy, 1),
         fechaFinVotacion: addDays(hoy, 1),
         fechaEscrutinio: addDays(hoy, 1),
-        contratoId: null,
         estado: "VOTACION"
       },
       {
@@ -52,7 +49,6 @@ export function cargarElecciones(bd) {
         fechaInicioVotacion: addDays(hoy, 60),
         fechaFinVotacion: addDays(hoy, 61),
         fechaEscrutinio: addDays(hoy, 61),
-        contratoId: null,
         estado: "PENDIENTE"
       }
     ];
@@ -63,8 +59,8 @@ export function cargarElecciones(bd) {
         nombre, descripcion,
         fechaInicioRegistro, fechaFinRegistro,
         fechaInicioVotacion, fechaFinVotacion,
-        fechaEscrutinio, contratoId, estado
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        fechaEscrutinio, estado
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     bd.exec('BEGIN');
@@ -78,7 +74,6 @@ export function cargarElecciones(bd) {
         eleccion.fechaInicioVotacion.toISOString(),
         eleccion.fechaFinVotacion.toISOString(),
         eleccion.fechaEscrutinio.toISOString(),
-        eleccion.contratoId,
         eleccion.estado
       );
       console.log(`Creada elección: ${eleccion.nombre}`);
