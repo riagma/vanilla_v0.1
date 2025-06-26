@@ -59,8 +59,9 @@ const ABIcerrarRegistroCompromisos = new ABIMethod({
 const ABIabrirRegistroRaices = new ABIMethod({
   name: 'abrir_registro_raices',
   args: [
-    { type: 'uint64', name: 'bloques_zk' },
-    { type: 'uint64', name: 'resto_zk' }
+    { type: 'uint64', name: 'num_bloques' },
+    { type: 'uint64', name: 'tam_bloque' },
+    { type: 'uint64', name: 'tam_resto' }
   ],
   returns: { type: 'void' },
 });
@@ -73,8 +74,14 @@ const ABIregistrarRaiz = new ABIMethod({
 
 const ABIcerrarRegistroRaices = new ABIMethod({
   name: 'cerrar_registro_raices',
-  args: [],
+  args: [{ type: 'String', name: 'txnId_raiz' }],
   returns: { type: 'void' },
+});
+
+const ABIleerDatosRaices = new ABIMethod({
+  name: 'cerrar_registro_raices',
+  args: [],
+  returns: { type: 'uint64', type: 'uint64', type: 'uint64', type: 'String' },
 });
 
 //--------------
@@ -192,7 +199,7 @@ export async function registrarCompromiso(bd, { contratoId, compromiso }) {
     method: ABIregistrarCompromiso,
     note: compromiso,
   });
-  return { txId: resultado.txIds, idx: resultado.returns[0].returnValue };
+  return { txId: resultado.txIds, num: resultado.returns[0].returnValue };
 }
 
 //----------------------------------------------------------------------------
@@ -208,8 +215,8 @@ export async function cerrarRegistroCompromisos(bd, { contratoId }) {
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
-export async function abrirRegistroRaices(bd, { contratoId, bloquesZK = 0, restoZK = 0 }) {
-  const args = [bloquesZK, restoZK];
+export async function abrirRegistroRaices(bd, { contratoId, numBloques, tamBloque, tamResto }) {
+  const args = [numBloques, tamBloque, tamResto];
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIabrirRegistroRaices,
@@ -233,12 +240,29 @@ export async function registrarRaiz(bd, { contratoId, raiz }) {
 
 //----------------------------------------------------------------------------
 
-export async function cerrarRegistroRaices(bd, { contratoId }) {
+export async function cerrarRegistroRaices(bd, { contratoId, txIdRaiz }) {
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIcerrarRegistroRaices,
   });
   return { txId: resultado.txIds[0], confirmedRound: resultado.confirmation?.confirmedRound };
+}
+
+//----------------------------------------------------------------------------
+
+export async function leerDatosRaices(bd, { contratoId }) {
+  const resultado = await _llamarMetodoVoto3(bd, {
+    contratoId,
+    method: ABIleerDatosRaices,
+  });
+  return { 
+    txId: resultado.txIds[0], 
+    confirmedRound: resultado.confirmation?.confirmedRound,
+    numBloques: resultado.returns[0].returnValue, 
+    tamBloque: resultado.returns[1].returnValue, 
+    tamResto: resultado.returns[2].returnValue, 
+    txnIdRaiz: resultado.returns[3].returnValue
+   };
 }
 
 //----------------------------------------------------------------------------
@@ -298,9 +322,9 @@ export async function establecerClienteVoto3(bd, { contratoId }) {
 
     contratoAppId = BigInt(appId);
     contratoSender = cuentaContrato.addr;
-  }
 
-  console.log(`sender: ${contratoSender}, appId: ${contratoAppId}`);
+    console.log(`sender: ${contratoSender}, appId: ${contratoAppId}`);
+  }
 
   return { sender: contratoSender, appId: contratoAppId }
 }
@@ -309,12 +333,11 @@ export async function establecerClienteVoto3(bd, { contratoId }) {
 
 export async function leerContratoBaseDatos(bd, contratoId) {
   try {
-    console.log(`Obtenido datos del contrato ${contratoId} ...`);
-    const contratoBlockchain = await daos.contratoBlockchain.obtenerPorId(bd, { contratoId });
-    console.log('Datos obtenidos con éxito: ', contratoBlockchain);
-    return { appId: contratoBlockchain.appId, cuentaId: contratoBlockchain.cuentaId };
+    const contrato = await daos.contratoBlockchain.obtenerPorId(bd, { contratoId });
+    if (!contrato) {
+      throw new Error(`No se ha encontrado el contrato con ID ${contratoId}`); }
+    return { appId: contrato.appId, cuentaId: contrato.cuentaId };
   } catch (error) {
-    await bd.close();
     throw new Error('Error obtenido datos cuenta: ' + error.message);
   }
 }
@@ -323,17 +346,11 @@ export async function leerContratoBaseDatos(bd, contratoId) {
 
 export async function leerCuentaBaseDatos(bd, cuentaId) {
   try {
-    console.log(`Obtenido datos cuenta ${cuentaId} algorand ...`);
-    const cuentaBlockchain = await daos.cuentaBlockchain.obtenerPorId(bd, { cuentaId });
-
-    console.log('Datos obtenidos con éxito: ', cuentaBlockchain);
-    return {
-      bd,
-      secreto: cuentaBlockchain.accSecret,
-    }
-
+    const cuenta = await daos.cuentaBlockchain.obtenerPorId(bd, { cuentaId });
+    if (!cuenta) {
+      throw new Error(`No se ha encontrado la cuenta con ID ${cuentaId}`); }
+    return { secreto: cuenta.accSecret }
   } catch (error) {
-    await bd.close();
     throw new Error('Error obtenido datos cuenta: ' + error.message);
   }
 }

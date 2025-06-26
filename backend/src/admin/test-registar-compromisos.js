@@ -3,9 +3,14 @@ import algosdk from 'algosdk';
 import { registrarVotanteEleccion } from '../algorand/registrarCompromiso.js';
 import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
 import { eleccionDAO, contratoBlockchainDAO, votanteDAO } from '../bd/DAOs.js';
-import { randomSha256, calcularPoseidonHash, encriptarJSON, desencriptarJSON } from '../utiles/utilesCrypto.js';
-
-const CLAVE_PRUEBAS = 'mi super clave de pruebas';
+import { 
+  calcularPoseidon2,
+  encriptarJSON,
+  hexStr2BigInt,
+  bigInt2HexStr,
+  randomBigInt
+} from '../utiles/utilesCrypto.js';
+import { CLAVE_PRUEBAS } from '../utiles/constantes.js';
 
 const eleccionId = process.argv[2] ? parseInt(process.argv[2]) : undefined;
 const numeroVotantes = process.argv[3] ? parseInt(process.argv[3]) : 100;
@@ -18,19 +23,19 @@ if (!eleccionId) {
 try {
     const bd = abrirConexionBD();
 
-    const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
+    // const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
 
-    if (!eleccion) {
-        console.error(`No se encontró la elección con ID ${eleccionId}`);
-        process.exit(1);
-    }
+    // if (!eleccion) {
+    //     console.error(`No se encontró la elección con ID ${eleccionId}`);
+    //     process.exit(1);
+    // }
 
-    const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
+    // const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
 
-    if (!contrato) {
-        console.error(`No se encontró el contrato para la elección con ID ${eleccionId}`);
-        process.exit(1);
-    }
+    // if (!contrato) {
+    //     console.error(`No se encontró el contrato para la elección con ID ${eleccionId}`);
+    //     process.exit(1);
+    // }
 
     const votantesSinRegistro = votanteDAO.obtenerVotantesSinRegistro(bd, eleccionId, numeroVotantes);
 
@@ -51,6 +56,8 @@ try {
             console.log(`Compromiso registrado para el votante ${votante.dni} en la elección ${eleccionId}: ${compromiso}`);
         }
     }
+
+    console.log(`Total de votantes registrados ${votantesSinRegistro.length} en la elección ${eleccionId}.`);
  
 } catch (err) {
     console.error('Error abriendo el registro de compromisos:', err);
@@ -64,16 +71,19 @@ async function generarDatosPrivadoPruebas() {
 
   const cuenta = algosdk.generateAccount();
 
+  const secreto = randomBigInt();
+  const anulador = randomBigInt();
+
   const datosPublicos = {
     cuentaAddr: cuenta.addr.toString(),
     cuentaMnemonic: algosdk.secretKeyToMnemonic(cuenta.sk),
-    secreto: randomSha256(),
-    anulador: randomSha256(),
+    secreto: secreto.toString,
+    anulador: anulador.toString,
   };
 
   // console.log('Datos públicos generados:', datosPublicos);
 
-  const compromiso = calcularPoseidonHash(datosPublicos.secreto+datosPublicos.anulador);
+  const compromiso = calcularPoseidon2([secreto, anulador]).toString;
 
   // console.log('Compromiso calculado:', compromiso);
 

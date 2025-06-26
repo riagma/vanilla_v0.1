@@ -119,6 +119,7 @@ CREATE TABLE PruebaZK (
   numBloques INTEGER NOT NULL,
   tamBloque INTEGER NOT NULL,
   tamResto INTEGER NOT NULL,
+  txIdRaiz TEXT NOT NULL,
   urlCircuito TEXT NOT NULL,
   ipfsCircuito TEXT NOT NULL,
   claveVotoPublica TEXT,
@@ -133,7 +134,7 @@ CREATE TABLE RaizZK (
   urlCompromisos TEXT NOT NULL,
   ipfsCompromisos TEXT NOT NULL,
   raiz TEXT NOT NULL,
-  txnId TEXT NOT NULL,
+  txId TEXT NOT NULL,
   PRIMARY KEY (pruebaId, bloqueIdx),
   FOREIGN KEY (pruebaId) REFERENCES PruebaZK(pruebaId)
 );

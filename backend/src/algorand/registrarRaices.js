@@ -9,8 +9,6 @@ import {
 
 } from './serviciosVoto3.js';
 
-import { calcularSha256 } from '../utiles/utilesCrypto.js';
-
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
@@ -18,25 +16,13 @@ export async function abrirRegistroRaicesEleccion(bd, eleccionId) {
 
   console.log(`Abriendo registro de raices para la elección ${eleccionId}`);
 
-  //-------------
-
-  const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
-  if (!eleccion) {
-    throw new Error(`No se ha encontrado la elección con ID ${eleccionId}`);
-  }
-
-  const contratoId = eleccion.contratoId;
-  if (!contratoId) {
-    throw new Error(`No se ha encontrado un contratoId para la elección ${eleccionId}`);
-  }
+  const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId: eleccionId });
+  console.log(`Estado del contrato ${contratoId}: ${resultadoLeerEstado}`);
 
   const pruebaZK = pruebaZKDAO.obtenerPorId(bd, { pruebaId: eleccionId });
   if (!pruebaZK) {
     throw new Error(`No se ha encontrado una prueba ZK para la elección ${eleccionId}`);
   }
-
-  const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId });
-  console.log(`Estado del contrato ${contratoId}: ${resultadoLeerEstado}`);
 
   if (resultadoLeerEstado === 3n) {
     const resultadoAbrir = await abrirRegistroRaices(bd, {

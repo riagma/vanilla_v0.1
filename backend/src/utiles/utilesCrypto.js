@@ -4,43 +4,15 @@
 import { Buffer } from 'node:buffer';
 import { randomBytes, createHash, webcrypto } from 'node:crypto';
 
-import { poseidon1, poseidon2, poseidon3, poseidon4 } from 'poseidon-lite'
 import { poseidon2Hash, poseidon2HashAsync } from "@zkpassport/poseidon2"
-
-import { calcularPoseidon2 } from './poseidon2.js';
+import { calcularPoseidon2Circuito } from './poseidon2.js';
 
 import * as circomlibjs from 'circomlibjs';
-import { da } from '@faker-js/faker';
 export const poseidon = await circomlibjs.buildPoseidon();
 
 //----------------------------------------------------------------------------
 
-// No compatible con noir-lang
-export function calcularPoseidonLite(datos) {
-
-  const inputs = Array.isArray(datos) ? datos : [datos];
-
-  for (const x of inputs) {
-    if (typeof x !== 'bigint' && typeof x !== 'number' && typeof x !== 'string') {
-      throw new Error('Todos los elementos de entrada deben ser BigInt');
-    }
-  }
-  
-  if (inputs.length === 1) {
-    return poseidon1(inputs);
-  } else if (inputs.length === 2) {
-    return poseidon2(inputs);
-  } else if (inputs.length === 3) {
-    return poseidon3(inputs);
-  } else if (inputs.length === 4) {
-    return poseidon4(inputs);
-  } else { return 0n }
-}
-
-//----------------------------------------------------------------------------
-
-// Compatible con noir-lang in: BigInt[] out: BigInt
-export function calcularPoseidonCircom(datos) {
+export function calcularPoseidon2Circom(datos) {
 
   const inputs = Array.isArray(datos) ? datos : [datos];
 
@@ -55,7 +27,6 @@ export function calcularPoseidonCircom(datos) {
 
 //----------------------------------------------------------------------------
 
-// Compatible con noir-lang in: BigInt[] out: BigInt
 export async function calcularPoseidon2ZkPassport(datos) {
 
   const inputs = Array.isArray(datos) ? datos : [datos];
@@ -71,7 +42,6 @@ export async function calcularPoseidon2ZkPassport(datos) {
 
 //----------------------------------------------------------------------------
 
-// Compatible con noir-lang in: BigInt[] out: BigInt
 export async function calcularPoseidon2Noir(datos) {
 
   const inputsTmp = Array.isArray(datos) ? datos : [datos];
@@ -86,17 +56,22 @@ export async function calcularPoseidon2Noir(datos) {
 
   for (let i = 0; i < Math.min(inputsTmp.length, 2); i++) {
     
-    inputs[i] = inputsTmp[i].toString();
+    inputs[i] = bigInt2HexStr(inputsTmp[i]);
   }
 
   console.log('calcularPoseidon2Noir inputs:', inputs);
 
-  const hashHex = await calcularPoseidon2(inputs);
+  const hashHex = await calcularPoseidon2Circuito(inputs);
 
   console.log('calcularPoseidon2Noir output:', hashHex);
 
-
   return hexStr2BigInt(hashHex);
+}
+
+//----------------------------------------------------------------------------
+
+export function calcularPoseidon2(datos) {
+  return calcularPoseidon2Circom(datos);
 }
 
 //----------------------------------------------------------------------------
@@ -106,9 +81,18 @@ export function calcularSha256(datos) {
   return createHash('sha256').update(datos).digest('hex');
 }
 
-export function randomSha256() {
-  const aleatorio = randomBytes(32);
+export function randomSha256(bytes = 32) {
+  const aleatorio = randomBytes(bytes);
   return calcularSha256(aleatorio);
+}
+
+//------------
+// const p = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
+//------------
+
+export function randomBigInt(bytes = 24) {
+  const buf = randomBytes(bytes);
+  return BigInt('0x' + buf.toString('hex')); // % p; // para 32 bytes
 }
 
 export function hexStr2BigInt(hexStr) {
@@ -162,11 +146,13 @@ async function derivarClave(claveTexto, sal) {
   );
 }
 
-export async function encriptarJSON(objeto, claveTexto) {
+//----------------------------------------------------------------------------
+
+export async function encriptar(cadena, claveTexto) {
   const vectorInicial = webcrypto.getRandomValues(new Uint8Array(12));
   const sal = webcrypto.getRandomValues(new Uint8Array(16));
   const clave = await derivarClave(claveTexto, sal);
-  const datos = codificador.encode(JSON.stringify(objeto));
+  const datos = codificador.encode(cadena);
   const cifrado = new Uint8Array(await webcrypto.subtle.encrypt(
     { name: 'AES-GCM', iv: vectorInicial }, clave, datos
   ));
@@ -178,7 +164,9 @@ export async function encriptarJSON(objeto, claveTexto) {
   return Buffer.from(resultado).toString('base64');
 }
 
-export async function desencriptarJSON(cifradoBase64, claveTexto) {
+//----------------------------------------------------------------------------
+
+export async function desencriptar(cifradoBase64, claveTexto) {
   const binario = Uint8Array.from(Buffer.from(cifradoBase64, 'base64'));
   const sal = binario.slice(0, 16);
   const vectorInicial = binario.slice(16, 28);
@@ -187,7 +175,18 @@ export async function desencriptarJSON(cifradoBase64, claveTexto) {
   const plano = await webcrypto.subtle.decrypt(
     { name: 'AES-GCM', iv: vectorInicial }, clave, cifrado
   );
-  return JSON.parse(decodificador.decode(plano));
+  return decodificador.decode(plano);
+}
+
+//----------------------------------------------------------------------------
+
+export async function encriptarJSON(objeto, claveTexto) {
+  return await encriptar(JSON.stringify(objeto), claveTexto);
+}
+
+export async function desencriptarJSON(cifradoBase64, claveTexto) {
+  const cadena = await desencriptar(cifradoBase64, claveTexto);
+  return JSON.parse(cadena);
 }
 
 //----------------------------------------------------------------------------

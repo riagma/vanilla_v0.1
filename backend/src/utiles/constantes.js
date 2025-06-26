@@ -29,11 +29,12 @@ export const ARTIFACTS_DIR = '../../' + process.env.ARTIFACTS_DIR ?? '../algoran
 export const PUBLIC_DIR = process.env.PUBLIC_DIR ?? './public/';
 export const CIRCUIT_DIR = process.env.CIRCUIT_DIR ?? './public/circuits/';
 
+export const CLAVE_PRUEBAS = 'mi super clave de pruebas';
 
 // Rutas y configuración de BD
 export const RUTA_BD = process.env.NODE_ENV === 'production'
-  ? '/var/lib/vanilla-voting/vanilla.db'
-  : path.join(__dirname, '../bd/datos/dev.db');
+  ? path.join(__dirname, './data/voto3.db')
+  : path.join(__dirname, './data/voto3_dev.db');
 
 // Configuración del servidor
 export const PUERTO = process.env.PORT || 3000;
@@ -81,6 +82,9 @@ export const CONFIG = {
   INDEXER_SERVER,
   INDEXER_PORT,
   ARTIFACTS_DIR,
+  PUBLIC_DIR,
+  CIRCUIT_DIR,
+  CLAVE_PRUEBAS,
   EXPIRACION_TOKEN_ADMIN,
   EXPIRACION_TOKEN_VOTANTE,
   ESTADOS_ELECCION,

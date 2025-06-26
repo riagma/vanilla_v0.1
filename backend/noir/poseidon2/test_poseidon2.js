@@ -12,11 +12,11 @@ const val2 = hexStr2BigInt('0x00');
 
 const inputs = [val1, val2];
 
+console.log("Inputs:", inputs.map(bigInt2HexStr));
+console.log("Inputs:", inputs.map(x => x.toString()));
+
 const ccomPoseidon2 = calcularPoseidonCircom(inputs);
 console.log("Ccom Poseidon2:", typeof ccomPoseidon2, bigInt2HexStr(ccomPoseidon2), ccomPoseidon2.toString());
-
-// const litePoseidon2 = calcularPoseidonLite(inputs);
-// console.log("Lite Poseidon2:", typeof litePoseidon2, bigInt2HexStr(litePoseidon2), litePoseidon2.toString());
 
 const zkpaPoseidon2 = await calcularPoseidon2ZkPassport(inputs);
 console.log("Zkpa Poseidon2:", typeof zkpaPoseidon2, bigInt2HexStr(zkpaPoseidon2), zkpaPoseidon2.toString());

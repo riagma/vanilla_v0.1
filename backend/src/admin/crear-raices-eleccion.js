@@ -6,7 +6,7 @@ import { createInterface } from 'readline';
 
 import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
 import { eleccionDAO, pruebaZKDAO, raizZKDAO, registroVotanteEleccionDAO } from '../bd/DAOs.js';
-import { calcularBloqueIndice, calcularDatosArbol, construirArbolPoseidon } from '../utiles/arbolMerkle.js';
+import { calcularBloqueIndice, calcularDatosArbol, construirArbolPoseidon } from '../utiles/arbolMerkleOld.js';
 import { CIRCUIT_DIR } from '../utiles/constantes.js';
 
 const eleccionId = process.argv[2] ? parseInt(process.argv[2]) : undefined;
@@ -53,25 +53,26 @@ try {
   const indiceArbol = calcularBloqueIndice(datosArbol.tamBloque, datosArbol.tamResto, indice);
   console.log(`Índice del árbol: Bloque=${indiceArbol.bloque}, Índice en bloque=${indiceArbol.bloqueIdx}`);
 
+  if (!fs.existsSync(dirPruebaZK)) {
+    fs.mkdirSync(dirPruebaZK, { recursive: true });
+  }
+
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const relPruebaZK = path.join('../../', CIRCUIT_DIR, `E-${eleccionId.toString().padStart(3, '0')}`);
+  const dirPruebaZK = path.join(__dirname, relPruebaZK);
+  console.log(`Directorio de prueba ZK: ${dirPruebaZK}`);
+
   const nuevaPruebaZK = {
     pruebaId: eleccionId,
     tamBloque: datosArbol.tamBloque,
     tamResto: datosArbol.tamResto,
     numBloques: datosArbol.numBloques,
-    urlCircuito: 'urlCircuito',
-    ipfsCircuito: 'ipfsCircuito',
+    urlCircuito: path.join(relPruebaZK, 'merkle11.json'),
+    ipfsCircuito: 'merkle11.json',
   };
 
   const resultadoPruebaZK = pruebaZKDAO.crear(bd, nuevaPruebaZK);
   console.log(`Prueba ZK creada con ID: ${resultadoPruebaZK.pruebaId}`);
-
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const dirPruebaZK = path.join(__dirname, '../../', CIRCUIT_DIR, `pruebaZK-${eleccionId}`);
-  console.log(`Directorio de prueba ZK: ${dirPruebaZK}`);
-
-  if (!fs.existsSync(dirPruebaZK)) {
-    fs.mkdirSync(dirPruebaZK, { recursive: true });
-  }
 
   for (let bloque = 0, compromisoIdx = 0; bloque < datosArbol.numBloques; bloque++) {
 

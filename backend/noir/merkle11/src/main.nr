@@ -5,63 +5,61 @@ global DEPTH: u32 = 11;
 fn main(
     // Entradas privadas
     clave: Field,
-    nullifier: Field,
-    path: [Field; DEPTH],         // Camino de hermanos desde hoja hasta raiz
-    path_indices: [Field; DEPTH], // 0 = izquierda, 1 = derecha para cada nivel
+    anulador: Field,
+    path: [Field; DEPTH],       // Camino de hermanos desde hoja hasta raiz
+    idxs: [Field; DEPTH],       // 0 = izquierda, 1 = derecha para cada nivel
 
     // Entradas publicas
-    root: pub Field,              // Raiz del arbol Merkle
-    nullifier_hash: pub Field     // Hash del nullifier para evitar doble gasto
-) -> pub Field {
-    // 1. Calcular la hoja a partir de clave + nullifier usando Poseidon2
-    let leaf = poseidon2::Poseidon2::hash([clave, nullifier], 2);
+    raiz: pub Field,            // Raiz del arbol Merkle
+    anulador_hash: pub Field    // Hash del anulador para evitar doble gasto
+) {
+    // 1. Calcular la hoja a partir de clave + anulador usando Poseidon2
+    let hoja = poseidon2::Poseidon2::hash([clave, anulador], 2);
 
-    // 2. Verificar que el nullifier_hash publico corresponde al nullifier privado
-    let computed_nullifier_hash = poseidon2::Poseidon2::hash([nullifier], 1);
-    assert(computed_nullifier_hash == nullifier_hash);
+    // 2. Verificar que el anulador_hash publico corresponde al anulador privado
+    let anulador_hash_calculado = poseidon2::Poseidon2::hash([anulador], 1);
+    assert(anulador_hash_calculado == anulador_hash);
     
     // 3. Verificar el camino Merkle desde la hoja hasta la raiz
-    let mut current_hash = leaf;
+    let mut hash_actual = hoja;
 
     for i in 0..DEPTH {
-        let path_element = path[i];
-        let is_right = path_indices[i];
+        let hermano = path[i];
+        let posicion = idxs[i];
 
-        // Si is_right == 0, current_hash va a la izquierda
-        // Si is_right == 1, current_hash va a la derecha
-        let left = if is_right == 0 { current_hash } else { path_element };
-        let right = if is_right == 0 { path_element } else { current_hash };
+        // Si posicion == 0, hash_actual va a la izquierda
+        // Si posicion == 1, hash_actual va a la derecha
+        let izquierda = if posicion == 0 { hash_actual } else { hermano };
+        let derecha = if posicion == 0 { hermano } else { hash_actual };
 
-        current_hash = poseidon2::Poseidon2::hash([left, right], 2);
+        hash_actual = poseidon2::Poseidon2::hash([izquierda, derecha], 2);
     }
 
     // 4. Verificar que llegamos a la raiz esperada
-    assert(current_hash == root);
-    current_hash
+    assert(hash_actual == raiz);
     
 }
 
 #[test]
 fn test_merkle_proof() {
     let clave = 123;
-    let nullifier = 456;
-    let nullifier_hash = poseidon2::Poseidon2::hash([nullifier], 1);
+    let anulador = 456;
+    let anulador_hash = poseidon2::Poseidon2::hash([anulador], 1);
 
-    let path: [Field; 11] = [0; 11];
-    let path_indices: [Field; 11] = [0; 11];
+    let path: [Field; DEPTH] = [0; DEPTH];
+    let idxs: [Field; DEPTH] = [0; DEPTH];
 
     // Calcula la hoja
-    let leaf = poseidon2::Poseidon2::hash([clave, nullifier], 2);
-    let mut current_hash = leaf;
-    for i in 0..11 {
-        let path_element = path[i];
-        let is_right = path_indices[i];
-        let left = if is_right == 0 { current_hash } else { path_element };
-        let right = if is_right == 0 { path_element } else { current_hash };
-        current_hash = poseidon2::Poseidon2::hash([left, right], 2);
+    let hoja = poseidon2::Poseidon2::hash([clave, anulador], 2);
+    let mut hash_actual = hoja;
+    for i in 0..DEPTH {
+        let hermano = path[i];
+        let posicion = idxs[i];
+        let izquierda = if posicion == 0 { hash_actual } else { hermano };
+        let derecha = if posicion == 0 { hermano } else { hash_actual };
+        hash_actual = poseidon2::Poseidon2::hash([izquierda, derecha], 2);
     }
-    let root = current_hash;
+    let raiz = hash_actual;
 
-    let result = main(clave, nullifier, path, path_indices, root, nullifier_hash);
-    assert(result == root);
+    main(clave, anulador, path, idxs, raiz, anulador_hash);
 }

@@ -12,7 +12,7 @@ const contenido = await fs.readFile(rutaJson, 'utf8');
 const circuito = JSON.parse(contenido);
 const noir = new Noir(circuito);
 
-export async function calcularPoseidon2(claves) {
+export async function calcularPoseidon2Circuito(claves) {
 
   const inputs = Array(2).fill('0');
 

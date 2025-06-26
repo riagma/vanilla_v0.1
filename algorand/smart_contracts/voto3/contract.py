@@ -17,7 +17,8 @@ class Voto3(ARC4Contract):
     tam_bloque: UInt64
     tam_resto: UInt64
 
-    txnId_raiz: String
+    # TODO cambiar a txId mejor si es cadena
+    txnId_raiz: String 
 
     def __init__(self) -> None:
         super().__init__()

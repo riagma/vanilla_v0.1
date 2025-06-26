@@ -1,14 +1,11 @@
-// construir_arbol_poseidon.js
 import fs from 'node:fs';
 import { MerkleTree } from 'merkletreejs';
-import { poseidon } from './utilesCrypto.js';
+import { calcularPoseidon2 } from './utilesCrypto.js';
 
 const PROFUNDIDAD = 11;
 const NUM_HOJAS = 2 ** PROFUNDIDAD;
 
-const INPUT_FILE = 'compromisos.json';
-const OUTPUT_FILE = 'arbol_merkle_poseidon.json';
-
+//----------------------------------------------------------------------------
 
 export function calcularDatosArbol(totalHojas) {
 
@@ -18,6 +15,8 @@ export function calcularDatosArbol(totalHojas) {
 
   return { numBloques, tamBloque, tamResto };
 }
+
+//----------------------------------------------------------------------------
 
 export function calcularBloqueIndice(tamBloque, tamResto, indice) {
 
@@ -51,13 +50,7 @@ export function calcularBloqueIndice(tamBloque, tamResto, indice) {
   return { bloque, bloqueIdx };
 }
 
-function hashPoseidon(data) {
-  const input = typeof data === 'string' && data.startsWith('0x')
-    ? BigInt(data)
-    : BigInt('0x' + Buffer.from(data).toString('hex'));
-  const h = poseidon([input]);
-  return Buffer.from(poseidon.F.toString(h).padStart(64, '0'), 'hex');
-}
+//----------------------------------------------------------------------------
 
 export function construirArbolPoseidon(compromisos) {
   const hojas = compromisos.map(c => Buffer.from(c, 'hex'));
@@ -66,7 +59,7 @@ export function construirArbolPoseidon(compromisos) {
   // const hojaNula = hashPoseidon(''); // hash de vacío
   // while (leaves.length < NUM_HOJAS) leaves.push(hojaNula);
 
-  const arbol = new MerkleTree(hojas, hashPoseidon, { sortPairs: true });
+  const arbol = new MerkleTree(hojas, calcularPoseidon2, { sortPairs: true });
   console.log(`Raíz del árbol Poseidon: ${arbol.getRoot().toString('hex')}`);
   console.log(`Número de hojas: ${arbol.getLeaves().length}`);
 
@@ -77,6 +70,8 @@ export function construirArbolPoseidon(compromisos) {
   
   return arbol;
 }
+
+//----------------------------------------------------------------------------
 
 // Guarda el árbol Merkle (objeto) en un fichero JSON
 export function guardarArbolEnFichero(arbol, rutaFichero) {
@@ -89,3 +84,5 @@ export function cargarArbolDeFichero(rutaFichero) {
   const contenido = fs.readFileSync(rutaFichero, 'utf8');
   return JSON.parse(contenido);
 }
+
+//----------------------------------------------------------------------------
