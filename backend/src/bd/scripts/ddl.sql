@@ -49,7 +49,7 @@ CREATE TABLE RegistroVotanteEleccion (
   eleccionId INTEGER NOT NULL,
   compromiso TEXT NOT NULL,
   compromisoIdx INTEGER NOT NULL,
-  transaccion TEXT NOT NULL,
+  compromisoTxId TEXT NOT NULL,
   fechaRegistro TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   datosPrivados TEXT,
   PRIMARY KEY (votanteId, eleccionId),
@@ -97,6 +97,7 @@ CREATE TABLE ContratoBlockchain (
   contratoId INTEGER PRIMARY KEY,
   appId TEXT NOT NULL,
   appAddr TEXT NOT NULL,
+  tokenId TEXT NOT NULL,
   cuentaId INTEGER NOT NULL,
 
   UNIQUE(cuentaId, appId),
@@ -110,6 +111,7 @@ CREATE TABLE ContratoReciclado (
   contratoId INTEGER NOT NULL,
   appId TEXT NOT NULL,
   appAddr TEXT NOT NULL,
+  tokenId TEXT NOT NULL,
   cuentaId INTEGER NOT NULL
 );
 
@@ -119,7 +121,7 @@ CREATE TABLE PruebaZK (
   numBloques INTEGER NOT NULL,
   tamBloque INTEGER NOT NULL,
   tamResto INTEGER NOT NULL,
-  txIdRaiz TEXT NOT NULL,
+  txIdRaizInicial TEXT NOT NULL,
   urlCircuito TEXT NOT NULL,
   ipfsCircuito TEXT NOT NULL,
   claveVotoPublica TEXT,
@@ -134,12 +136,25 @@ CREATE TABLE RaizZK (
   urlCompromisos TEXT NOT NULL,
   ipfsCompromisos TEXT NOT NULL,
   raiz TEXT NOT NULL,
-  txId TEXT NOT NULL,
+  txIdRaiz TEXT NOT NULL,
   PRIMARY KEY (pruebaId, bloqueIdx),
   FOREIGN KEY (pruebaId) REFERENCES PruebaZK(pruebaId)
 );
 
-CREATE INDEX idx_RaizZK_raiz ON RaizZK(raiz);
+CREATE INDEX idx_RaizZK_raiz ON RaizZK(pruebaId, bloqueIdx, raiz);
 
+-- Tabla: AnuladorZK
+CREATE TABLE AnuladorZK (
+  pruebaId INTEGER NOT NULL,
+  anulador TEXT NOT NULL,
+  destinatario TEXT NOT NULL,
+  registroTxId TEXT NOT NULL,
+  papeletaTxId TEXT NOT NULL,
+  votacionTxId TEXT NOT NULL,
+  
+  PRIMARY KEY (pruebaId, anulador),
+  FOREIGN KEY (pruebaId) REFERENCES PruebaZK(pruebaId),
+  UNIQUE (pruebaId, destinatario)
+);
 
 

@@ -112,18 +112,18 @@ export async function registrarRaicesEleccion(bd, { eleccionId }) {
       console.log(`Registrando raiz: ${raiz.bloqueIdx} - ${raiz.raiz}`);
 
       if (idx + 1 < raices.length) {
-        txnId_1 = raices[idx + 1].txnId_0;
+        txnId_1 = raices[idx + 1].txIdRaiz;
         console.log(raices[idx + 1]);
-        console.log(typeof raices[idx + 1].txnId_0, raices[idx + 1].txnId_0);       
+        console.log(typeof raices[idx + 1].txIdRaiz, raices[idx + 1].txIdRaiz);       
       }
       if (idx + 10 < raices.length) {
-        txnId_10 = raices[idx + 10].txnId_0;
+        txnId_10 = raices[idx + 10].txIdRaiz;
       }
       if (idx + 100 < raices.length) {
-        txnId_100 = raices[idx + 100].txnId_0;
+        txnId_100 = raices[idx + 100].txIdRaiz;
       }
 
-      if (raiz.txnId_0 !== 'temporal') {
+      if (raiz.txIdRaiz !== 'TEMPORAL') {
 
         const raizNote = {
           idx: raiz.bloqueIdx.toString(),
@@ -136,10 +136,7 @@ export async function registrarRaicesEleccion(bd, { eleccionId }) {
 
         const resultadoRegistrar = await registrarRaiz(bd, { contratoId, raiz: raizNote });
 
-        raiz.txnId_0 = resultadoRegistrar.txId;
-        raiz.txnId_1 = txnId_1;
-        raiz.txnId_10 = txnId_10;
-        raiz.txnId_100 = txnId_100;
+        raiz.txIdRaiz = resultadoRegistrar.txId;
 
         raizZKDAO.actualizar(bd,
           {
@@ -147,14 +144,11 @@ export async function registrarRaicesEleccion(bd, { eleccionId }) {
             bloqueIdx: raiz.bloqueIdx,
           },
           {
-            txnId_0: raiz.txnId_0,
-            txnId_1: raiz.txnId_1,
-            txnId_10: raiz.txnId_10,
-            txnId_100: raiz.txnId_100,
+            txIdRaiz: resultadoRegistrar.txId,
           });
       }
 
-      console.log(`Raiz registrada: ${raiz.txnId_0}`);
+      console.log(`Raiz registrada: ${raiz.txIdRaiz}`);
     }
 
   } else {

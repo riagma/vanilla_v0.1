@@ -130,7 +130,7 @@ export const controladorVotante = {
       const registro = { 
         votanteId: peticion.votante.dni,
         eleccionId: peticion.params.idEleccion,
-        transaccion: 'transaccion-' + Date.now(),
+        compromisoTxId: 'compromisoTxId-' + Date.now(),
         fechaRegistro: new Date().toISOString(),
         ...peticion.body,  
       };

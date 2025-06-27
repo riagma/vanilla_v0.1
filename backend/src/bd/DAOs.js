@@ -11,6 +11,7 @@ import { ContratoBlockchainDAO } from './daos/ContratoBlockchainDAO.js';
 import { ContratoRecicladoDAO } from './daos/ContratoRecicladoDAO.js';
 import { PruebaZKDAO } from './daos/PruebaZKDAO.js';
 import { RaizZKDAO } from './daos/RaizZKDAO.js';
+import { AnuladorZKDAO } from './daos/AnuladorZKDAO.js';
 
 // Creación de instancias singleton
 const administradorDAO = new AdministradorDAO();
@@ -26,6 +27,7 @@ const contratoBlockchainDAO = new ContratoBlockchainDAO();
 const contratoRecicladoDAO = new ContratoRecicladoDAO();
 const pruebaZKDAO = new PruebaZKDAO();
 const raizZKDAO = new RaizZKDAO(); 
+const anuladorZKDAO = new AnuladorZKDAO();
 
 // Objeto inmutable con todos los DAOs
 export const daos = Object.freeze({
@@ -42,6 +44,7 @@ export const daos = Object.freeze({
   contratoReciclado: contratoRecicladoDAO,
   pruebaZK: pruebaZKDAO,
   raizZK: raizZKDAO,
+  anuladorZK: anuladorZKDAO,
 });
 
 // Exportación individual de DAOs
@@ -59,4 +62,5 @@ export {
   contratoRecicladoDAO,
   pruebaZKDAO,
   raizZKDAO,
+  anuladorZKDAO,
 };

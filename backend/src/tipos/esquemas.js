@@ -55,7 +55,7 @@ export const esquemaRegistroVotanteEleccion = z.object({
   votanteId: z.string().length(9),
   eleccionId: z.number().int().positive(),
   compromiso: z.string().min(1),
-  transaccion: z.string().min(1),
+  compromisoTxId: z.string().min(1),
   fechaRegistro: z.string().datetime(),
   datosPrivados: z.string().optional().nullable()
 });
@@ -64,7 +64,7 @@ export const esquemaRegistroVotanteEleccion = z.object({
 export const esquemaRegistroVotanteEleccionPeticion = esquemaRegistroVotanteEleccion.omit({
   votanteId: true,
   eleccionId: true,
-  transaccion: true,
+  compromisoTxId: true,
   fechaRegistro: true
 });
 

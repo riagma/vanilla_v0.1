@@ -104,10 +104,7 @@ try {
       urlCompromisos: `urlCompromisos-${bloque}`,
       ipfsCompromisos: `ipfsCompromisos-${bloque}`, 
       raiz: arbol.getRoot().toString('hex'),
-      txnId_0: 'temporal',
-      txnId_1: null,
-      txnId_10: null,
-      txnId_100: null,
+      txIdRaiz: 'TEMPORAL',
     };
 
     const resultadoRaizZK = raizZKDAO.crear(bd, nuevaRaizZK);

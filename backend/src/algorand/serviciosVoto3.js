@@ -28,8 +28,8 @@ const ABIleerEstadoContrato = new ABIMethod({
 
 const ABIestablecerEstadoContrato = new ABIMethod({
   name: 'establecer_estado_contrato',
-  args: [ 
-    { type: 'uint64', name: 'nuevo_estado' } 
+  args: [
+    { type: 'uint64', name: 'nuevo_estado' }
   ],
   returns: { type: 'uint64' },
 });
@@ -75,7 +75,7 @@ const ABIregistrarRaiz = new ABIMethod({
 const ABIcerrarRegistroRaices = new ABIMethod({
   name: 'cerrar_registro_raices',
   args: [{ type: 'String', name: 'txnId_raiz' }],
-  returns: { type: 'void' },
+  returns: { type: 'uint64' },
 });
 
 const ABIleerDatosRaices = new ABIMethod({
@@ -92,16 +92,22 @@ const ABIabrirRegistroAnuladores = new ABIMethod({
   returns: { type: 'void' },
 });
 
-const ABIcerrarRegistroAnuladores = new ABIMethod({
-  name: 'cerrar_registro_anuladores',
-  args: [],
-  returns: { type: 'void' },
-});
-
 const ABIregistrarAnulador = new ABIMethod({
   name: 'registrar_anulador',
   args: [],
-  returns: { type: 'void' },
+  returns: { type: 'uint64' },
+});
+
+const ABIenviarPapeleta = new ABIMethod({
+  name: 'enviar_papeleta',
+  args: [{ type: 'address', name: 'destinatario' }],
+  returns: { type: 'uint64' },
+});
+
+const ABIcerrarRegistroAnuladores = new ABIMethod({
+  name: 'cerrar_registro_anuladores',
+  args: [],
+  returns: { type: 'uint64' },
 });
 
 //----------------------------------------------------------------------------
@@ -232,7 +238,7 @@ export async function registrarRaiz(bd, { contratoId, raiz }) {
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIregistrarRaiz,
-    lease: Uint8Array.from(randomBytes(32)),
+    // lease: Uint8Array.from(randomBytes(32)),
     note: raiz,
   });
   return { txId: resultado.txIds[0], num: resultado.returns[0].returnValue };
@@ -240,7 +246,7 @@ export async function registrarRaiz(bd, { contratoId, raiz }) {
 
 //----------------------------------------------------------------------------
 
-export async function cerrarRegistroRaices(bd, { contratoId, txIdRaiz }) {
+export async function cerrarRegistroRaices(bd, { contratoId, txIdRaizInicial }) {
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIcerrarRegistroRaices,
@@ -255,14 +261,14 @@ export async function leerDatosRaices(bd, { contratoId }) {
     contratoId,
     method: ABIleerDatosRaices,
   });
-  return { 
-    txId: resultado.txIds[0], 
+  return {
+    txId: resultado.txIds[0],
     confirmedRound: resultado.confirmation?.confirmedRound,
-    numBloques: resultado.returns[0].returnValue, 
-    tamBloque: resultado.returns[1].returnValue, 
-    tamResto: resultado.returns[2].returnValue, 
+    numBloques: resultado.returns[0].returnValue,
+    tamBloque: resultado.returns[1].returnValue,
+    tamResto: resultado.returns[2].returnValue,
     txnIdRaiz: resultado.returns[3].returnValue
-   };
+  };
 }
 
 //----------------------------------------------------------------------------
@@ -278,15 +284,44 @@ export async function abrirRegistroAnuladores(bd, { contratoId }) {
 
 //----------------------------------------------------------------------------
 
-export async function registrarAnulador(bd, { contratoId, anulador }) {
+export async function registrarAnulador(bd, { contratoId, anulador, destinatario }) {
   console.log("Registrando anulador:", anulador);
+
+  const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
+
+  const txGroup = algorand
+    .newGroup()
+    .addPayment({ sender: sender, receiver: destinatario, amount: (205000).microAlgo() })
+    .addAppCallMethodCall({
+      sender,
+      appId,
+      method: ABIregistrarAnulador,
+      maxFee: (2000).microAlgo(),
+      note: toNote({
+        anu: anulador,
+        des: destinatario
+      }),
+    });
+
+  const resultado = await txGroup.send({
+    skipSimulate: true,
+    skipWaiting: false,
+    maxRoundsToWaitForConfirmation: 12,
+  });
+
+  return { txId: resultado.txIds[1], num: resultado.returns[1].returnValue };
+}
+
+//----------------------------------------------------------------------------
+
+export async function enviarPapeleta(bd, { contratoId, destinatario }) {
+  console.log("Enviando papeleta a:", destinatario);
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
-    method: ABIregistrarAnulador,
-    lease: Uint8Array.from(randomBytes(32)),
-    note: anulador,
+    method: ABIenviarPapeleta,
+    args: [destinatario]
   });
-  return { txId: resultado.txIds[0], confirmedRound: resultado.confirmation?.confirmedRound };
+  return { txId: resultado.txIds[0], num: resultado.returns[0].returnValue };
 }
 
 //----------------------------------------------------------------------------
@@ -296,7 +331,7 @@ export async function cerrarRegistroAnuladores(bd, { contratoId }) {
     contratoId,
     method: ABIcerrarRegistroAnuladores,
   });
-  return { txId: resultado.txIds[0], confirmedRound: resultado.confirmation?.confirmedRound };
+  return { txId: resultado.txIds[0], num: resultado.returns[0].returnValue };
 }
 
 //----------------------------------------------------------------------------
@@ -335,7 +370,8 @@ export async function leerContratoBaseDatos(bd, contratoId) {
   try {
     const contrato = await daos.contratoBlockchain.obtenerPorId(bd, { contratoId });
     if (!contrato) {
-      throw new Error(`No se ha encontrado el contrato con ID ${contratoId}`); }
+      throw new Error(`No se ha encontrado el contrato con ID ${contratoId}`);
+    }
     return { appId: contrato.appId, cuentaId: contrato.cuentaId };
   } catch (error) {
     throw new Error('Error obtenido datos cuenta: ' + error.message);
@@ -348,7 +384,8 @@ export async function leerCuentaBaseDatos(bd, cuentaId) {
   try {
     const cuenta = await daos.cuentaBlockchain.obtenerPorId(bd, { cuentaId });
     if (!cuenta) {
-      throw new Error(`No se ha encontrado la cuenta con ID ${cuentaId}`); }
+      throw new Error(`No se ha encontrado la cuenta con ID ${cuentaId}`);
+    }
     return { secreto: cuenta.accSecret }
   } catch (error) {
     throw new Error('Error obtenido datos cuenta: ' + error.message);

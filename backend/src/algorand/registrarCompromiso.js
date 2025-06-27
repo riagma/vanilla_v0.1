@@ -70,7 +70,7 @@ export async function registrarVotanteEleccion(bd, { votanteId, eleccionId, comp
 
     const compromisoNote = {
       idx: registro.compromisoIdx,
-      txp: registro.transaccion,
+      txp: registro.compromisoTxId,
       dni: calcularSha256(votanteId),
       cpm: compromiso,
     };
@@ -83,7 +83,7 @@ export async function registrarVotanteEleccion(bd, { votanteId, eleccionId, comp
     registroVotanteEleccionDAO.actualizarTransaccion(bd, {
       votanteId,
       eleccionId,
-      transaccion: resultadoRegistrar.txId
+      compromisoTxId: resultadoRegistrar.txId
     });
 
     console.log(`Compromiso registrado para el votante ${votanteId} en la elección ${eleccionId}: ${JSON.stringify(compromisoNote)}`);

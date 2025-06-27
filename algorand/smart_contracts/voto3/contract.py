@@ -1,13 +1,15 @@
 # smart_contracts/voto3/contract.py
-from algopy import ARC4Contract, UInt64, Asset, Global, Txn, itxn, String, Bytes
+from algopy import ARC4Contract, UInt64, Asset, Global, Txn, itxn, String, Bytes, Addr
 from algopy.arc4 import abimethod
 from typing import Tuple
 
 
 class Voto3(ARC4Contract):
 
-    asset_id: Asset
     estado_contrato: UInt64
+
+    papeletas: Asset
+    papeletas_enviadas: UInt64
 
     contador_compromisos: UInt64
     contador_anuladores: UInt64
@@ -17,13 +19,17 @@ class Voto3(ARC4Contract):
     tam_bloque: UInt64
     tam_resto: UInt64
 
+    papeletas
+
     # TODO cambiar a txId mejor si es cadena
     txnId_raiz: String 
 
     def __init__(self) -> None:
         super().__init__()
-        self.asset_id = Asset(0)
         self.estado_contrato = UInt64(0)
+
+        self.papeletas = Asset(0)
+        self.papeletas_enviadas = UInt64(0)
 
         self.contador_compromisos = UInt64(0)
         self.contador_raices = UInt64(0)
@@ -64,9 +70,9 @@ class Voto3(ARC4Contract):
             clawback=Global.current_application_address,
         ).submit()
 
-        self.asset_id = asset_txn.created_asset
-        self.estado_contrato = UInt64(1)  # Cambiar estado tras inicialización
-        return self.asset_id.id
+        self.papeletas = asset_txn.created_asset
+        self.estado_contrato = UInt64(1)
+        return self.papeletas.id
 
     # ---------------
 
@@ -105,8 +111,8 @@ class Voto3(ARC4Contract):
         assert self.estado_contrato == UInt64(
             2
         ), "El contrato no está en el estado correcto"
-        current = self.contador_compromisos
-        self.contador_compromisos = current + 1
+        valor_actual = self.contador_compromisos
+        self.contador_compromisos = valor_actual + 1
         return self.contador_compromisos
 
     @abimethod()
@@ -143,8 +149,8 @@ class Voto3(ARC4Contract):
         assert self.estado_contrato == UInt64(
             4
         ), "El contrato no está en el estado correcto"
-        current = self.contador_raices
-        self.contador_raices = current + 1
+        valor_actual = self.contador_raices
+        self.contador_raices = valor_actual + 1
         return self.contador_raices
 
     @abimethod()
@@ -187,9 +193,28 @@ class Voto3(ARC4Contract):
         assert self.estado_contrato == UInt64(
             6
         ), "El contrato no está en el estado correcto"
-        current = self.contador_anuladores
-        self.contador_anuladores = current + 1
+        valor_actual = self.contador_anuladores
+        self.contador_anuladores = valor_actual + 1
         return self.contador_anuladores
+
+    @abimethod()
+    def enviar_papeleta(self, destinatario: Addr) -> UInt64:
+        assert (
+            Txn.sender == Global.creator_address
+        ), "Solo el creador puede enviar papeletas"
+        assert self.estado_contrato == UInt64(6), "El contrato no está en el estado correcto"
+
+        itxn.AssetTransfer(
+            xfer_asset=self.papeletas.id,
+            asset_amount=UInt64(1),
+            asset_receiver=destinatario,
+            sender=Global.current_application_address,
+            fee=UInt64(0)
+        ).submit()
+
+        valor_actual = self.papeletas_enviadas
+        self.papeletas_enviadas = valor_actual + 1
+        return self.papeletas_enviadas
 
     @abimethod()
     def cerrar_registro_anuladores(self) -> UInt64:
