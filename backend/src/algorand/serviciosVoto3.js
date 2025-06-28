@@ -1,9 +1,8 @@
 import { TextEncoder } from 'node:util'
 import { microAlgos } from '@algorandfoundation/algokit-utils';
 
-import { ABIMethod, decodeAddress } from 'algosdk';
+import { ABIMethod, decodeAddress, stringifyJSON } from 'algosdk';
 import { algorand } from './algorand.js';
-import { daos } from '../bd/DAOs.js';
 import { contratoBlockchainDAO, cuentaBlockchainDAO } from '../bd/DAOs.js'; 
 import { desencriptar } from '../utiles/utilesCrypto.js';
 import { CLAVE_MAESTRA } from '../utiles/constantes.js';
@@ -86,7 +85,7 @@ const ABIcerrarRegistroRaices = new ABIMethod({
 const ABIleerDatosRaices = new ABIMethod({
   name: 'leer_datos_raices',
   args: [],
-  returns: { type: 'uint64', type: 'uint64', type: 'uint64', type: 'string' },
+  returns: { type: '(uint64,uint64,uint64,string)' },
 });
 
 //--------------
@@ -198,19 +197,18 @@ export async function abrirRegistroCompromisos(bd, { contratoId }) {
     contratoId,
     method: ABIabrirRegistroCompromisos,
   });
-  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+  return { round: resultado.confirmation?.confirmedRound };
 }
 
 //----------------------------------------------------------------------------
 
 export async function registrarCompromiso(bd, { contratoId, compromiso }) {
-  console.log("Registrando compromiso:", compromiso);
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIregistrarCompromiso,
     note: compromiso,
   });
-  return { txId: resultado.txIds, num: resultado.returns[0].returnValue };
+  return { txId: resultado.txIds[0], cont: resultado.returns[0].returnValue };
 }
 
 //----------------------------------------------------------------------------
@@ -220,7 +218,7 @@ export async function cerrarRegistroCompromisos(bd, { contratoId }) {
     contratoId,
     method: ABIcerrarRegistroCompromisos,
   });
-  return { txId: resultado.txIds, confirmedRound: resultado.confirmation?.confirmedRound };
+  return { round: resultado.confirmation?.confirmedRound, total: resultado.returns[0].returnValue };
 }
 
 //----------------------------------------------------------------------------
@@ -233,33 +231,30 @@ export async function abrirRegistroRaices(bd, { contratoId, numBloques, tamBloqu
     method: ABIabrirRegistroRaices,
     args,
   });
-  return { txId: resultado.txIds[0], confirmedRound: resultado.confirmation?.confirmedRound };
+  return { txId: resultado.txIds[0], round: resultado.confirmation?.confirmedRound };
 }
 
 //----------------------------------------------------------------------------
 
 export async function registrarRaiz(bd, { contratoId, raiz }) {
-  console.log("Registrando raíz:", raiz);
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIregistrarRaiz,
-    // lease: Uint8Array.from(randomBytes(32)),
     note: raiz,
   });
-  return { txId: resultado.txIds[0], num: resultado.returns[0].returnValue };
+  return { txId: resultado.txIds[0], cont: resultado.returns[0].returnValue };
 }
 
 //----------------------------------------------------------------------------
 
 export async function cerrarRegistroRaices(bd, { contratoId, txIdRaizInicial }) {
-  console.log("Cerrando registro de raíces:", txIdRaizInicial);
   const args = [textEncoder.encode(txIdRaizInicial)];
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIcerrarRegistroRaices,
     args
   });
-  return { txId: resultado.txIds[0], confirmedRound: resultado.confirmation?.confirmedRound };
+  return { txId: resultado.txIds[0], round: resultado.confirmation?.confirmedRound };
 }
 
 //----------------------------------------------------------------------------
@@ -269,13 +264,15 @@ export async function leerDatosRaices(bd, { contratoId }) {
     contratoId,
     method: ABIleerDatosRaices,
   });
+  // console.log("Datos de raices leídos:", stringifyJSON(resultado.returns[0].returnValue[0]));
+  // console.log("Datos de raices leídos:", stringifyJSON(resultado.returns[0].returnValue[1]));
+  // console.log("Datos de raices leídos:", stringifyJSON(resultado.returns[0].returnValue[2]));
+  // console.log("Datos de raices leídos:", stringifyJSON(resultado.returns[0].returnValue[3]));
   return {
-    txId: resultado.txIds[0],
-    confirmedRound: resultado.confirmation?.confirmedRound,
-    numBloques: resultado.returns[0].returnValue,
-    tamBloque: resultado.returns[1].returnValue,
-    tamResto: resultado.returns[2].returnValue,
-    txnIdRaiz: resultado.returns[3].returnValue
+    numBloques: Number(resultado.returns[0].returnValue[0]),
+    tamBloque: Number(resultado.returns[0].returnValue[1]),
+    tamResto: Number(resultado.returns[0].returnValue[2]),
+    txnIdRaiz: resultado.returns[0].returnValue[3],
   };
 }
 

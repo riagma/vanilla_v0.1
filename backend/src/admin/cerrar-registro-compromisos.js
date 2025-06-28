@@ -12,7 +12,7 @@ if (!eleccionId) {
 try {
     const bd = abrirConexionBD();
 
-    await cerrarRegistroCompromisosEleccion(bd, { eleccionId: parseInt(eleccionId)  });
+    await cerrarRegistroCompromisosEleccion(bd, parseInt(eleccionId));
 
 } catch (err) {
     console.error('Error cerrando el registro de compromisos:', err);

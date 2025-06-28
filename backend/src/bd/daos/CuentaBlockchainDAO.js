@@ -15,7 +15,6 @@ export class CuentaBlockchainDAO extends BaseDAO {
 
   async obtenerMnemonico(bd, { cuentaId }) {
     const cuenta = this.obtenerPorId(bd, { cuentaId });
-    console.log(`Obteniendo mnemonico de cuenta: ${JSON.stringify(cuenta)}`);
     if (!cuenta) {
       return null;
     } 

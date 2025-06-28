@@ -32,10 +32,11 @@ export const INDEXER_TOKEN = process.env.INDEXER_TOKEN;
 export const INDEXER_SERVER = process.env.INDEXER_SERVER;
 export const INDEXER_PORT = process.env.INDEXER_PORT;
 
-export const ARTIFACTS_DIR = '../../' + process.env.ARTIFACTS_DIR ?? '../algorand/smart_contracts/artifacts/voto3/';
+export const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR ?? '../algorand/smart_contracts/artifacts/voto3/';
+export const MERKLE11_JSON = process.env.MERKLE11_JSON ?? './noir/merkle11/target/merkle11.json';
 
-export const PUBLIC_DIR = process.env.PUBLIC_DIR ?? '../../' + './public/';
-export const CIRCUIT_DIR = process.env.CIRCUIT_DIR ?? '../../' + './data/circuits/';
+export const PUBLIC_DIR = process.env.PUBLIC_DIR ?? './public/';
+export const CIRCUIT_DIR = process.env.CIRCUIT_DIR ?? './data/circuits/';
 
 export const CLAVE_PRUEBAS = 'mi super clave de pruebas';
 
@@ -90,6 +91,7 @@ export const CONFIG = {
   INDEXER_SERVER,
   INDEXER_PORT,
   ARTIFACTS_DIR,
+  MERKLE11_JSON,
   PUBLIC_DIR,
   CIRCUIT_DIR,
   CLAVE_PRUEBAS,

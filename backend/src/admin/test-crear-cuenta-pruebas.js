@@ -19,11 +19,6 @@ function run(cmd) {
 try {
   const bd = abrirConexionBD();
 
-  const texto = "prueba secreta";
-  const cifrado = await encriptar(texto, CLAVE_MAESTRA);
-  const descifrado = await desencriptar(cifrado, CLAVE_MAESTRA);
-  console.log(descifrado); // debe ser "prueba secreta"
-
   run('algokit goal wallet -f unencrypted-default-wallet');
   const cuentas = run('algokit goal account list');
 
@@ -52,15 +47,13 @@ try {
 
       if (!registroCuenta) {
 
-        const resultadoCrear = cuentaBlockchainDAO.crear(bd, {
+        cuentaId = cuentaBlockchainDAO.crear(bd, {
           accNet: 'localnet',
           accAddr: direccion,
           accSecret: mnemonicoEncriptado,
         });
 
-        cuentaId = resultadoCrear.lastInsertRowid;
-
-        console.log(`Cuenta de prueba creada con ID: ${resultadoCrear.cuentaId}`);
+        console.log(`Cuenta de prueba creada con ID: ${cuentaId}`);
 
       } else {
 
@@ -71,11 +64,7 @@ try {
         console.log(`Mnemonico actualizado de cuenta: ${registroCuenta.cuentaId}`);
       }
 
-      const registroMnemonico = await cuentaBlockchainDAO.obtenerMnemonico(bd, { cuentaId });
-      console.log(`Mnemonico desencriptado: ${registroMnemonico}`);
-
-      const registroPorId = await cuentaBlockchainDAO.obtenerPorId(bd, { cuentaId: registroCuenta.cuentaId });
-      const mnemonicoDesencriptado = await desencriptar(registroPorId.accSecret, CLAVE_MAESTRA);
+      const mnemonicoDesencriptado = await cuentaBlockchainDAO.obtenerMnemonico(bd, { cuentaId });
       console.log(`Mnemonico desencriptado: ${mnemonicoDesencriptado}`);
     }
   }

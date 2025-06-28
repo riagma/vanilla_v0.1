@@ -14,23 +14,7 @@ if (!eleccionId) {
 try {
     const bd = abrirConexionBD();
 
-    const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
-
-    if (!eleccion) {
-        console.error(`No se encontró la elección con ID ${eleccionId}`);
-        process.exit(1);
-    }
-
-    const contratoId = eleccion.contratoId;
-
-    const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId });
-
-    if (!contrato) {
-        console.error(`No se encontró el contrato con ID ${contratoId}`);
-        process.exit(1);
-    }
-
-    const resultadoRegistrar = registrarRaicesEleccion(bd, { eleccionId });
+    registrarRaicesEleccion(bd, eleccionId);
 
  
 } catch (err) {

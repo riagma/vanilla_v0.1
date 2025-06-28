@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { cerrarRegistroRaicesEleccion } from '../algorand/registrarRaices.js';
+import { cerrarRegistroRaicesEleccion, leerDatosRaicesEleccion } from '../algorand/registrarRaices.js';
 import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
 
 const eleccionId = process.argv[2];
@@ -12,10 +12,12 @@ if (!eleccionId) {
 try {
     const bd = abrirConexionBD();
 
-    await cerrarRegistroRaicesEleccion(bd, { eleccionId: parseInt(eleccionId)  });
+    await cerrarRegistroRaicesEleccion(bd, parseInt(eleccionId));
+
+    await leerDatosRaicesEleccion(bd, parseInt(eleccionId));
 
 } catch (err) {
-    console.error('Error cerrando el registro de compromisos:', err);
+    console.error('Error cerrando el registro de raíces:', err);
     process.exit(1);
 
 } finally {

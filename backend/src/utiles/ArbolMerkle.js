@@ -1,6 +1,6 @@
 import { calcularPoseidon2 } from './utilesCrypto.js';
 
-export class MerkleTree {
+export class ArbolMerkle {
   
   constructor(hojas, funcionHash = (a, b) => calcularPoseidon2([a, b])) {
     if (!hojas.length) throw new Error("Debe haber al menos una hoja");
@@ -29,6 +29,10 @@ export class MerkleTree {
 
   get hojas() {
     return this.niveles[this.niveles.length - 1];
+  }
+
+  get numHojas() {
+    return this.niveles[this.niveles.length - 1].length;
   }
 
   //----------------------------------------------------------------------------

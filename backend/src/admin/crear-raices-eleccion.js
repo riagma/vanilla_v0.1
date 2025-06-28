@@ -6,8 +6,8 @@ import { createInterface } from 'readline';
 
 import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
 import { eleccionDAO, pruebaZKDAO, raizZKDAO, registroVotanteEleccionDAO } from '../bd/DAOs.js';
-import { calcularBloqueIndice, calcularDatosArbol, construirArbolPoseidon } from '../utiles/arbolMerkleOld.js';
-import { CIRCUIT_DIR } from '../utiles/constantes.js';
+import { comprimirArchivo, calcularDatosArbol, construirArbolMerkle } from '../utiles/utilesArbol.js';
+import { CIRCUIT_DIR, MERKLE11_JSON } from '../utiles/constantes.js';
 
 const eleccionId = process.argv[2] ? parseInt(process.argv[2]) : undefined;
 
@@ -36,7 +36,7 @@ try {
 
     if (reemplazarla) {
       console.log(`Reemplazando la prueba ZK de la elección con ID ${eleccionId}`);
-      raizZKDAO.eliminarPruebaZK(bd, eleccionId);
+      raizZKDAO.eliminarPorPruebaId(bd, eleccionId);
       pruebaZKDAO.eliminar(bd, { pruebaId: eleccionId });
     } else {
       console.log('Operación cancelada.');
@@ -50,25 +50,43 @@ try {
   const datosArbol = calcularDatosArbol(numHojas);
   console.log(`Datos del árbol: Bloques=${datosArbol.numBloques}, Bloque=${datosArbol.tamBloque}, Resto=${datosArbol.tamResto}`);
 
-  const indiceArbol = calcularBloqueIndice(datosArbol.tamBloque, datosArbol.tamResto, indice);
-  console.log(`Índice del árbol: Bloque=${indiceArbol.bloque}, Índice en bloque=${indiceArbol.bloqueIdx}`);
+  // const indiceArbol = calcularBloqueIndice(datosArbol.tamBloque, datosArbol.tamResto, indice);
+  // console.log(`Índice del árbol: Bloque=${indiceArbol.bloque}, Índice en bloque=${indiceArbol.bloqueIdx}`);
+
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+  const relPruebaZK = path.join(CIRCUIT_DIR, `E-${eleccionId.toString().padStart(3, '0')}`);
+  const dirPruebaZK = path.join(__dirname, '../../', relPruebaZK);
+  console.log(`Directorio de prueba ZK: ${dirPruebaZK}`);
 
   if (!fs.existsSync(dirPruebaZK)) {
     fs.mkdirSync(dirPruebaZK, { recursive: true });
   }
 
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const relPruebaZK = path.join('../../', CIRCUIT_DIR, `E-${eleccionId.toString().padStart(3, '0')}`);
-  const dirPruebaZK = path.join(__dirname, relPruebaZK);
-  console.log(`Directorio de prueba ZK: ${dirPruebaZK}`);
+  const merkle11JsonOrigen = path.join(__dirname, '../../', MERKLE11_JSON);
+  const merkle11JsonDestino = path.join(dirPruebaZK, path.basename(merkle11JsonOrigen));
+  fs.copyFileSync(merkle11JsonOrigen, merkle11JsonDestino);
+
+  // pruebaId INTEGER PRIMARY KEY,
+  // numBloques INTEGER NOT NULL,
+  // tamBloque INTEGER NOT NULL,
+  // tamResto INTEGER NOT NULL,
+  // txIdRaizInicial TEXT NOT NULL,
+  // urlCircuito TEXT NOT NULL,
+  // ipfsCircuito TEXT NOT NULL,
+  // claveVotoPublica TEXT,
+  // claveVotoPrivada TEXT,
 
   const nuevaPruebaZK = {
     pruebaId: eleccionId,
     tamBloque: datosArbol.tamBloque,
     tamResto: datosArbol.tamResto,
     numBloques: datosArbol.numBloques,
-    urlCircuito: path.join(relPruebaZK, 'merkle11.json'),
-    ipfsCircuito: 'merkle11.json',
+    txIdRaizInicial: 'TEMPORAL',
+    urlCircuito: path.join(relPruebaZK, path.basename(merkle11JsonDestino)),
+    ipfsCircuito: path.basename(merkle11JsonDestino),
+    claveVotoPublica: null,
+    claveVotoPrivada: null,
   };
 
   const resultadoPruebaZK = pruebaZKDAO.crear(bd, nuevaPruebaZK);
@@ -87,23 +105,25 @@ try {
       tamBloque
     );
 
-    console.log(`Número de registros obtenidos: ${registros.length}`);
+    compromisoIdx += tamBloque;
 
-    compromisoIdx += registros.length;
+    console.log(`Número de registros obtenidos: ${registros.length}:${tamBloque}`);
 
     const compromisos = registros.map(r => r.compromiso);
-    const arbol = construirArbolPoseidon(compromisos);
-
-    const archivoCompromisos = path.join(dirPruebaZK, `compromisos-bloque-${bloque}.json`);
+    const nombreFichero = `compromisos-B-${bloque}.json`;
+    const archivoCompromisos = path.join(dirPruebaZK, nombreFichero);
     console.log(`Guardando compromisos en: ${archivoCompromisos}`);
     fs.writeFileSync(archivoCompromisos, JSON.stringify(compromisos, null, 2), 'utf8');
+    comprimirArchivo(archivoCompromisos, `${archivoCompromisos}.gz`);
+
+    const arbolMerkle = construirArbolMerkle(compromisos);
 
     const nuevaRaizZK = {
       pruebaId: eleccionId,
       bloqueIdx: bloque,
-      urlCompromisos: `urlCompromisos-${bloque}`,
-      ipfsCompromisos: `ipfsCompromisos-${bloque}`, 
-      raiz: arbol.getRoot().toString('hex'),
+      urlCompromisos: path.join(relPruebaZK, path.basename(nombreFichero)),
+      ipfsCompromisos: path.basename(nombreFichero),
+      raiz: arbolMerkle.raiz.toString(),
       txIdRaiz: 'TEMPORAL',
     };
 

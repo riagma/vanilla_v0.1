@@ -1,15 +1,21 @@
 import fs from 'node:fs';
-import { MerkleTree } from 'merkletreejs';
-import { calcularPoseidon2 } from './utilesCrypto.js';
+import zlib from 'node:zlib';
+
+
+import { ArbolMerkle } from './ArbolMerkle.js'
 
 const PROFUNDIDAD = 11;
-const NUM_HOJAS = 2 ** PROFUNDIDAD;
+
+const MAX_NUM_HOJAS = 2 ** (PROFUNDIDAD);
+const MIN_NUM_HOJAS = 2 ** (PROFUNDIDAD - 1) + 1;
+
+const HOJA_POR_DEFECTO = 666n;
 
 //----------------------------------------------------------------------------
 
 export function calcularDatosArbol(totalHojas) {
 
-  const numBloques =  Math.ceil(totalHojas / NUM_HOJAS);
+  const numBloques =  Math.ceil(totalHojas / MAX_NUM_HOJAS);
   const tamBloque = Math.floor(totalHojas / numBloques);
   const tamResto = totalHojas % numBloques;
 
@@ -52,26 +58,42 @@ export function calcularBloqueIndice(tamBloque, tamResto, indice) {
 
 //----------------------------------------------------------------------------
 
-export function construirArbolPoseidon(compromisos) {
-  const hojas = compromisos.map(c => Buffer.from(c, 'hex'));
+export function construirArbolMerkle(compromisos) {
 
-  // // === Rellenar hasta 2048 hojas ===
-  // const hojaNula = hashPoseidon(''); // hash de vacío
-  // while (leaves.length < NUM_HOJAS) leaves.push(hojaNula);
+  if (!Array.isArray(compromisos) || compromisos.length === 0 || compromisos.length > MAX_NUM_HOJAS) {
+    throw new Error(`El número de compromisos debe ser un array no vacío y con un máximo de ${MAX_NUM_HOJAS} elementos.`);
+  }
 
-  const arbol = new MerkleTree(hojas, calcularPoseidon2, { sortPairs: true });
-  console.log(`Raíz del árbol Poseidon: ${arbol.getRoot().toString('hex')}`);
-  console.log(`Número de hojas: ${arbol.getLeaves().length}`);
+  const hojas = compromisos.map(c => BigInt(c));
 
-  // const arbol = {
-  //   root: tree.getRoot().toString('hex'),
-  //   leaves: compromisos,
-  // };
+  if (hojas.length < MIN_NUM_HOJAS) {
+    while (hojas.length < MIN_NUM_HOJAS) {
+      hojas.push(HOJA_POR_DEFECTO);
+    }
+    console.log(`Se añaden ${MIN_NUM_HOJAS - hojas.length} hojas extras`);
+  }
+
+  const arbolMerkle = new ArbolMerkle(hojas);
+
+  console.log(`Raíz del árbol Poseidon: ${arbolMerkle.raiz.toString()}`);
+  console.log(`Número de hojas: ${arbolMerkle.numHojas}`);
   
-  return arbol;
+  return arbolMerkle;
 }
 
 //----------------------------------------------------------------------------
+
+export function comprimirArchivo(origen, destinoGz) {
+  const input = fs.createReadStream(origen);
+  const output = fs.createWriteStream(destinoGz);
+  const gzip = zlib.createGzip();
+
+  input.pipe(gzip).pipe(output);
+
+  output.on('finish', () => {
+    console.log(`Archivo comprimido: ${destinoGz}`);
+  });
+}
 
 // Guarda el árbol Merkle (objeto) en un fichero JSON
 export function guardarArbolEnFichero(arbol, rutaFichero) {

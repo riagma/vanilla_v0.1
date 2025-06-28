@@ -23,20 +23,6 @@ if (!eleccionId) {
 try {
     const bd = abrirConexionBD();
 
-    // const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
-
-    // if (!eleccion) {
-    //     console.error(`No se encontró la elección con ID ${eleccionId}`);
-    //     process.exit(1);
-    // }
-
-    // const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
-
-    // if (!contrato) {
-    //     console.error(`No se encontró el contrato para la elección con ID ${eleccionId}`);
-    //     process.exit(1);
-    // }
-
     const votantesSinRegistro = votanteDAO.obtenerVotantesSinRegistro(bd, eleccionId, numeroVotantes);
 
     if (votantesSinRegistro.length > 0) {
@@ -77,13 +63,13 @@ async function generarDatosPrivadoPruebas() {
   const datosPublicos = {
     cuentaAddr: cuenta.addr.toString(),
     cuentaMnemonic: algosdk.secretKeyToMnemonic(cuenta.sk),
-    secreto: secreto.toString,
-    anulador: anulador.toString,
+    secreto: secreto.toString(),
+    anulador: anulador.toString(),
   };
 
   // console.log('Datos públicos generados:', datosPublicos);
 
-  const compromiso = calcularPoseidon2([secreto, anulador]).toString;
+  const compromiso = calcularPoseidon2([secreto, anulador]).toString();
 
   // console.log('Compromiso calculado:', compromiso);
 

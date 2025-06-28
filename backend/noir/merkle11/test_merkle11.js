@@ -2,7 +2,7 @@ import { UltraHonkBackend } from '@aztec/bb.js';
 import { Noir } from '@noir-lang/noir_js';
 import fs from 'node:fs/promises';
 
-import { MerkleTree } from '../../src/utiles/ArbolMerkle.js';
+import { ArbolMerkle } from '../../src/utiles/ArbolMerkle.js';
 
 import { 
   calcularPoseidon2, 
@@ -57,7 +57,7 @@ async function main() {
 
   hojas[666] = calcularPoseidon2([clave, anulador]);
 
-  const arbolMerkle = new MerkleTree(hojas);
+  const arbolMerkle = new ArbolMerkle(hojas);
 
   const { path, idxs } = arbolMerkle.generarPrueba(666);
 
