@@ -1,26 +1,28 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { stringifyJSON } from 'algosdk';
+import { stringifyJSON, encodeAddress } from 'algosdk';
 
-import { daos } from '../bd/DAOs.js';
 import { CONFIG } from '../utiles/constantes.js';
 import { algorand } from './algorand.js';
 import { inicializarEleccion } from './serviciosVoto3.js';
+import { cuentaBlockchainDAO, contratoBlockchainDAO } from '../bd/DAOs.js';
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
-export async function desplegarContrato(bd, eleccionId, cuentaId = 0) {
+export async function desplegarContrato(bd, eleccionId, cuentaId = 1) {
 
   console.log(`Desplegando contrato: ${eleccionId} - ${cuentaId} - ${CONFIG.ARTIFACTS_DIR}`);
 
   const { approvalProgram, clearStateProgram, schema } = await _leerArtefactos(CONFIG.ARTIFACTS_DIR);
 
-  const { secreto } = _leerBaseDatos(bd, cuentaId);
+  console.log(`Obteniendo Mnemonico de cuenta ${cuentaId}...`);
+  const mnemonico = await cuentaBlockchainDAO.obtenerMnemonico(bd, { cuentaId });
+  console.log(`Leyendo mnemonico de cuenta ${cuentaId}: ${mnemonico}`);
 
   //-------------
 
-  const account = algorand.account.fromMnemonic(secreto);
+  const account = algorand.account.fromMnemonic(mnemonico);
   console.log(`Cuenta de despliegue: ${account.addr}`);
 
   const resultCreate = await algorand.send.appCreate(
@@ -38,11 +40,25 @@ export async function desplegarContrato(bd, eleccionId, cuentaId = 0) {
     }
   );
 
-  const { contratoId } = _escribirBaseDatos(bd, eleccionId, cuentaId, resultCreate.appId, resultCreate.appAddress);
+  const nuevoContrato = {
+    contratoId: eleccionId,
+    appId: resultCreate.appId,
+    appAddr: resultCreate.appAddress.toString(),
+    tokenId: "0",
+    cuentaId, 
+    rondaInicialCompromisos: "0",
+    rondaFinalCompromisos: "0",
+    rondaInicialAnuladores: "0",
+    rondaFinalAnuladores: "0"
+  };
+
+  console.log(`Nuevo contrato: ${stringifyJSON(nuevoContrato)}`);
+
+  const contratoId = contratoBlockchainDAO.crear(bd, nuevoContrato);
 
   //-------------
 
-  const resultPayment = await algorand.send.payment(
+  await algorand.send.payment(
     {
       sender: account.addr,
       receiver: resultCreate.appAddress,
@@ -55,8 +71,6 @@ export async function desplegarContrato(bd, eleccionId, cuentaId = 0) {
     }
   );
 
-  console.log(`Pago enviado con éxito: ${resultPayment.confirmation?.confirmedRound} - ${resultPayment.txIds[0]}`);
-
   //-------------
 
   const resultadoInicializacion = await inicializarEleccion(bd, {
@@ -66,7 +80,9 @@ export async function desplegarContrato(bd, eleccionId, cuentaId = 0) {
     numeroUnidades: BigInt(100000000),
   });
 
-  console.log(`Contrato inicializado con éxito, con asset id = ${resultadoInicializacion}`);
+  console.log(`Contrato inicializado con éxito, con asset id = ${stringifyJSON(resultadoInicializacion)}`);
+
+  contratoBlockchainDAO.actualizar(bd, { contratoId }, { tokenId: resultadoInicializacion }); 
 
   //--------------
 
@@ -125,42 +141,6 @@ async function _leerArtefactos(artifactsDir) {
       localByteSlices,
     },
   };
-}
-
-//----------------------------------------------------------------------------
-
-function _leerBaseDatos(bd, cuentaId) {
-  try {
-    console.log(`Obtenido datos cuenta ${cuentaId} algorand ...`);
-    const cuentaBlockchain = daos.cuentaBlockchain.obtenerPorId(bd, { cuentaId });
-
-    console.log('Datos obtenidos con éxito: ', cuentaBlockchain);
-    return {
-      bd,
-      secreto: cuentaBlockchain.accSecret,
-    }
-
-  } catch (error) {
-    throw new Error('Error obtenido datos cuenta: ' + error.message);
-  }
-}
-
-//----------------------------------------------------------------------------
-
-function _escribirBaseDatos(bd, contratoId, cuentaId, appId, appAddr) {
-  try {
-    console.log('Guardando datos contrato algorand ...');
-    const resultado = daos.contratoBlockchain.crear(bd, {
-      contratoId,
-      cuentaId,
-      appId: String(appId),
-      appAddr: String(appAddr),
-    });
-    console.log('Datos guardados con éxito: ', resultado);
-    return { contratoId: resultado };
-  } catch (error) {
-    throw new Error('Error al guardando datos contrato: ' + error.message);
-  }
 }
 
 //----------------------------------------------------------------------------

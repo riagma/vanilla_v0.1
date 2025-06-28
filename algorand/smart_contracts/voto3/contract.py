@@ -1,5 +1,5 @@
 # smart_contracts/voto3/contract.py
-from algopy import ARC4Contract, UInt64, Asset, Global, Txn, itxn, String, Bytes, Addr
+from algopy import ARC4Contract, UInt64, Asset, Global, Txn, itxn, String, Bytes, Account, arc4
 from algopy.arc4 import abimethod
 from typing import Tuple
 
@@ -18,8 +18,6 @@ class Voto3(ARC4Contract):
     num_bloques: UInt64
     tam_bloque: UInt64
     tam_resto: UInt64
-
-    papeletas
 
     # TODO cambiar a txId mejor si es cadena
     txnId_raiz: String 
@@ -198,7 +196,7 @@ class Voto3(ARC4Contract):
         return self.contador_anuladores
 
     @abimethod()
-    def enviar_papeleta(self, destinatario: Addr) -> UInt64:
+    def enviar_papeleta(self, destinatario: Bytes) -> UInt64:
         assert (
             Txn.sender == Global.creator_address
         ), "Solo el creador puede enviar papeletas"
@@ -207,7 +205,7 @@ class Voto3(ARC4Contract):
         itxn.AssetTransfer(
             xfer_asset=self.papeletas.id,
             asset_amount=UInt64(1),
-            asset_receiver=destinatario,
+            asset_receiver=Account(destinatario),
             sender=Global.current_application_address,
             fee=UInt64(0)
         ).submit()

@@ -5,6 +5,14 @@ import { fileURLToPath } from 'node:url';
 export const ALGO_ENV = process.env.ALGO_ENV || 'localnet';
 export const NODE_ENV = process.env.NODE_ENV || 'development';
 
+export const CLAVE_MAESTRA = process.env.NODE_ENV === 'production' ?
+  process.env.CLAVE_MAESTRA :
+  process.env.CLAVE_MAESTRA || 'clave-maestra-desarrollo';
+
+if(!CLAVE_MAESTRA) {
+  throw new Error('La clave maestra no está definida. Por favor, configura la variable de entorno CLAVE_MAESTRA.');
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const algoEnvPath = path.join(__dirname, `../../.env.${ALGO_ENV}`);
@@ -26,15 +34,15 @@ export const INDEXER_PORT = process.env.INDEXER_PORT;
 
 export const ARTIFACTS_DIR = '../../' + process.env.ARTIFACTS_DIR ?? '../algorand/smart_contracts/artifacts/voto3/';
 
-export const PUBLIC_DIR = process.env.PUBLIC_DIR ?? './public/';
-export const CIRCUIT_DIR = process.env.CIRCUIT_DIR ?? './public/circuits/';
+export const PUBLIC_DIR = process.env.PUBLIC_DIR ?? '../../' + './public/';
+export const CIRCUIT_DIR = process.env.CIRCUIT_DIR ?? '../../' + './data/circuits/';
 
 export const CLAVE_PRUEBAS = 'mi super clave de pruebas';
 
 // Rutas y configuración de BD
 export const RUTA_BD = process.env.NODE_ENV === 'production'
-  ? path.join(__dirname, './data/voto3.db')
-  : path.join(__dirname, './data/voto3_dev.db');
+  ? path.join(__dirname, '../../', './data/db/voto3.db')
+  : path.join(__dirname, '../../', './data/db/voto3_dev.db');
 
 // Configuración del servidor
 export const PUERTO = process.env.PORT || 3000;

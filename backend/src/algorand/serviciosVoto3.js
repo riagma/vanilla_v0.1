@@ -1,11 +1,16 @@
+import { TextEncoder } from 'node:util'
 import { microAlgos } from '@algorandfoundation/algokit-utils';
 
-import { randomBytes } from 'node:crypto';
-import { ABIMethod } from 'algosdk';
+import { ABIMethod, decodeAddress } from 'algosdk';
 import { algorand } from './algorand.js';
 import { daos } from '../bd/DAOs.js';
+import { contratoBlockchainDAO, cuentaBlockchainDAO } from '../bd/DAOs.js'; 
+import { desencriptar } from '../utiles/utilesCrypto.js';
+import { CLAVE_MAESTRA } from '../utiles/constantes.js';
 
 import { toNote } from './algoUtiles.js';
+
+const textEncoder = new TextEncoder();
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -74,14 +79,14 @@ const ABIregistrarRaiz = new ABIMethod({
 
 const ABIcerrarRegistroRaices = new ABIMethod({
   name: 'cerrar_registro_raices',
-  args: [{ type: 'String', name: 'txnId_raiz' }],
+  args: [{ type: 'string', name: 'txnId_raiz' }],
   returns: { type: 'uint64' },
 });
 
 const ABIleerDatosRaices = new ABIMethod({
-  name: 'cerrar_registro_raices',
+  name: 'leer_datos_raices',
   args: [],
-  returns: { type: 'uint64', type: 'uint64', type: 'uint64', type: 'String' },
+  returns: { type: 'uint64', type: 'uint64', type: 'uint64', type: 'string' },
 });
 
 //--------------
@@ -100,7 +105,7 @@ const ABIregistrarAnulador = new ABIMethod({
 
 const ABIenviarPapeleta = new ABIMethod({
   name: 'enviar_papeleta',
-  args: [{ type: 'address', name: 'destinatario' }],
+  args: [{ type: 'byte[]', name: 'destinatario' }],
   returns: { type: 'uint64' },
 });
 
@@ -160,7 +165,7 @@ export async function inicializarEleccion(bd,
     args,
     extraFee: (100000).microAlgos(),
   });
-  return resultado.returns[0];
+  return resultado.returns[0].returnValue;
 }
 
 //----------------------------------------------------------------------------
@@ -247,9 +252,12 @@ export async function registrarRaiz(bd, { contratoId, raiz }) {
 //----------------------------------------------------------------------------
 
 export async function cerrarRegistroRaices(bd, { contratoId, txIdRaizInicial }) {
+  console.log("Cerrando registro de raíces:", txIdRaizInicial);
+  const args = [textEncoder.encode(txIdRaizInicial)];
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIcerrarRegistroRaices,
+    args
   });
   return { txId: resultado.txIds[0], confirmedRound: resultado.confirmation?.confirmedRound };
 }
@@ -279,12 +287,12 @@ export async function abrirRegistroAnuladores(bd, { contratoId }) {
     contratoId,
     method: ABIabrirRegistroAnuladores,
   });
-  return { txId: resultado.txIds[0], confirmedRound: resultado.confirmation?.confirmedRound };
+  return { ronda: resultado.confirmation?.confirmedRound };
 }
 
 //----------------------------------------------------------------------------
 
-export async function registrarAnulador(bd, { contratoId, anulador, destinatario }) {
+export async function registrarAnulador(bd, { contratoId, destinatario, anuladorNote }) {
   console.log("Registrando anulador:", anulador);
 
   const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
@@ -297,10 +305,7 @@ export async function registrarAnulador(bd, { contratoId, anulador, destinatario
       appId,
       method: ABIregistrarAnulador,
       maxFee: (2000).microAlgo(),
-      note: toNote({
-        anu: anulador,
-        des: destinatario
-      }),
+      note: toNote(anuladorNote),
     });
 
   const resultado = await txGroup.send({
@@ -309,7 +314,9 @@ export async function registrarAnulador(bd, { contratoId, anulador, destinatario
     maxRoundsToWaitForConfirmation: 12,
   });
 
-  return { txId: resultado.txIds[1], num: resultado.returns[1].returnValue };
+  return { 
+    txId: resultado.txIds[1], 
+    cont: resultado.returns[1].returnValue };
 }
 
 //----------------------------------------------------------------------------
@@ -319,9 +326,9 @@ export async function enviarPapeleta(bd, { contratoId, destinatario }) {
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIenviarPapeleta,
-    args: [destinatario]
+    args: [decodeAddress(destinatario).publicKey]
   });
-  return { txId: resultado.txIds[0], num: resultado.returns[0].returnValue };
+  return { txId: resultado.txIds[0], cont: resultado.returns[0].returnValue };
 }
 
 //----------------------------------------------------------------------------
@@ -331,7 +338,9 @@ export async function cerrarRegistroAnuladores(bd, { contratoId }) {
     contratoId,
     method: ABIcerrarRegistroAnuladores,
   });
-  return { txId: resultado.txIds[0], num: resultado.returns[0].returnValue };
+  return { 
+    ronda: resultado.confirmation?.confirmedRound,
+    total: resultado.returns[0].returnValue };
 }
 
 //----------------------------------------------------------------------------
@@ -348,10 +357,12 @@ export async function establecerClienteVoto3(bd, { contratoId }) {
 
     contratoVoto3 = contratoId;
 
-    const { appId, cuentaId } = await leerContratoBaseDatos(bd, contratoId);
-    const { secreto } = await leerCuentaBaseDatos(bd, cuentaId);
+    const { appId, cuentaId } = contratoBlockchainDAO.obtenerPorId(bd, { contratoId });
+    const { accSecret } = cuentaBlockchainDAO.obtenerPorId(bd, { cuentaId });
 
-    const cuentaContrato = algorand.account.fromMnemonic(secreto);
+    const mnemonico = await desencriptar(accSecret, CLAVE_MAESTRA);
+
+    const cuentaContrato = algorand.account.fromMnemonic(mnemonico);
 
     algorand.setSigner(cuentaContrato.addr, cuentaContrato.signer);
 
@@ -364,33 +375,33 @@ export async function establecerClienteVoto3(bd, { contratoId }) {
   return { sender: contratoSender, appId: contratoAppId }
 }
 
-//----------------------------------------------------------------------------
+// //----------------------------------------------------------------------------
 
-export async function leerContratoBaseDatos(bd, contratoId) {
-  try {
-    const contrato = await daos.contratoBlockchain.obtenerPorId(bd, { contratoId });
-    if (!contrato) {
-      throw new Error(`No se ha encontrado el contrato con ID ${contratoId}`);
-    }
-    return { appId: contrato.appId, cuentaId: contrato.cuentaId };
-  } catch (error) {
-    throw new Error('Error obtenido datos cuenta: ' + error.message);
-  }
-}
+// export async function leerContratoBaseDatos(bd, contratoId) {
+//   try {
+//     const contrato = await daos.contratoBlockchain.obtenerPorId(bd, { contratoId });
+//     if (!contrato) {
+//       throw new Error(`No se ha encontrado el contrato con ID ${contratoId}`);
+//     }
+//     return { appId: contrato.appId, cuentaId: contrato.cuentaId };
+//   } catch (error) {
+//     throw new Error('Error obtenido datos cuenta: ' + error.message);
+//   }
+// }
 
-//----------------------------------------------------------------------------
+// //----------------------------------------------------------------------------
 
-export async function leerCuentaBaseDatos(bd, cuentaId) {
-  try {
-    const cuenta = await daos.cuentaBlockchain.obtenerPorId(bd, { cuentaId });
-    if (!cuenta) {
-      throw new Error(`No se ha encontrado la cuenta con ID ${cuentaId}`);
-    }
-    return { secreto: cuenta.accSecret }
-  } catch (error) {
-    throw new Error('Error obtenido datos cuenta: ' + error.message);
-  }
-}
+// export async function leerCuentaBaseDatos(bd, cuentaId) {
+//   try {
+//     const cuenta = await daos.cuentaBlockchain.obtenerPorId(bd, { cuentaId });
+//     if (!cuenta) {
+//       throw new Error(`No se ha encontrado la cuenta con ID ${cuentaId}`);
+//     }
+//     return { secreto: cuenta.accSecret }
+//   } catch (error) {
+//     throw new Error('Error obtenido datos cuenta: ' + error.message);
+//   }
+// }
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------

@@ -54,11 +54,9 @@ CREATE TABLE RegistroVotanteEleccion (
   datosPrivados TEXT,
   PRIMARY KEY (votanteId, eleccionId),
   FOREIGN KEY (votanteId) REFERENCES Votante(dni),
-  FOREIGN KEY (eleccionId) REFERENCES Eleccion(id)
+  FOREIGN KEY (eleccionId) REFERENCES Eleccion(id),
+  UNIQUE(eleccionId, compromisoIdx)
 );
-
-CREATE INDEX idx_registro_eleccion ON RegistroVotanteEleccion(eleccionId);
-CREATE INDEX idx_registro_compromiso ON RegistroVotanteEleccion(eleccionId, compromisoIdx);
 
 -- Tabla: ResultadoEleccion
 CREATE TABLE ResultadoEleccion (
@@ -99,6 +97,11 @@ CREATE TABLE ContratoBlockchain (
   appAddr TEXT NOT NULL,
   tokenId TEXT NOT NULL,
   cuentaId INTEGER NOT NULL,
+
+  rondaInicialCompromisos TEXT NOT NULL,
+  rondaFinalCompromisos TEXT NOT NULL,
+  rondaInicialAnuladores TEXT NOT NULL,
+  rondaFinalAnuladores TEXT NOT NULL,
 
   UNIQUE(cuentaId, appId),
   FOREIGN KEY (contratoId) REFERENCES Eleccion(id),
@@ -147,6 +150,7 @@ CREATE INDEX idx_RaizZK_raiz ON RaizZK(pruebaId, bloqueIdx, raiz);
 CREATE TABLE AnuladorZK (
   pruebaId INTEGER NOT NULL,
   anulador TEXT NOT NULL,
+  anuladorIdx INTEGER NOT NULL,
   destinatario TEXT NOT NULL,
   registroTxId TEXT NOT NULL,
   papeletaTxId TEXT NOT NULL,

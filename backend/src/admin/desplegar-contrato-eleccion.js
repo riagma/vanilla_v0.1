@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import { createInterface } from 'readline';
 import { cerrarConexionBD, abrirConexionBD } from '../bd/BD.js';
-import { eleccionDAO, contratoBlockchainDAO, pruebaZKDAO, raizZKDAO } from '../bd/DAOs.js';
+import { eleccionDAO, contratoBlockchainDAO, pruebaZKDAO, raizZKDAO, anuladorZKDAO } from '../bd/DAOs.js';
 import { desplegarContrato } from '../algorand/desplegarContrato.js';
 
 const eleccionId = process.argv[2] ? parseInt(process.argv[2]) : undefined;
-const cuentaId = process.argv[3] ? parseInt(process.argv[3]) : 0;
+const cuentaId = process.argv[3] ? parseInt(process.argv[3]) : 1;
 
 if (!eleccionId) {
     console.error(`Uso: node ${process.argv[1]} <elección-id> <cuenta-id>?`);
@@ -34,6 +34,7 @@ try {
           'Se perderán los datos actuales de la blockchain, ¿estás seguro? (s/n): '
         );
         if (reemplazarlo) {
+            anuladorZKDAO.eliminarPorPruebaId(bd, eleccionId);
             raizZKDAO.eliminarPorPruebaId(bd, eleccionId);
             pruebaZKDAO.eliminar(bd, { pruebaId: eleccionId });
             contratoBlockchainDAO.reciclarContrato(bd, eleccionId);
