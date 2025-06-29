@@ -144,13 +144,13 @@ CREATE TABLE RaizZK (
   FOREIGN KEY (pruebaId) REFERENCES PruebaZK(pruebaId)
 );
 
-CREATE INDEX idx_RaizZK_raiz ON RaizZK(pruebaId, bloqueIdx, raiz);
+CREATE INDEX idx_RaizZK_raiz ON RaizZK(pruebaId, raiz);
 
 -- Tabla: AnuladorZK
 CREATE TABLE AnuladorZK (
   pruebaId INTEGER NOT NULL,
   anulador TEXT NOT NULL,
-  anuladorIdx INTEGER NOT NULL,
+  bloqueIdx INTEGER NOT NULL,
   destinatario TEXT NOT NULL,
   registroTxId TEXT NOT NULL,
   papeletaTxId TEXT NOT NULL,

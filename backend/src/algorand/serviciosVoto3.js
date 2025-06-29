@@ -290,7 +290,6 @@ export async function abrirRegistroAnuladores(bd, { contratoId }) {
 //----------------------------------------------------------------------------
 
 export async function registrarAnulador(bd, { contratoId, destinatario, anuladorNote }) {
-  console.log("Registrando anulador:", anulador);
 
   const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
 
@@ -311,9 +310,11 @@ export async function registrarAnulador(bd, { contratoId, destinatario, anulador
     maxRoundsToWaitForConfirmation: 12,
   });
 
+  // console.log(resultado);
+
   return { 
     txId: resultado.txIds[1], 
-    cont: resultado.returns[1].returnValue };
+    cont: resultado.returns[0].returnValue };
 }
 
 //----------------------------------------------------------------------------

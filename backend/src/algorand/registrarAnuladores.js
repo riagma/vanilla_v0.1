@@ -1,16 +1,21 @@
-// src/deployer/deployContract.js
-import { votanteDAO, eleccionDAO, anuladorZKDAO, contratoBlockchainDAO } from '../bd/DAOs.js';
+import fs from 'node:fs/promises';
+import { UltraHonkBackend } from '@aztec/bb.js';
 
-import { 
+import { anuladorZKDAO, contratoBlockchainDAO, raizZKDAO } from '../bd/DAOs.js';
+
+import {
   leerEstadoContrato,
-  abrirRegistroAnuladores, 
-  cerrarRegistroAnuladores, 
-  registrarAnulador 
+  abrirRegistroAnuladores,
+  cerrarRegistroAnuladores,
+  registrarAnulador
 
 } from './serviciosVoto3.js';
 
-import { calcularSha256 } from '../utiles/utilesCrypto.js';
-import { ro } from '@faker-js/faker';
+//--------------
+
+const merkle11Texto = await fs.readFile('../../noir/merkle11/target/merkle11.json', 'utf8');
+const merkle11Json = JSON.parse(merkle11Texto);
+const honk = new UltraHonkBackend(merkle11Json.bytecode, { threads: 8 });
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -41,59 +46,79 @@ export async function abrirRegistroAnuladoresEleccion(bd, eleccionId) {
 
 //----------------------------------------------------------------------------
 
-export async function registrarAnuladorEleccion(bd, { eleccionId, anulador, destinatario }) {
+export async function registrarAnuladorEleccion(bd, { eleccionId, destinatario, proof, proofHash, publicInputs }) {
 
-  console.log(`Registrando ${anulador} y ${destinatario} para ${eleccionId}`);
+  console.log(`Registrando ${destinatario} para ${eleccionId}`);
 
-  //-------------
-
-  const contratoId = eleccionId;
-
-  const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId });
+  const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
   if (!contrato) {
     throw new Error(`No se encontró el contrato para la elección ${eleccionId}`);
   }
 
-  // Consume fees
-  // const resultadoLeerEstado = await leerEstadoContrato(bd, { contratoId: eleccionId });
-  // console.log(`Estado de la elección ${eleccionId}: ${resultadoLeerEstado}`);
-
   try {
 
-    const pruebaId = eleccionId;
+    const raiz = BigInt(publicInputs[0]).toString();
+    const anulador = BigInt(publicInputs[1]).toString();
 
-    const registroAnulador = anuladorZKDAO.obtenerPorId(bd, { pruebaId, anulador });
+    const raizZK = raizZKDAO.obtenerPorRaiz(bd, { pruebaId: eleccionId, raiz });
 
-    if (!registroAnulador) {
+    if (!raizZK) {
+      console.log(`No se encontró la raíz ZK para la elección ${eleccionId} con raíz ${raiz}`);
+      return false;
+    }
+
+    console.log(`Registrando ${anulador} de ${raizZK.bloqueIdx}:${raiz}`);
+
+    const anuladorZK = anuladorZKDAO.obtenerPorId(bd, { pruebaId: eleccionId, anulador });
+
+    if (anuladorZK && anuladorZK.registroTxId !== 'TEMPORAL') {
+      console.log(`El anulador ${anulador} ya está registrado para la elección ${eleccionId}`);
+      return false;
+    }
+
+    console.log(`Verificando ${proofHash}`, publicInputs);
+
+    const pruebaVerificada = await honk.verifyProof({ proof, publicInputs });
+
+    console.log(`Prueba verificada: ${pruebaVerificada}`);
+
+    if (!pruebaVerificada) {
+      console.log(`La prueba ZK no es válida para el anulador ${anulador} en la elección ${eleccionId}`);
+      return false;
+    }
+
+    if (!anuladorZK) {
       anuladorZKDAO.crear(bd, {
-        pruebaId,
+        pruebaId: eleccionId,
         anulador,
+        bloqueIdx: raizZK.bloqueIdx,
         destinatario,
         registroTxId: 'TEMPORAL',
         papeletaTxId: 'TEMPORAL',
         votacionTxId: 'TEMPORAL',
       });
-    } else if (registroAnulador.registroTxId !== 'TEMPORAL') {
-      console.log(`El anulador ${anulador} ya está registrado para la elección ${eleccionId}`);
-      throw new Error("El anulador ya está registrado");
     }
 
     const anuladorNote = { anulador, destinatario }
 
-    const resultadoRegistrar = await registrarAnulador(bd, { 
-      contratoId, 
-      anulador,
-      destinatario
+    console.log("Registrando anulador:", anuladorNote);
+
+    const resultadoRegistrar = await registrarAnulador(bd, {
+      contratoId: eleccionId,
+      destinatario,
+      anuladorNote
     });
 
-    anuladorZKDAO.actualizar(bd, { pruebaId, anulador }, { registroTxId: resultadoRegistrar.txId});
+    anuladorZKDAO.actualizar(bd, { pruebaId: eleccionId, anulador }, { registroTxId: resultadoRegistrar.txId });
 
-    console.log(`Anulador registrado en la elección ${eleccionId}: ${JSON.stringify(anuladorNote)}`);
-    console.log(`Transacción registrada: ${resultadoRegistrar.txId}`);
+    console.log(`Anulador registrado en la elección ${eleccionId} con txId: ${resultadoRegistrar.txId}`);
+
+    return resultadoRegistrar;
 
   } catch (Error) {
-      // TODO: Buscar el assert o su descripción en el error
-      console.error(`Error al registrar anulador en la elección ${eleccionId}:`, Error.message);
+    // TODO: Buscar el assert o su descripción en el error
+    console.error(`Error al registrar anulador en la elección ${eleccionId}:`, Error.message);
+    return undefined
   }
 }
 
@@ -105,17 +130,15 @@ export async function solicitarPapeletaEleccion(bd, { eleccionId, anulador }) {
 
   //-------------
 
-  const pruebaId = eleccionId;
-
   const registroAnulador = anuladorZKDAO.obtenerPorId(bd, { pruebaId: eleccionId, anulador });
-  
+
   if (!registroAnulador) {
     throw new Error(`No se encontró el registro del anulador ${anulador} para la elección ${eleccionId}`);
   }
 
   if (registroAnulador.papeletaTxId !== 'TEMPORAL') {
     throw new Error(
-      "El destinatario " + destinatario + 
+      "El destinatario " + destinatario +
       " ya recibió " + registroAnulador.papeletaTxId +
       " una papeleta para la elección " + eleccionId
     );
@@ -123,13 +146,13 @@ export async function solicitarPapeletaEleccion(bd, { eleccionId, anulador }) {
 
   try {
     const resultadoEnviar = await enviarPapeleta(bd, { contratoId: eleccionId, destinatario });
-    anuladorZKDAO.actualizar(bd, { pruebaId, anulador }, { papeletaTxId: resultadoEnviar.txId});
+    anuladorZKDAO.actualizar(bd, { pruebaId: eleccionId, anulador }, { papeletaTxId: resultadoEnviar.txId });
 
     console.log(`Papeleta de elección ${eleccionId} enviada al destinatario ${destinatario}`);
 
   } catch (Error) {
-      // TODO: Buscar el assert o su descripción en el error
-      console.error(`Error al enviar la papeleta a ${destinatario}:`, Error.message);
+    // TODO: Buscar el assert o su descripción en el error
+    console.error(`Error al enviar la papeleta a ${destinatario}:`, Error.message);
   }
 }
 

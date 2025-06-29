@@ -59,27 +59,7 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
 
   //----------------------------------------------------------------------------
 
-  // actualizarTransaccion(bd, { votanteId, eleccionId, compromisoTxId }) {
-
-  //   const actualizarTransaccionStmt = bd.transaction((votanteId, eleccionId, compromisoTxId) => {
-
-  //     const registro = this.obtenerPorId(bd, { votanteId, eleccionId });
-
-  //     if (!registro) {
-  //       throw new Error(`No se encontró el registro para votante ${votanteId} en la elección ${eleccionId}`);
-  //     }
-
-  //     const actualizado = this.actualizar(bd, { votanteId, eleccionId }, { compromisoTxId });
-
-  //     return actualizado;
-  //   });
-
-  //   return actualizarTransaccionStmt(votanteId, eleccionId, compromisoTxId);
-  // }
-
-  //----------------------------------------------------------------------------
-
-  obtenerCompromisosEleccion(bd, eleccionId, compromisoIdx, max) {
+  obtenerCompromisosEleccion(bd, { eleccionId, compromisoIdx, max = 100 }) {
 
     return bd.prepare(`
       
@@ -91,4 +71,21 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
     
     `).all({ eleccionId, compromisoIdx, max });
   }
+
+  //----------------------------------------------------------------------------
+
+  obtenerVotantesEleccion(bd, { eleccionId, compromisoIdx, max = 100 }) {
+
+    return bd.prepare(`
+      
+      SELECT *
+      FROM RegistroVotanteEleccion 
+      WHERE eleccionId = @eleccionId
+      AND compromisoIdx >= @compromisoIdx
+      ORDER BY compromisoIdx LIMIT @max
+    
+    `).all({ eleccionId, compromisoIdx, max });
+  }
+
+  //----------------------------------------------------------------------------
 }

@@ -1,98 +1,171 @@
 #!/usr/bin/env node
-import algosdk from 'algosdk';
-import { registrarVotanteEleccion } from '../algorand/registrarCompromiso.js';
+import { algorand } from '../algorand/algorand.js';
+import { microAlgos } from '@algorandfoundation/algokit-utils';
 import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
-import { eleccionDAO, contratoBlockchainDAO, votanteDAO } from '../bd/DAOs.js';
-import { 
-  calcularPoseidon2,
-  encriptarJSON,
-  hexStr2BigInt,
-  bigInt2HexStr,
-  randomBigInt
-} from '../utiles/utilesCrypto.js';
+import { contratoBlockchainDAO, registroVotanteEleccionDAO, anuladorZKDAO, pruebaZKDAO, raizZKDAO } from '../bd/DAOs.js';
+import { registrarAnuladorEleccion } from '../algorand/registrarAnuladores.js';
+
+import { desencriptarJSON, calcularPoseidon2 } from '../utiles/utilesCrypto.js';
+import { calcularBloqueIndice, calcularPruebaDatosPublicos } from '../utiles/utilesArbol.js';  
+
 import { CLAVE_PRUEBAS } from '../utiles/constantes.js';
 
+//--------------
+
 const eleccionId = process.argv[2] ? parseInt(process.argv[2]) : undefined;
-const numeroVotantes = process.argv[3] ? parseInt(process.argv[3]) : 100;
+const numeroPapeletas = process.argv[3] ? parseInt(process.argv[3]) : 100;
 
 if (!eleccionId) {
-    console.error(`Uso: node ${process.argv[1]} <elección-id> <número-votantes>?`);
-    process.exit(1);
+  console.error(`Uso: node ${process.argv[1]} <elección-id> <número-papeletas>?`);
+  process.exit(1);
 }
+
+//----------------------------------------------------------------------------
+
+async function generarPruebasRegistro(bd, registroVotante, datosPrivados) {
+
+  const pruebaZK = pruebaZKDAO.obtenerPorId(bd, { pruebaId: registroVotante.eleccionId });
+  if (!pruebaZK) {
+    throw new Error(`No se encontró la prueba ZK para la elección ${registroVotante.eleccionId}`);
+  }
+
+  console.log(pruebaZK);
+
+  const { bloque, bloqueIdx } = calcularBloqueIndice(
+    pruebaZK.tamBloque,
+    pruebaZK.tamResto,
+    registroVotante.compromisoIdx);
+
+  const raizZK = raizZKDAO.obtenerPorId(bd, { pruebaId: registroVotante.eleccionId, bloqueIdx });
+  if (!raizZK) {
+    throw new Error(`No se encontró la raíz ZK para la elección ${registroVotante.eleccionId} y bloqueIdx ${bloqueIdx}`);
+  }
+
+  console.log(raizZK);
+
+  const { proof, proofHash, publicInputs } = await calcularPruebaDatosPublicos({
+    clave: datosPrivados.secreto,
+    anulador: datosPrivados.anulador,
+    bloqueIdx,
+    ficheroMerkle11: pruebaZK.urlCircuito,
+    ficheroCompromisos: raizZK.urlCompromisos,
+  });
+
+  const datosPublicos = publicInputs.map(pi => BigInt(pi).toString());
+  console.log('Datos públicos:', datosPublicos);
+
+  return { proof, proofHash, publicInputs };
+}
+
+//----------------------------------------------------------------------------
+
+async function realizarOptInCuentaVotante(assetId, sender, mnemonico) {
+
+  console.log(`Realizando Opt-In para la cuenta votante con assetId ${assetId} y mnemonico ${mnemonico}`);
+  const cuenta = algorand.account.fromMnemonic(mnemonico);
+
+  const resultadoOptIn = await algorand.send.assetOptIn(
+    {
+      sender: account.addr,
+      assetId: assetId,
+      signer: cuenta.signer,
+    },
+    {
+      skipWaiting: false,
+      skipSimulate: true,
+      maxRoundsToWaitForConfirmation: 12,
+      maxFee: (2000).microAlgos(),
+    });
+
+  console.log(resultadoOptIn);
+
+  return resultadoOptIn
+}
+
+//----------------------------------------------------------------------------
 
 try {
-    const bd = abrirConexionBD();
 
-    // const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
+  const bd = abrirConexionBD();
 
-    // if (!eleccion) {
-    //     console.error(`No se encontró la elección con ID ${eleccionId}`);
-    //     process.exit(1);
-    // }
+  const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
 
-    // const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
+  if (!contrato) {
+    throw new Error(`No se encontró el contrato para la elección ${eleccionId}`);
+  }
 
-    // if (!contrato) {
-    //     console.error(`No se encontró el contrato para la elección con ID ${eleccionId}`);
-    //     process.exit(1);
-    // }
+  let contadorPapeletas = 0;
+  let compromisoIdx = 0;
 
-    const votantesSinRegistro = votanteDAO.obtenerVotantesSinRegistro(bd, eleccionId, numeroVotantes);
+  while (contadorPapeletas < numeroPapeletas) {
 
-    if (votantesSinRegistro.length > 0) {
+    const votantesRegistrados = registroVotanteEleccionDAO.obtenerVotantesEleccion(bd,
+      {
+        eleccionId,
+        compromisoIdx
+      });
 
-        console.log(`Se registrarán ${votantesSinRegistro.length} votantes en la elección ${eleccionId}.`);
-
-        console.log = function () {}; // Desactiva console.log para evitar demasiada salida
-
-        for (const votante of votantesSinRegistro) {
-
-            const votanteId = votante.dni;
-
-            const { compromiso, datosPrivados } = await generarDatosPrivadoPruebas();
-
-            await registrarVotanteEleccion(bd, { votanteId, eleccionId, compromiso, datosPrivados });
-
-            console.log(`Compromiso registrado para el votante ${votante.dni} en la elección ${eleccionId}: ${compromiso}`);
-        }
+    if (!votantesRegistrados || votantesRegistrados.length === 0) {
+      console.log(`No hay votantes registrados para la elección ${eleccionId} con compromisoIdx ${compromisoIdx}.`);
+      break;
     }
 
-    console.log(`Total de votantes registrados ${votantesSinRegistro.length} en la elección ${eleccionId}.`);
- 
+    compromisoIdx += votantesRegistrados.length;
+    
+    for (let idx = 0; idx < votantesRegistrados.length && contadorPapeletas < numeroPapeletas; idx++) {
+
+      const registroVotante = votantesRegistrados[idx];
+
+      console.log(`Procesando votante ${registroVotante.votanteId} en la elección ${eleccionId}.`);
+
+      const datosPrivados = await desencriptarJSON(registroVotante.datosPrivados, CLAVE_PRUEBAS);
+
+      console.log(`Datos privados del votante ${registroVotante.votanteId}:`, datosPrivados);
+
+      const anuladorHash = calcularPoseidon2([BigInt(datosPrivados.anulador)]).toString();
+
+      const anuladorZK = anuladorZKDAO.obtenerPorId(bd, { pruebaId: eleccionId, anulador: anuladorHash });
+
+      if (anuladorZK && anuladorZK.papeletaTxId !== 'TEMPORAL') {
+        console.log(`Ya se ha enviado la papeleta al votante ${registroVotante.votanteId} en la elección ${eleccionId}.`);
+        continue;
+      }
+
+      console.log(anuladorZK ? anuladorZK : `No se encontró anulador ZK ${eleccionId}:${datosPrivados.anulador}`);
+
+      if (!anuladorZK) {
+
+        const { proof, proofHash, publicInputs } = await generarPruebasRegistro(bd, registroVotante, datosPrivados);
+
+        console.log(`Registrando papeleta ${proofHash} para el votante ${registroVotante.votanteId} en la elección ${eleccionId}.`);
+
+        const resultadoRegistrar = await registrarAnuladorEleccion(bd, {
+          eleccionId,
+          destinatario: datosPrivados.cuentaAddr,
+          proof,
+          proofHash,
+          publicInputs,
+        });
+
+        console.log(`Resultado del registro: ${resultadoRegistrar.cont}`);
+      }
+
+      const resultadoOptIn = await realizarOptInCuentaVotante(
+        contrato.tokenId, 
+        datosPrivados.cuentaMnemonic);
+
+      contadorPapeletas++;
+    }
+  }
+
 } catch (err) {
-    console.error('Error abriendo el registro de compromisos:', err);
-    process.exit(1);
+  console.error('Error abriendo el registro de compromisos:', err);
+  process.exit(1);
 
 } finally {
-    cerrarConexionBD();
+  cerrarConexionBD();
 }
 
-async function generarDatosPrivadoPruebas() {
-
-  const cuenta = algosdk.generateAccount();
-
-  const secreto = randomBigInt();
-  const anulador = randomBigInt();
-
-  const datosPublicos = {
-    cuentaAddr: cuenta.addr.toString(),
-    cuentaMnemonic: algosdk.secretKeyToMnemonic(cuenta.sk),
-    secreto: secreto.toString,
-    anulador: anulador.toString,
-  };
-
-  // console.log('Datos públicos generados:', datosPublicos);
-
-  const compromiso = calcularPoseidon2([secreto, anulador]).toString;
-
-  // console.log('Compromiso calculado:', compromiso);
-
-  const datosPrivados = await encriptarJSON(datosPublicos, CLAVE_PRUEBAS);
-
-  // console.log('Datos privados encriptados:', datosPrivados);
-  // console.log('Datos privados desencriptados:', await desencriptarJSON(datosPrivados, CLAVE_PRUEBAS));
-
-  return { compromiso, datosPrivados };
-}
+process.exit(0);
 
 
