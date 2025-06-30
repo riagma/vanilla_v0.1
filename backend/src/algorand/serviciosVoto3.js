@@ -324,6 +324,7 @@ export async function enviarPapeleta(bd, { contratoId, destinatario }) {
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
     method: ABIenviarPapeleta,
+    extraFee: (1000).microAlgo(),
     args: [decodeAddress(destinatario).publicKey]
   });
   return { txId: resultado.txIds[0], cont: resultado.returns[0].returnValue };

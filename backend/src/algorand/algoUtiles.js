@@ -1,16 +1,17 @@
 import { Buffer } from 'node:buffer';
-import { TextDecoder } from 'node:util';
+import { TextDecoder, TextEncoder } from 'node:util';
 
-import { algod } from './algorand.js'
+const codificador = new TextEncoder();
+const decodificador = new TextDecoder();
 
 export function toNote(json) {
   const str = JSON.stringify(json);
-  return new TextEncoder().encode(str);
+  return codificador.encode(str);
 }
 
 export function fromNote(base64) {
   const bytes = Uint8Array.from(Buffer.from(base64, 'base64'));
-  const str = new TextDecoder().decode(bytes);
+  const str = decodificador.decode(bytes);
   return JSON.parse(str);
 }
 

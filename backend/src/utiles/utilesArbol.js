@@ -116,7 +116,6 @@ export function calcularDatosArbol(totalHojas) {
 
 export function calcularBloqueIndice(tamBloque, tamResto, indice) {
 
-
   let bloque;
   let bloqueIdx;
 

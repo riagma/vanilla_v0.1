@@ -7,7 +7,8 @@ import {
   leerEstadoContrato,
   abrirRegistroAnuladores,
   cerrarRegistroAnuladores,
-  registrarAnulador
+  registrarAnulador,
+  enviarPapeleta
 
 } from './serviciosVoto3.js';
 
@@ -126,7 +127,7 @@ export async function registrarAnuladorEleccion(bd, { eleccionId, destinatario, 
 
 export async function solicitarPapeletaEleccion(bd, { eleccionId, anulador }) {
 
-  console.log(`Registrando ${anulador} y ${destinatario} para ${eleccionId}`);
+  console.log(`Enviando papeleta ${anulador} para ${eleccionId}`);
 
   //-------------
 
@@ -145,10 +146,14 @@ export async function solicitarPapeletaEleccion(bd, { eleccionId, anulador }) {
   }
 
   try {
-    const resultadoEnviar = await enviarPapeleta(bd, { contratoId: eleccionId, destinatario });
+    const resultadoEnviar = await enviarPapeleta(bd, { 
+      contratoId: eleccionId, 
+      destinatario: registroAnulador.destinatario 
+    });
+    
     anuladorZKDAO.actualizar(bd, { pruebaId: eleccionId, anulador }, { papeletaTxId: resultadoEnviar.txId });
 
-    console.log(`Papeleta de elección ${eleccionId} enviada al destinatario ${destinatario}`);
+    console.log(`Papeleta de elección ${eleccionId} enviada al destinatario ${registroAnulador.destinatario}`);
 
   } catch (Error) {
     // TODO: Buscar el assert o su descripción en el error

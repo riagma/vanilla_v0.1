@@ -1,8 +1,8 @@
 // const isNode = typeof window === 'undefined';
 // const webcrypto = isNode ? (await import('node:crypto')).webcrypto : crypto;
 
-import { Buffer } from 'node:buffer';
 import { randomBytes, createHash, webcrypto } from 'node:crypto';
+import { Buffer } from 'node:buffer';
 
 import { poseidon2Hash, poseidon2HashAsync } from "@zkpassport/poseidon2"
 import { calcularPoseidon2Circuito } from './poseidon2.js';
@@ -191,4 +191,71 @@ export async function desencriptarJSON(cifradoBase64, claveTexto) {
 
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
+
+// Utilidades para PEM <-> Uint8Array
+
+function pemToUint8Array(pem) {
+  const pemBody = pem.replace(/-----.*?-----|\s/g, '');
+  return new Uint8Array(Buffer.from(pemBody, 'base64'));
+}
+function uint8ArrayToPem(uint8, type) {
+  const b64 = Buffer.from(uint8).toString('base64');
+  const lines = b64.match(/.{1,64}/g).join('\n');
+  return `-----BEGIN ${type}-----\n${lines}\n-----END ${type}-----`;
+}
+
+//----------------------------------------------------------------------------
+
+// --- 1. Generar par de claves asimétricas (RSA-OAEP) ---
+export async function generarParClavesRSA() {
+  const keyPair = await webcrypto.subtle.generateKey(
+    {
+      name: "RSA-OAEP",
+      modulusLength: 2048,
+      publicExponent: new Uint8Array([1, 0, 1]),
+      hash: "SHA-256",
+    },
+    true,
+    ["encrypt", "decrypt"]
+  );
+
+  // Exportar a formato PEM (texto base64)
+  const pubKey = new Uint8Array(await webcrypto.subtle.exportKey("spki", keyPair.publicKey));
+  const privKey = new Uint8Array(await webcrypto.subtle.exportKey("pkcs8", keyPair.privateKey));
+
+  const pubPem = uint8ArrayToPem(pubKey, "PUBLIC KEY");
+  const privPem = uint8ArrayToPem(privKey, "PRIVATE KEY");
+
+  return { clavePublica: pubPem, clavePrivada: privPem };
+}
+
+// --- 2. Encriptar con clave pública ---
+export async function encriptarConClavePublica(texto, clavePublicaPem) {
+  const pubKeyDer = pemToUint8Array(clavePublicaPem);
+  const pubKey = await webcrypto.subtle.importKey(
+    "spki",
+    pubKeyDer,
+    { name: "RSA-OAEP", hash: "SHA-256" },
+    false,
+    ["encrypt"]
+  );
+  const datos = codificador.encode(texto);
+  const cifrado = await webcrypto.subtle.encrypt({ name: "RSA-OAEP" }, pubKey, datos);
+  return Buffer.from(new Uint8Array(cifrado)).toString('base64');
+}
+
+// --- 3. Desencriptar con clave privada ---
+export async function desencriptarConClavePrivada(cifradoBase64, clavePrivadaPem) {
+  const privKeyDer = pemToUint8Array(clavePrivadaPem);
+  const privKey = await webcrypto.subtle.importKey(
+    "pkcs8",
+    privKeyDer,
+    { name: "RSA-OAEP", hash: "SHA-256" },
+    false,
+    ["decrypt"]
+  );
+  const cifrado = Buffer.from(cifradoBase64, 'base64');
+  const plano = await webcrypto.subtle.decrypt({ name: "RSA-OAEP" }, privKey, cifrado);
+  return decodificador.decode(plano);
+}
 

@@ -24,6 +24,8 @@ CREATE TABLE Eleccion (
   fechaInicioVotacion TEXT NOT NULL,
   fechaFinVotacion TEXT NOT NULL,
   fechaEscrutinio TEXT NOT NULL,
+  claveVotoPublica TEXT,
+  claveVotoPrivada TEXT,
   estado TEXT NOT NULL
 );
 
@@ -127,8 +129,6 @@ CREATE TABLE PruebaZK (
   txIdRaizInicial TEXT NOT NULL,
   urlCircuito TEXT NOT NULL,
   ipfsCircuito TEXT NOT NULL,
-  claveVotoPublica TEXT,
-  claveVotoPrivada TEXT,
   FOREIGN KEY (pruebaId) REFERENCES Eleccion(id)
 );
 

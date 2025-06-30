@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import { algorand } from '../algorand/algorand.js';
-import { microAlgos } from '@algorandfoundation/algokit-utils';
 import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
 import { contratoBlockchainDAO, registroVotanteEleccionDAO, anuladorZKDAO, pruebaZKDAO, raizZKDAO } from '../bd/DAOs.js';
-import { registrarAnuladorEleccion } from '../algorand/registrarAnuladores.js';
+import { registrarAnuladorEleccion, solicitarPapeletaEleccion } from '../algorand/registrarAnuladores.js';
 
 import { desencriptarJSON, calcularPoseidon2 } from '../utiles/utilesCrypto.js';
 import { calcularBloqueIndice, calcularPruebaDatosPublicos } from '../utiles/utilesArbol.js';  
@@ -36,9 +35,9 @@ async function generarPruebasRegistro(bd, registroVotante, datosPrivados) {
     pruebaZK.tamResto,
     registroVotante.compromisoIdx);
 
-  const raizZK = raizZKDAO.obtenerPorId(bd, { pruebaId: registroVotante.eleccionId, bloqueIdx });
+  const raizZK = raizZKDAO.obtenerPorId(bd, { pruebaId: registroVotante.eleccionId, bloqueIdx: bloque });
   if (!raizZK) {
-    throw new Error(`No se encontró la raíz ZK para la elección ${registroVotante.eleccionId} y bloqueIdx ${bloqueIdx}`);
+    throw new Error(`No se encontró la raíz ZK para la elección ${registroVotante.eleccionId} y bloque ${bloque}`);
   }
 
   console.log(raizZK);
@@ -59,15 +58,15 @@ async function generarPruebasRegistro(bd, registroVotante, datosPrivados) {
 
 //----------------------------------------------------------------------------
 
-async function realizarOptInCuentaVotante(assetId, sender, mnemonico) {
+async function realizarOptInCuentaVotante(assetId, mnemonico) {
 
   console.log(`Realizando Opt-In para la cuenta votante con assetId ${assetId} y mnemonico ${mnemonico}`);
   const cuenta = algorand.account.fromMnemonic(mnemonico);
 
   const resultadoOptIn = await algorand.send.assetOptIn(
     {
-      sender: account.addr,
-      assetId: assetId,
+      sender: cuenta.addr,
+      assetId: BigInt(assetId),
       signer: cuenta.signer,
     },
     {
@@ -93,6 +92,10 @@ try {
   if (!contrato) {
     throw new Error(`No se encontró el contrato para la elección ${eleccionId}`);
   }
+
+//--------------
+  console.log = function () {}; // Desactiva console.log para evitar demasiada salida
+//--------------
 
   let contadorPapeletas = 0;
   let compromisoIdx = 0;
@@ -153,6 +156,8 @@ try {
       const resultadoOptIn = await realizarOptInCuentaVotante(
         contrato.tokenId, 
         datosPrivados.cuentaMnemonic);
+
+      await solicitarPapeletaEleccion(bd, { eleccionId, anulador: anuladorHash });
 
       contadorPapeletas++;
     }

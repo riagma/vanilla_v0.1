@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { cerrarRegistroAnuladoresEleccion } from '../algorand/registrarAnulador.js';
+import { cerrarRegistroAnuladoresEleccion } from '../algorand/registrarAnuladores.js';
 import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
 
 const eleccionId = process.argv[2];
@@ -12,7 +12,7 @@ if (!eleccionId) {
 try {
     const bd = abrirConexionBD();
 
-    await cerrarRegistroAnuladoresEleccion(bd, { eleccionId: parseInt(eleccionId)  });
+    await cerrarRegistroAnuladoresEleccion(bd, parseInt(eleccionId));
 
 } catch (err) {
     console.error('Error cerrando el registro de compromisos:', err);
