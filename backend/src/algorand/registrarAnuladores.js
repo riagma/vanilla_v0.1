@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import { UltraHonkBackend } from '@aztec/bb.js';
 
-import { anuladorZKDAO, contratoBlockchainDAO, raizZKDAO } from '../bd/DAOs.js';
+import { anuladorZKDAO, contratoBlockchainDAO, raizZKDAO, eleccionDAO } from '../bd/DAOs.js';
 
 import {
   leerEstadoContrato,
@@ -23,6 +23,11 @@ const honk = new UltraHonkBackend(merkle11Json.bytecode, { threads: 8 });
 
 export async function abrirRegistroAnuladoresEleccion(bd, eleccionId) {
 
+  const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
+  if (!eleccion) {
+    throw new Error(`No se encontró la elección con ID ${eleccionId}`);
+  }
+  
   const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
   if (!contrato) {
     throw new Error(`No se encontró el contrato para la elección ${eleccionId}`);
@@ -36,6 +41,7 @@ export async function abrirRegistroAnuladoresEleccion(bd, eleccionId) {
     const resultadoAbrir = await abrirRegistroAnuladores(bd, { contratoId: eleccionId });
     console.log(`Registro de anuladores abierto para la elección ${eleccionId}:${contrato.appId}`);
     contratoBlockchainDAO.actualizar(bd, { contratoId: eleccionId }, { rondaInicialAnuladores: resultadoAbrir.ronda });
+    eleccionDAO.actualizar(bd, { id: eleccionId }, { fechaInicioVotacion: Date.now().toLocaleString() });
 
   } else if (resultadoLeerEstado === 6n) {
     console.log(`El registro de anuladores de la elección ${eleccionId} ya estaba abierto.`);
@@ -165,6 +171,11 @@ export async function solicitarPapeletaEleccion(bd, { eleccionId, anulador }) {
 
 export async function cerrarRegistroAnuladoresEleccion(bd, eleccionId) {
 
+  const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
+  if (!eleccion) {
+    throw new Error(`No se encontró la elección con ID ${eleccionId}`);
+  }
+  
   const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
   if (!contrato) {
     throw new Error(`No se encontró el contrato para la elección ${eleccionId}`);
@@ -178,6 +189,7 @@ export async function cerrarRegistroAnuladoresEleccion(bd, eleccionId) {
     const resultadoCerrar = await cerrarRegistroAnuladores(bd, { contratoId: eleccionId });
     console.log(`Registro de anuladores cerrado para la elección ${eleccionId}:${contrato.appId}`);
     contratoBlockchainDAO.actualizar(bd, { contratoId: eleccionId }, { rondaFinalAnuladores: resultadoCerrar.ronda });
+    eleccionDAO.actualizar(bd, { id: eleccionId }, { fechaFinVotacion: Date.now().toLocaleString() });
 
   } else if (resultadoLeerEstado === 7n) {
     console.log(`La elección ${eleccionId}:${contrato.appId} ya estaba cerrada.`);

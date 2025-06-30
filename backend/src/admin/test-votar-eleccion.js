@@ -172,7 +172,12 @@ try {
 
         // console.log('Partido elegido: ', partidoElegido);
 
-        const voto = { voto: await encriptarConClavePublica(partidoElegido.siglas, eleccion.claveVotoPublica) };
+        const valorVoto = {
+          siglas: partidoElegido.siglas,
+          nonce: randomBytes(16).toString('hex')
+        };
+
+        const voto = { voto: await encriptarConClavePublica(JSON.stringify(valorVoto)) };
 
         // console.log(`Voto cifrado: ${voto.voto}`);
 

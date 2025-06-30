@@ -22,7 +22,7 @@ export class PartidoEleccionDAO extends BaseDAO {
        FROM Partido p
        INNER JOIN PartidoEleccion pe ON p.siglas = pe.partidoId
        WHERE pe.eleccionId = ?`
-      ).all(  [eleccionId]);
+      ).all([eleccionId]);
   }
 
   obtenerEleccionesPartido(bd, partidoId) {

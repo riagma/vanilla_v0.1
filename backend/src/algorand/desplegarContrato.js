@@ -1,5 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { stringifyJSON, encodeAddress } from 'algosdk';
 
 import { CONFIG } from '../utiles/constantes.js';
@@ -7,18 +9,22 @@ import { algorand } from './algorand.js';
 import { inicializarEleccion } from './serviciosVoto3.js';
 import { cuentaBlockchainDAO, contratoBlockchainDAO } from '../bd/DAOs.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
 export async function desplegarContrato(bd, eleccionId, cuentaId = 1) {
 
-  console.log(`Desplegando contrato: ${eleccionId} - ${cuentaId} - ${CONFIG.ARTIFACTS_DIR}`);
+  const artifactsDir = path.join(__dirname, '../../', CONFIG.ARTIFACTS_DIR);
 
-  const { approvalProgram, clearStateProgram, schema } = await _leerArtefactos(CONFIG.ARTIFACTS_DIR);
+  console.log(`Desplegando contrato: ${eleccionId} - ${cuentaId} - ${artifactsDir}`);
 
-  console.log(`Obteniendo Mnemonico de cuenta ${cuentaId}...`);
+  const { approvalProgram, clearStateProgram, schema } = await _leerArtefactos(artifactsDir);
+
+  // console.log(`Obteniendo Mnemonico de cuenta ${cuentaId}...`);
   const mnemonico = await cuentaBlockchainDAO.obtenerMnemonico(bd, { cuentaId });
-  console.log(`Leyendo mnemonico de cuenta ${cuentaId}: ${mnemonico}`);
+  // console.log(`Leyendo mnemonico de cuenta ${cuentaId}: ${mnemonico}`);
 
   //-------------
 

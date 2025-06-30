@@ -24,7 +24,7 @@ async function cargarDatosPrueba() {
 
     // Cargar datos en orden por dependencias
     cargarVotantes(bd, hashContrasena, cantidad);
-    cargarElecciones(bd);
+    await cargarElecciones(bd);
     cargarPartidos(bd);
 
     // Actualizar resumen final para incluir partidos

@@ -15,6 +15,7 @@ import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
 import { TextDecoder, TextEncoder } from 'node:util';
 
 import { CLAVE_MAESTRA } from '../utiles/constantes.js';
+import { ResultadoEleccionDAO } from '../bd/daos/ResultadoEleccionDAO.js';
 
 
 const codificador = new TextEncoder();
@@ -64,11 +65,11 @@ function crearResultadosPartidos(bd, eleccionId) {
 
   const partidos = partidoEleccionDAO.obtenerPartidosEleccion(bd, eleccionId);
 
-  // console.log(partidos);
-
   for (const partido of partidos) {
 
-    let resultadosPartido = resultadoPartidoDAO.obtenerPorId(bd, { eleccionId });
+    // console.log(partido);
+
+    let resultadosPartido = resultadoPartidoDAO.obtenerPorId(bd, { partidoId: partido.siglas, eleccionId });
 
     if (!resultadosPartido) {
 
@@ -88,7 +89,7 @@ function crearResultadosPartidos(bd, eleccionId) {
       resultadosPartido.porcentaje = 0;
     }
 
-    resultadosPartidos.set(partido.partidoId, resultadosPartido);
+    resultadosPartidos.set(resultadosPartido.partidoId, resultadosPartido);
   }
 
   return resultadosPartidos
@@ -106,7 +107,7 @@ try {
   console.log(eleccion.nombre);
 
   const clavePrivada = await desencriptar(eleccion.claveVotoPrivada, CLAVE_MAESTRA);
-  console.log(`Clave privada desencriptada: ${clavePrivada}`);
+  // console.log(`Clave privada desencriptada: ${clavePrivada}`);
 
   const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
   if (!contrato) {
@@ -128,7 +129,7 @@ try {
       .address(contrato.appAddr)
       .notePrefix(prefijoNota)
       .minRound(contrato.rondaInicialAnuladores)
-      .limit(1000)
+      .limit(10)
       .nextToken(nextToken) 
       .do();
 
@@ -136,15 +137,63 @@ try {
 
     for (const txn of response.transactions) {
       const nota = fromNote(txn.note);
+      // console.log(nota);
+
       // const votoDesencriptado = await desencriptarConClavePrivada(nota.voto, clavePrivada);
+      // TODO: Cambiar a desencriptarConClavePrivada
       const votoDesencriptado = await desencriptar(nota.voto, CLAVE_MAESTRA);
-      console.log(`Transacción: ${txn.id} -> ${votoDesencriptado}`);
+      console.log(`Voto desencriptado: (${votoDesencriptado})`);
+
+      let voto;
+
+      try {
+        voto = JSON.parse(votoDesencriptado);
+      } catch (error) {
+        // console.error(`Error al parsear el voto: ${error.message}`);
+        resultadosEleccion.votosNulos++;
+        continue;
+      } 
+
+      if (!voto.siglas) {
+        console.error(`Voto en blanco: ${votoDesencriptado}`);
+        resultadosEleccion.votosBlancos++;
+        continue;
+      }
+
+      const resultadosPartido = resultadosPartidos.get(voto.siglas);
+
+      if (!resultadosPartido) {
+        console.error(`Partido no encontrado para las siglas: ${voto.siglas}`);
+        resultadosEleccion.votosNulos++;
+        continue; 
+      }
+
+      resultadosPartido.votos++;
+      resultadosEleccion.votantes++;
     }
     
-    nextToken = response.nextToken? response.nextToken : undefined;
+    nextToken = undefined; // response.nextToken? response.nextToken : undefined;
 
   } while (nextToken);
 
+  for (const resultadosPartido of resultadosPartidos.values()) {
+
+    if(resultadosEleccion.votantes > 0) {
+      resultadosPartido.porcentaje = (resultadosPartido.votos / resultadosEleccion.votantes) * 100;
+    }
+
+    resultadoPartidoDAO.actualizar(bd, 
+      { 
+        partidoId: resultadosPartido.partidoId, 
+        eleccionId: resultadosPartido.eleccionId 
+      }, 
+      resultadosPartido);
+
+    console.log(resultadosPartido);
+  }
+
+  resultadoEleccionDAO.actualizar(bd, { eleccionId }, resultadosEleccion);
+  console.log(resultadosEleccion);
 
 } catch (err) {
   console.error('Error cerrando el registro de raíces:', err);

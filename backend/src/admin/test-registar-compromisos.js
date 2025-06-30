@@ -1,13 +1,11 @@
 #!/usr/bin/env node
 import algosdk from 'algosdk';
-import { registrarVotanteEleccion } from '../algorand/registrarCompromiso.js';
+import { registrarVotanteEleccion } from '../algorand/registrarCompromisos.js';
 import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
-import { eleccionDAO, contratoBlockchainDAO, votanteDAO } from '../bd/DAOs.js';
+import { votanteDAO } from '../bd/DAOs.js';
 import { 
   calcularPoseidon2,
   encriptarJSON,
-  hexStr2BigInt,
-  bigInt2HexStr,
   randomBigInt
 } from '../utiles/utilesCrypto.js';
 import { CLAVE_PRUEBAS } from '../utiles/constantes.js';

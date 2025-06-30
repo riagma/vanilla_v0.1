@@ -85,8 +85,6 @@ try {
     txIdRaizInicial: 'TEMPORAL',
     urlCircuito: path.join(relPruebaZK, path.basename(merkle11JsonDestino)),
     ipfsCircuito: path.basename(merkle11JsonDestino),
-    claveVotoPublica: null,
-    claveVotoPrivada: null,
   };
 
   const resultadoPruebaZK = pruebaZKDAO.crear(bd, nuevaPruebaZK);
@@ -96,14 +94,13 @@ try {
 
     const tamBloque = (bloque < datosArbol.tamResto) ? datosArbol.tamBloque + 1 : datosArbol.tamBloque;
 
-    console.log(`Procesando bloque ${bloque} con tamaño ${tamBloque}`);
+    console.log(`Procesando bloque ${bloque} con tamaño ${tamBloque} índice ${compromisoIdx}`);
 
-    const registros = registroVotanteEleccionDAO.obtenerCompromisosEleccion(
-      bd,
+    const registros = registroVotanteEleccionDAO.obtenerCompromisosEleccion(bd, {
       eleccionId,
       compromisoIdx,
-      tamBloque
-    );
+      max: tamBloque
+    });
 
     compromisoIdx += tamBloque;
 
@@ -114,7 +111,7 @@ try {
     const archivoCompromisos = path.join(dirPruebaZK, nombreFichero);
     console.log(`Guardando compromisos en: ${archivoCompromisos}`);
     fs.writeFileSync(archivoCompromisos, JSON.stringify(compromisos, null, 2), 'utf8');
-    comprimirArchivo(archivoCompromisos, `${archivoCompromisos}.gz`);
+    await comprimirArchivo(archivoCompromisos, `${archivoCompromisos}.gz`);
 
     const arbolMerkle = construirArbolMerkle(compromisos);
 

@@ -134,7 +134,7 @@ try {
         continue;
       }
 
-      console.log(anuladorZK ? anuladorZK : `No se encontró anulador ZK ${eleccionId}:${datosPrivados.anulador}`);
+      console.log(anuladorZK ? anuladorZK : `No se encontró anulador ZK ${eleccionId}:${anuladorHash}`);
 
       if (!anuladorZK) {
 

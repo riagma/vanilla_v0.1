@@ -34,9 +34,9 @@ export function cargarVotantes(bd, hashContrasena, cantidad = 100) {
       // const correoElectronico = `${nombreEmail}.${apellidosEmail}@ejemplo.com`;
 
       // const numeroDNI = faker.number.int({ min: 0, max: 99999999 }).toString().padStart(8, '0');
-      const numeroDNI = (10000000 + i).toString(); // Generar un número incremental
+      const numeroDNI = (90000000 + i).toString(); // Generar un número incremental
       const letrasDNI = 'TRWAGMYFPDXBNJZSQVHLCKE';
-      const letraDNI = letrasDNI[numeroDNI % 23];
+      const letraDNI = 'Z'; // letrasDNI[numeroDNI % 23];
       const dni = `${numeroDNI}${letraDNI}`;
 
       const correoElectronico = `${dni}@ejemplo.com`;

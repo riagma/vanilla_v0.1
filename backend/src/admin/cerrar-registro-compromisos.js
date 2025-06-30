@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { cerrarRegistroCompromisosEleccion } from '../algorand/registrarCompromiso.js';
+import { cerrarRegistroCompromisosEleccion } from '../algorand/registrarCompromisos.js';
 import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
 
 const eleccionId = process.argv[2];

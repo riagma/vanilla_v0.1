@@ -77,8 +77,6 @@ export async function registrarRaicesEleccion(bd, eleccionId) {
 
       if (idx + 1 < raices.length) {
         txnId_1 = raices[idx + 1].txIdRaiz;
-        console.log(raices[idx + 1]);
-        console.log(typeof raices[idx + 1].txIdRaiz, raices[idx + 1].txIdRaiz);       
       }
       if (idx + 10 < raices.length) {
         txnId_10 = raices[idx + 10].txIdRaiz;
@@ -98,6 +96,7 @@ export async function registrarRaicesEleccion(bd, eleccionId) {
           t100: txnId_100,
         };
 
+        console.log(raizNote);
         const resultadoRegistrar = await registrarRaiz(bd, { contratoId: eleccionId, raiz: raizNote });
 
         raiz.txIdRaiz = resultadoRegistrar.txId;

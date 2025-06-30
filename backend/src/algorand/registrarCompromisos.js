@@ -16,6 +16,11 @@ import { calcularSha256 } from '../utiles/utilesCrypto.js';
 
 export async function abrirRegistroCompromisosEleccion(bd, eleccionId) {
 
+  const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
+  if (!eleccion) {
+    throw new Error(`No se encontró la elección con ID ${eleccionId}`);
+  }
+  
   const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
   if (!contrato) {
     throw new Error(`No se encontró el contrato para la elección ${eleccionId}`);
@@ -29,6 +34,7 @@ export async function abrirRegistroCompromisosEleccion(bd, eleccionId) {
     const { round } = await abrirRegistroCompromisos(bd, { contratoId: eleccionId });
     contratoBlockchainDAO.actualizar(bd, { contratoId: eleccionId }, { rondaInicialCompromisos: round });
     console.log(`Registro de compromisos abierto para la elección ${eleccionId}:${contrato.appId}:${round}`);
+    eleccionDAO.actualizar(bd, { id: eleccionId }, { fechaInicioRegistro: Date.now().toLocaleString() });
 
   } else if (resultadoLeerEstado === 2n) {
     console.log(`El registro de compromisos de la elección ${eleccionId} ya está abierto.`);
@@ -106,6 +112,11 @@ export async function registrarVotanteEleccion(bd, { votanteId, eleccionId, comp
 
 export async function cerrarRegistroCompromisosEleccion(bd, eleccionId) {
 
+  const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
+  if (!eleccion) {
+    throw new Error(`No se encontró la elección con ID ${eleccionId}`);
+  }
+
   const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
   if (!contrato) {
     throw new Error(`No se encontró el contrato para la elección ${eleccionId}`);
@@ -119,6 +130,7 @@ export async function cerrarRegistroCompromisosEleccion(bd, eleccionId) {
     const { round } = await cerrarRegistroCompromisos(bd, { contratoId: eleccionId });
     contratoBlockchainDAO.actualizar(bd, { contratoId: eleccionId }, { rondaFinalCompromisos: round });
     console.log(`Registro de compromisos cerrado para la elección ${eleccionId}:${contrato.appId}`);
+    eleccionDAO.actualizar(bd, { id: eleccionId }, { fechaFinRegistro: Date.now().toLocaleString() });
 
   } else if (resultadoLeerEstado === 3n) {
     console.log(`La elección ${eleccionId}:${contrato.appId} ya estaba cerrada.`);

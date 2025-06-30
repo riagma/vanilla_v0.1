@@ -19,14 +19,14 @@ CREATE TABLE Eleccion (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   nombre TEXT NOT NULL UNIQUE,
   descripcion TEXT NOT NULL,
-  fechaInicioRegistro TEXT NOT NULL,
-  fechaFinRegistro TEXT NOT NULL,
-  fechaInicioVotacion TEXT NOT NULL,
-  fechaFinVotacion TEXT NOT NULL,
-  fechaEscrutinio TEXT NOT NULL,
-  claveVotoPublica TEXT,
-  claveVotoPrivada TEXT,
-  estado TEXT NOT NULL
+  fechaInicioRegistro TEXT,
+  fechaFinRegistro TEXT,
+  fechaInicioVotacion TEXT,
+  fechaFinVotacion TEXT,
+  fechaEscrutinio TEXT,
+  claveVotoPublica TEXT NOT NULL,
+  claveVotoPrivadaEncriptada TEXT NOT NULL,
+  claveVotoPrivada TEXT
 );
 
 -- Tabla: Partido
