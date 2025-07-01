@@ -2,16 +2,9 @@
 import { algorand } from '../algorand/algorand.js';
 import { toNote } from '../algorand/algoUtiles.js';
 import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
-import { contratoBlockchainDAO, registroVotanteEleccionDAO, eleccionDAO, partidoDAO } from '../bd/DAOs.js';
-import { solicitarPapeletaEleccion } from '../algorand/registrarAnuladores.js';
+import { votanteDatosEleccionDAO, eleccionDAO } from '../bd/DAOs.js';
 
-import {
-  encriptar,
-  desencriptar,
-  desencriptarJSON, 
-  generarParClavesRSA,
-  encriptarConClavePublica,
-  desencriptarConClavePrivada } from '../utiles/utilesCrypto.js';
+import { encriptarConClavePublica} from '../utiles/utilesCrypto.js';
 
 import { CLAVE_MAESTRA, CLAVE_PRUEBAS } from '../utiles/constantes.js';
 
@@ -23,34 +16,6 @@ const numeroVotos = process.argv[3] ? parseInt(process.argv[3]) : 100;
 if (!eleccionId) {
   console.error(`Uso: node ${process.argv[1]} <elección-id> <número-votos>?`);
   process.exit(1);
-}
-
-//----------------------------------------------------------------------------
-
-let partidos = null
-let pesos = []
-
-function elegirPartido(bd, eleccionId) {
-
-  if(!partidos) {
-    partidos = partidoDAO.obtenerPorEleccion(bd, eleccionId );
-    let sumaPesos = 0;
-    for (const partido of partidos) {
-      const peso = Math.random();
-      pesos.push(peso);
-      sumaPesos += peso; 
-    }
-    pesos = pesos.map(peso => peso / sumaPesos);
-  } 
-
-  const r = Math.random();
-  
-  let acumulado = 0;
-  for (let i = 0; i < partidos.length; i++) {
-    acumulado += pesos[i];
-    if (r < acumulado) return partidos[i];
-  }
-  return partidos[partidos.length - 1];
 }
 
 //----------------------------------------------------------------------------
@@ -104,92 +69,85 @@ try {
 
   // console.log(eleccion);
 
-  if (!eleccion.claveVotoPublica || !eleccion.claveVotoPrivada ) {
-    const { clavePublica, clavePrivada } = await generarParClavesRSA();
-    const clavePrivadaEncriptada = await encriptar(clavePrivada, CLAVE_MAESTRA);
-    eleccion.claveVotoPublica = clavePublica;
-    eleccion.claveVotoPrivada = clavePrivadaEncriptada;
-    eleccionDAO.actualizar(bd, { id: eleccionId }, { 
-      claveVotoPublica: clavePublica, 
-      claveVotoPrivada: clavePrivadaEncriptada 
-    });
-  }
+  // if (!eleccion.claveVotoPublica || !eleccion.claveVotoPrivada ) {
+  //   const { clavePublica, clavePrivada } = await generarParClavesRSA();
+  //   const clavePrivadaEncriptada = await encriptar(clavePrivada, CLAVE_MAESTRA);
+  //   eleccion.claveVotoPublica = clavePublica;
+  //   eleccion.claveVotoPrivada = clavePrivadaEncriptada;
+  //   eleccionDAO.actualizar(bd, { id: eleccionId }, { 
+  //     claveVotoPublica: clavePublica, 
+  //     claveVotoPrivada: clavePrivadaEncriptada 
+  //   });
+  // }
 
-  // const clavePrivadaDesencriptada = await desencriptar(eleccion.claveVotoPrivada, CLAVE_MAESTRA);
 
-  // console.log(eleccion.claveVotoPublica);
-  // console.log(clavePrivadaDesencriptada);
-
-  // const textoPrueba = `Prueba de votación para la elección ${eleccionId}`;
-
-  // const textoCifrado = await encriptarConClavePublica(textoPrueba, eleccion.claveVotoPublica);
-  // console.log(`Texto cifrado: ${textoCifrado.length} caracteres`);
-  // const textoDescifrado = await desencriptarConClavePrivada(textoCifrado, clavePrivadaDesencriptada);
-  // console.log(`Texto descifrado: ${textoDescifrado}`);
-
-  const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
-  if (!contrato) {
-    throw new Error(`No se encontró el contrato para la elección ${eleccionId}`);
-  }
+  // const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
+  // if (!contrato) {
+  //   throw new Error(`No se encontró el contrato para la elección ${eleccionId}`);
+  // }
 
   // console.log(contrato);
 
-//--------------
-  // console.log = function () {}; // Desactiva console.log para evitar demasiada salida
-//--------------
+  //--------------
+  const consoleLog = console.log;
+  console.log = function () {}; // Desactiva console.log para evitar demasiada salida
+  //--------------
 
   let contadorVotos = 0;
   let compromisoIdx = 0;
 
   while (contadorVotos < numeroVotos) {
 
-    const votantesRegistrados = registroVotanteEleccionDAO.obtenerVotantesEleccion(bd,
+    const votantes = votanteDatosEleccionDAO.obtenerDatosVotantes(bd,
       {
         eleccionId,
-        compromisoIdx
+        compromisoIdx,
+        max: 1000
       });
 
-    if (!votantesRegistrados || votantesRegistrados.length === 0) {
+    if (!votantes || votantes.length === 0) {
       console.log(`No hay votantes registrados para la elección ${eleccionId} con compromisoIdx ${compromisoIdx}.`);
       break;
     }
-
-    compromisoIdx += votantesRegistrados.length;
+   
+    compromisoIdx += votantes.length;
     
-    for (let idx = 0; idx < votantesRegistrados.length && contadorVotos < numeroVotos; idx++) {
+    for (const votante of votantes) {
 
-      const registroVotante = votantesRegistrados[idx];
+      if(await tienePapeleta(votante.tokenId, votante.cuenta)) {
 
-      const datosPrivados = await desencriptarJSON(registroVotante.datosPrivados, CLAVE_PRUEBAS);
+        console.log(`Votando ${votante.votanteId} en la elección ${eleccionId}.`);
 
-      // console.log(`Datos privados del votante ${registroVotante.votanteId}:`, datosPrivados);
+        const voto = { voto: await encriptarConClavePublica(votante.voto, eleccion.claveVotoPublica) };
 
-      if(await tienePapeleta(contrato.tokenId, datosPrivados.cuentaAddr)) {
-
-        console.log(`Votando ${registroVotante.votanteId} en la elección ${eleccionId}.`);
-
-        const partidoElegido = elegirPartido(bd, eleccionId);
-
-        // console.log('Partido elegido: ', partidoElegido);
-
-        const valorVoto = {
-          siglas: partidoElegido.siglas,
-          nonce: randomBytes(16).toString('hex')
-        };
-
-        const voto = { voto: await encriptarConClavePublica(JSON.stringify(valorVoto)) };
-
-        // console.log(`Voto cifrado: ${voto.voto}`);
-
-        await votar(
-          datosPrivados.cuentaMnemonic, 
-          contrato.appAddr, 
-          contrato.tokenId, voto);
+        const resultadoVotar = await votar(
+          votante.mnemonico, 
+          votante.appAddr, 
+          votante.tokenId, voto);
 
         contadorVotos++;
+
+        votanteDatosEleccionDAO.actualizar(bd, 
+          { 
+            eleccionId, 
+            votanteId: votante.votanteId 
+          }, 
+          { 
+            votoTxId: resultadoVotar.txIds[0]
+          });
+
+        console.log(`Voto registrado para ${votante.votanteId} en la elección ${eleccionId}. TxId: ${resultadoVotar.txIds[0]}`);
+
+        if(contadorVotos >= numeroVotos) {
+          console.log(`Se alcanzó el número máximo de votos: ${numeroVotos}`);
+          break;
+        }
       }
     }
   }
+
+  console.log = consoleLog;
+  console.log(`Total de votos realizados: ${contadorVotos} para la elección ${eleccionId}.`);
 
 } catch (err) {
   console.error('Error en el test de votaciones:', err);
@@ -197,8 +155,8 @@ try {
 
 } finally {
   cerrarConexionBD();
+  process.exit(0);
 }
 
-process.exit(0);
 
 

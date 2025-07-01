@@ -74,7 +74,7 @@ export class RegistroVotanteEleccionDAO extends BaseDAO {
 
   //----------------------------------------------------------------------------
 
-  obtenerVotantesEleccion(bd, { eleccionId, compromisoIdx, max = 100 }) {
+  obtenerRegistrosEleccion(bd, { eleccionId, compromisoIdx, max = 100 }) {
 
     return bd.prepare(`
       

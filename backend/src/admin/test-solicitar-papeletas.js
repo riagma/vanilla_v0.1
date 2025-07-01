@@ -102,7 +102,7 @@ try {
 
   while (contadorPapeletas < numeroPapeletas) {
 
-    const votantesRegistrados = registroVotanteEleccionDAO.obtenerVotantesEleccion(bd,
+    const votantesRegistrados = registroVotanteEleccionDAO.obtenerRegistrosEleccion(bd,
       {
         eleccionId,
         compromisoIdx

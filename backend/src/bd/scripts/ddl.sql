@@ -162,3 +162,87 @@ CREATE TABLE AnuladorZK (
 );
 
 
+-- Sólo para pruebas
+
+-- Datos Votante:
+
+-- votanteId
+-- eleccionId
+
+-- cuenta
+-- mnemonico
+-- clave
+-- anulador
+
+-- compromiso
+-- compromisoIdx
+-- compromisoTxId
+
+-- appId
+-- appAddr
+-- tokenId
+
+-- tamBloque
+-- tamResto
+-- bloque
+-- bloqueIdx
+
+-- merkle11.json
+-- compromisos.json
+
+-- anulador_hash
+
+-- proof
+-- publicInputs
+
+-- voto
+
+CREATE TABLE VotanteDatosEleccion (
+  votanteId TEXT NOT NULL,
+  eleccionId INTEGER NOT NULL,
+
+  cuenta TEXT NOT NULL,
+  mnemonico TEXT NOT NULL,
+  secreto TEXT NOT NULL,
+  anulador TEXT NOT NULL,
+
+  anuladorHash TEXT NOT NULL,
+
+  compromiso TEXT NOT NULL,
+  compromisoIdx INTEGER NOT NULL,
+  compromisoTxId TEXT NOT NULL,
+
+  appId TEXT NOT NULL,
+  appAddr TEXT NOT NULL,
+  tokenId TEXT NOT NULL,
+
+  numBloques INTEGER NOT NULL,
+  tamBloque INTEGER NOT NULL,
+  tamResto INTEGER NOT NULL,
+  txIdRaizInicial TEXT NOT NULL,
+  urlCircuito TEXT NOT NULL,
+
+  bloque INTEGER NOT NULL,
+  bloqueIdx INTEGER NOT NULL,
+
+  raiz TEXT NOT NULL,
+  txIdRaiz TEXT NOT NULL,
+  urlCompromisos TEXT NOT NULL,
+
+  proof TEXT NOT NULL,
+  publicInputs TEXT NOT NULL,
+
+  claveVotoPublica TEXT NOT NULL,
+
+  voto TEXT NOT NULL,
+  votoEnc TEXT NOT NULL,
+  votoTxId TEXT NOT NULL,
+
+  PRIMARY KEY (votanteId, eleccionId),
+  UNIQUE(eleccionId, compromisoIdx)
+);
+
+-- CREATE INDEX idx_VotanteDatosEleccion_compromisoIdx ON VotanteDatosEleccion(eleccionId, compromisoIdx);
+
+
+

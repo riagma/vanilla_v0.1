@@ -15,7 +15,6 @@ import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
 import { TextDecoder, TextEncoder } from 'node:util';
 
 import { CLAVE_MAESTRA } from '../utiles/constantes.js';
-import { ResultadoEleccionDAO } from '../bd/daos/ResultadoEleccionDAO.js';
 
 
 const codificador = new TextEncoder();
@@ -106,7 +105,7 @@ try {
 
   console.log(eleccion.nombre);
 
-  const clavePrivada = await desencriptar(eleccion.claveVotoPrivada, CLAVE_MAESTRA);
+  const clavePrivada = await desencriptar(eleccion.claveVotoPrivadaEncriptada, CLAVE_MAESTRA);
   // console.log(`Clave privada desencriptada: ${clavePrivada}`);
 
   const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
@@ -129,7 +128,7 @@ try {
       .address(contrato.appAddr)
       .notePrefix(prefijoNota)
       .minRound(contrato.rondaInicialAnuladores)
-      .limit(10)
+      .limit(1000)
       .nextToken(nextToken) 
       .do();
 
@@ -139,10 +138,8 @@ try {
       const nota = fromNote(txn.note);
       // console.log(nota);
 
-      // const votoDesencriptado = await desencriptarConClavePrivada(nota.voto, clavePrivada);
-      // TODO: Cambiar a desencriptarConClavePrivada
-      const votoDesencriptado = await desencriptar(nota.voto, CLAVE_MAESTRA);
-      console.log(`Voto desencriptado: (${votoDesencriptado})`);
+      const votoDesencriptado = await desencriptarConClavePrivada(nota.voto, clavePrivada);
+      // console.log(`Voto desencriptado: (${votoDesencriptado})`);
 
       let voto;
 
@@ -155,7 +152,7 @@ try {
       } 
 
       if (!voto.siglas) {
-        console.error(`Voto en blanco: ${votoDesencriptado}`);
+        // console.error(`Voto en blanco: ${votoDesencriptado}`);
         resultadosEleccion.votosBlancos++;
         continue;
       }
@@ -163,7 +160,7 @@ try {
       const resultadosPartido = resultadosPartidos.get(voto.siglas);
 
       if (!resultadosPartido) {
-        console.error(`Partido no encontrado para las siglas: ${voto.siglas}`);
+        // console.error(`Partido no encontrado para las siglas: ${voto.siglas}`);
         resultadosEleccion.votosNulos++;
         continue; 
       }
@@ -172,7 +169,7 @@ try {
       resultadosEleccion.votantes++;
     }
     
-    nextToken = undefined; // response.nextToken? response.nextToken : undefined;
+    nextToken = response.nextToken? response.nextToken : undefined;
 
   } while (nextToken);
 
@@ -194,6 +191,13 @@ try {
 
   resultadoEleccionDAO.actualizar(bd, { eleccionId }, resultadosEleccion);
   console.log(resultadosEleccion);
+
+  eleccionDAO.actualizar(bd, { id: eleccionId }, 
+    { 
+      fechaInicioRegistro: Date.now().toLocaleString(),
+      clavePrivada,
+    });
+
 
 } catch (err) {
   console.error('Error cerrando el registro de raíces:', err);

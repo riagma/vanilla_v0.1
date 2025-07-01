@@ -183,7 +183,7 @@ export async function establecerEstadoContrato(bd, { contratoId, estado }) {
   const args = [BigInt(estado)];
   const resultado = await _llamarMetodoVoto3(bd, {
     contratoId,
-    method: ABIleerEstadoContrato,
+    method: ABIestablecerEstadoContrato,
     args,
   });
   return resultado.returns[0].returnValue;

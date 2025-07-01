@@ -96,7 +96,7 @@ export async function calcularPruebaDatosPublicos({
 
   const proofHash = calcularSha256(proof);
 
-  console.log('Prueba generada:', proofHash, publicInputs);
+  // console.log('Prueba generada:', proofHash, publicInputs);
 
   return { proof, proofHash, publicInputs };
 }
