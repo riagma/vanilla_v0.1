@@ -1,10 +1,13 @@
 import { Router } from 'express';
+import { rutasRegistro } from './rutasRegistro.js';
 import { verificarTokenVotante } from '../middlewares/mwAutenticacion.js';
 import { controladorVotante } from '../controladores/controladorVotante.js';
 import { validarEsquema } from '../middlewares/mwValidacion.js';
 import { esquemaRegistroVotanteEleccionPeticion } from '../tipos/esquemas.js';
 
 const router = Router();
+
+router.use('/registro', rutasRegistro);
 
 // Middleware de autenticación para todas las rutas
 router.use(verificarTokenVotante);

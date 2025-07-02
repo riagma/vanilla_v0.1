@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { SECRETO } from '../utiles/constantes.js';
-import { daos } from '../bd/daos.js';
+import { votanteDAO, administradorDAO } from '../bd/DAOs.js';
 
 export const verificarTokenVotante = async (peticion, respuesta, siguiente) => {
   try {
@@ -12,7 +12,7 @@ export const verificarTokenVotante = async (peticion, respuesta, siguiente) => {
     }
 
     // Cargar datos del votante desde DB
-    const votante = await daos.votante.obtenerPorDNI(peticion.bd, payload.dni);
+    const votante = await votanteDAO.obtenerPorDNI(peticion.bd, payload.dni);
     if (!votante) {
       return respuesta.status(403).json({ error: 'Votante no encontrado' });
     }
@@ -35,7 +35,7 @@ export const verificarTokenAdmin = async (peticion, respuesta, siguiente) => {
     }
 
     // Cargar datos del admin desde DB
-    const admin = await daos.administrador.obtenerPorCorreo(peticion.bd, payload.correo);
+    const admin = await administradorDAO.obtenerPorCorreo(peticion.bd, payload.correo);
     if (!admin) {
       return respuesta.status(403).json({ error: 'Administrador no encontrado' });
     }

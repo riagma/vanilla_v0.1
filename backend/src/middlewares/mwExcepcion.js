@@ -1,7 +1,7 @@
 import { ErrorApi } from '../errores/ErrorApi.js';
 
 // Middleware de manejo de errores para Express
-export function mwExcepcion(error, peticion, respuesta, siguiente) {
+export function mwExcepcion(error, _peticion, respuesta, _siguiente) {
   if (error instanceof ErrorApi) {
     return respuesta.status(error.codigo).json({
       error: error.message

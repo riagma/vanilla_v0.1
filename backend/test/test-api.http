@@ -4,6 +4,13 @@
 
 ##------------------------------------------------------------------------------
 
+### Obtener registro de elección (Votante)
+GET {{baseUrl}}/api/registro/1
+Authorization: Basic OTAwMDAwMDBaOlBhc3N3b3JkMTIzIQ==
+
+
+##------------------------------------------------------------------------------
+
 ### LOGIN de votante
 POST {{baseUrl}}/api/login/votante
 Content-Type: application/json
@@ -27,10 +34,6 @@ Authorization: Bearer {{tokenVotante}}
 
 ### Obtener resultados de elección (Votante)
 GET {{baseUrl}}/api/votante/elecciones/3/resultados
-Authorization: Bearer {{tokenVotante}}
-
-### Obtener registro de elección (Votante)
-GET {{baseUrl}}/api/votante/elecciones/3/registro
 Authorization: Bearer {{tokenVotante}}
 
 ### Crear registro de elección (Votante)

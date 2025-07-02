@@ -3,58 +3,34 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { PUERTO } from './utiles/constantes.js';
-import { mwBaseDatos } from './middlewares/mwBaseDatos.js';
-import { mwExcepcion } from './middlewares/mwExcepcion.js';
-import { rutasLogin } from './rutas/rutasLogin.js';
-import { rutasAdmin } from './rutas/rutasAdmin.js';
-import { rutasVotante } from './rutas/rutasVotante.js';
+import { rutasApi } from './rutas/rutasApi.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const rutaFrontend = path.join(__dirname, '../../frontend/dist');
+const rutaFrontend = path.join(__dirname, './public');
+const rutaDescargas = path.join(__dirname, './circuits');
 
 export async function iniciarServidor() {
   const aplicacion = express();
 
   // Middlewares globales
   aplicacion.use(cors());
-  aplicacion.use(express.json());
-  
-  // Prefijo común para todas las rutas API
-  const routerAPI = express.Router();
-  
-  // Aplicar middleware de BD solo a las rutas API
-  routerAPI.use(mwBaseDatos);
-  
-  aplicacion.use('/api', routerAPI);
 
-  // Rutas API
-  routerAPI.use('/login', rutasLogin);
-  routerAPI.use('/admin', rutasAdmin);
-  routerAPI.use('/votante', rutasVotante);
+  aplicacion.use('/api', express.json());
+  aplicacion.use('/api', rutasApi);
 
-  // Middleware para capturar 404s en rutas API
-  routerAPI.use((peticion, respuesta, siguiente) => {
-    respuesta.status(404).json({
-      error: 'API endpoint no encontrado',
-      ruta: peticion.originalUrl
-    });
-  });
-
-  // Middleware para errores en rutas API
-  routerAPI.use(mwExcepcion);
-  
-  // Servidor estático para el frontend
   aplicacion.use(express.static(rutaFrontend));
 
-  // Ruta catch-all para SPA
-  aplicacion.get('*', (peticion, respuesta) => {
-    // Ignorar peticiones a la API (ya manejadas anteriormente)
-    if (peticion.originalUrl.startsWith('/api/')) {
-      return siguiente();
-    }
+  aplicacion.use('/circuits', express.static(rutaDescargas));
 
-    // Servir index.html para todas las demás rutas
+  // Ruta catch-all para SPA (debe ir después de las rutas de la API y de los estáticos)
+  aplicacion.get('*', (peticion, respuesta) => {
+    if (peticion.path.startsWith('/circuits')) {
+      return respuesta.status(404).send('Archivo no encontrado');
+    }
+    // Para cualquier otra petición GET que no sea de la API ni un archivo estático,
+    // sirve el index.html principal. Esto permite que el enrutamiento del lado
+    // del cliente (React, Vue, Angular) se encargue de la ruta.
     respuesta.sendFile(path.join(rutaFrontend, 'index.html'));
   });
 
@@ -66,3 +42,29 @@ export async function iniciarServidor() {
     });
   });
 }
+
+// Ejemplo de cómo lo usarías en tu SPA
+// async function cargarFicheroCircuito(nombreFichero) {
+//   try {
+//     // La URL coincide con la ruta que acabas de configurar en Express
+//     const respuesta = await fetch(`/circuitos/${nombreFichero}`);
+
+//     if (!respuesta.ok) {
+//       throw new Error(`Error al cargar el fichero: ${respuesta.statusText}`);
+//     }
+
+//     // .arrayBuffer() es ideal para datos binarios (como ficheros .gz o .wasm)
+//     const datosBinarios = await respuesta.arrayBuffer();
+
+//     console.log(`Fichero '${nombreFichero}' cargado en memoria.`);
+//     // Ahora puedes usar 'datosBinarios' para tus cálculos
+//     return datosBinarios;
+
+//   } catch (error) {
+//     console.error('No se pudo cargar el fichero del circuito:', error);
+//   }
+// }
+
+// --- Uso ---
+// Llama a esta función cuando necesites el fichero
+// const miCircuito = await cargarFicheroCircuito('merkle11.json.gz');

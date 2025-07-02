@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { SECRETO } from '../utiles/constantes.js';
-import { daos } from '../bd/daos.js';
+import { daos } from '../bd/DAOs.js';
 import bcrypt from 'bcrypt';
 
 export const serviciosAutenticacion = {

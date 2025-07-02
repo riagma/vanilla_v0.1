@@ -1,4 +1,4 @@
-import { daos } from '../bd/daos.js';
+import { daos } from '../bd/DAOs.js';
 
 export const serviciosResultados = {
   // Operaciones para ResultadoEleccion

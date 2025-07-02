@@ -1,6 +1,44 @@
-import { daos } from '../bd/daos.js';
+import { contratoBlockchainDAO, daos, eleccionDAO, pruebaZKDAO, registroVotanteEleccionDAO } from '../bd/DAOs.js';
+import { DatosVotanteEleccion } from '../tipos/DatosVotanteEleccion.js';
 
 export const serviciosRegistros = {
+
+  // Obtener registro por DNI y elección
+  obtenerRegistroVotanteEleccion(bd, votanteId, eleccionId) {
+    console.log(`Obteniendo registro de votante ${votanteId} para elección ${eleccionId}`);
+
+    const eleccion = eleccionDAO.obtenerPorId(bd, { id: eleccionId });
+    if (!eleccion) {
+      console.log(`Elección no encontrada: ${eleccionId}`);
+      return null;
+    }
+    const registro = registroVotanteEleccionDAO.obtenerPorId(bd, { votanteId, eleccionId });
+    if (!registro) {
+      console.log(`Registro no encontrado para votante ${votanteId} en elección ${eleccionId}`);
+      return null;
+    }
+
+    const datosVotanteEleccion = new DatosVotanteEleccion({ votanteId, eleccionId });
+
+    datosVotanteEleccion.compromiso = registro.compromiso;
+    datosVotanteEleccion.compromisoIdx = registro.compromisoIdx;
+    datosVotanteEleccion.compromisoTxId = registro.compromisoTxId;
+    datosVotanteEleccion.datosPrivados = registro.datosPrivados;
+
+    const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
+
+    if (contrato) {
+      datosVotanteEleccion.appId = contrato.appId;
+      datosVotanteEleccion.appAddr = contrato.appAddr;
+      datosVotanteEleccion.tokenId = contrato.tokenId;
+    }
+
+    return datosVotanteEleccion;
+  },
+
+  //----------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
+
   // Crear un registro de votante en elección
   async crear(bd, datosRegistro) {
     return await daos.registroVotanteEleccion.crear(bd, datosRegistro);
@@ -19,11 +57,6 @@ export const serviciosRegistros = {
   // Obtener todos los registros
   async obtenerTodos(bd) {
     return await daos.registroVotanteEleccion.obtenerTodos(bd);
-  },
-
-  // Obtener registro por DNI y elección
-  async obtenerPorId(bd, votanteId, eleccionId) {
-    return await daos.registroVotanteEleccion.obtenerPorId(bd, { votanteId, eleccionId });
   },
 
   // Obtener registros por elección
