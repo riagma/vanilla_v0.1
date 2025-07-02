@@ -1,17 +1,17 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-import { getToken, getTipoUsuario } from './contexto.js';
+import { contexto } from './contexto.js';
+import { servicioIndexedDB } from './servicios/servicioIndexedDB.js';
+
 import { crearMarco } from './componentes/marco.js';
 import { obtenerVista, vistaInicial, navegarA } from './rutas/enrutado.js';
 
-// Crear marco una única vez y guardar función de limpieza
-const app = document.getElementById('app');
-const { contenedorMarco, limpiarMarco } = crearMarco(app);
-
-let contenedorPrincipal = contenedorMarco;
-
+//--------------
+let contenedorMarco = null; 
 let limpiarVistaActual = null;
+let limpiarMarco = null;
+//--------------
 
 //------------------------------------------------------------------------------
 
@@ -33,43 +33,27 @@ function limpiarAplicacion() {
 //------------------------------------------------------------------------------
 
 function renderizar() {
-  const token = getToken();
+
   const hash = location.hash.slice(1) || '/';
 
-  const pistaToken = token?.slice(-5) || ''; 
-
-  // const contenedorPrincipalDOM = document.getElementById(contenedorMarco);
-
-  // if(!contenedorPrincipal.isSameNode(contenedorPrincipalDOM)) {
-  //   console.log('Actualizando contenedor principal...');
-  //   contenedorPrincipal = contenedorPrincipalDOM;
-  // }
-
-  //--------------
-
-  console.log(`Renderizando vista para hash: ${hash} con token: ...${pistaToken}`);
+  console.log(`Renderizando vista: ${hash}`);
 
   limpiarVistaActual?.();
   limpiarVistaActual = null;
-  
-  // Si no hay token, mostrar login
-  if (!token) {
-    hash === '/' ? limpiarVistaActual = vistaInicial(contenedorPrincipal) : navegarA('/');
-    return;
-  }
 
-  //--------------
+  // Si no hay usuario, mostrar login
+  // if (!contexto.getUsuario()) {
+  //   hash === '/' ? limpiarVistaActual = vistaInicial(contenedorMarco) : navegarA('/');
+  //   return;
+  // }
 
-  // Si hay token, mostrar vista correspondiente
-  const tipoUsuario = getTipoUsuario();
-  
   try {
-    const vista = obtenerVista(tipoUsuario, hash);
+    const vista = obtenerVista(hash);
     if (vista) {
-      limpiarVistaActual = vista(contenedorPrincipal);
+      limpiarVistaActual = vista(contenedorMarco);
     } else {
       // Mostrar alerta en lugar de redirigir
-      alert(`La ruta "${hash}" no existe`);
+      // alert(`La ruta "${hash}" no existe`);
       // Revertir la URL al estado anterior sin causar nuevo renderizado
       history.pushState(null, '', location.pathname);
     }
@@ -81,30 +65,66 @@ function renderizar() {
 
 //------------------------------------------------------------------------------
 
-console.log('Inicializando aplicación...');
+async function inicializarAplicacion() {
+  console.log('Inicializando aplicación...');
+
+  // Inicializar IndexedDB
+  try {
+    console.log('Inicializando IndexedDB...');
+    const resultado = await servicioIndexedDB.inicializar();
+    if (!resultado) {
+      throw new Error('No se pudo inicializar IndexedDB');
+    }
+  } catch (error) {
+    console.error('Error al inicializar IndexedDB:', error);
+    // Mostrar mensaje de error en la interfaz
+    app.innerHTML = `
+    <div class="alert alert-danger mt-5" role="alert">
+      <h4 class="alert-heading">Error crítico</h4>
+      <p>No se pudo inicializar el almacenamiento local del navegador (IndexedDB).</p>
+      <hr>
+      <p class="mb-0">La aplicación no puede funcionar correctamente. Prueba a recargar la página o usa otro navegador.</p>
+    </div>
+  `;
+    // Opcional: deshabilitar más lógica
+    throw error; // O simplemente return para no seguir ejecutando
+  }
+
+  const app = document.getElementById('app');
+  const marco = crearMarco(app);
+  contenedorMarco = marco.contenedorMarco;
+  limpiarMarco = marco.limpiarMarco;
+  console.log('Marco creado:', contenedorMarco);
+
+  renderizar();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', inicializarAplicacion);
+} else { inicializarAplicacion(); }
 
 // Escuchar cambios de navegación
 window.addEventListener('hashchange', renderizar);
-window.addEventListener('DOMContentLoaded', renderizar);
 window.addEventListener('beforeunload', () => { limpiarAplicacion(); });
 
+//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
 const observer = new MutationObserver((mutationsList) => {
 
-  for(const mutation of mutationsList) {
+  for (const mutation of mutationsList) {
 
-    if(mutation.type === 'childList') {
+    if (mutation.type === 'childList') {
 
-      const padreContenedorActual = contenedorPrincipal.parentNode;
+      const padreContenedorActual = contenedorMarco.parentNode;
 
-      if(!contenedorPrincipal.isConnected) {
+      if (!contenedorMarco.isConnected) {
 
         console.group('El contenedor principal ha sido removido o reemplazado');
         console.trace();
         console.groupEnd();
 
-        contenedorPrincipal = document.getElementById('contenedorMarco');
+        contenedorMarco = document.getElementById('contenedorMarco');
       }
     }
   }

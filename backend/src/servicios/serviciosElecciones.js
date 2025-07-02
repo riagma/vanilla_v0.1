@@ -1,4 +1,4 @@
-import { daos } from '../bd/DAOs.js';
+import { daos, eleccionDAO } from '../bd/DAOs.js';
 
 export const serviciosElecciones = {
 
@@ -6,7 +6,19 @@ export const serviciosElecciones = {
   //----------------------------------------------------------------------------
 
   async obtenerTodas(bd) {
-    return await daos.eleccion.obtenerTodos(bd);
+    const campos = [
+      'id', 
+      'nombre',
+      'descripcion',
+      'fechaInicioRegistro',
+      'fechaFinRegistro',
+      'fechaInicioVotacion', 
+      'fechaFinVotacion',
+      'fechaEscrutinio',
+      'claveVotoPublica',
+      'claveVotoPrivada',
+    ];
+    return await eleccionDAO.obtenerTodos(bd, campos);
   },
 
   //----------------------------------------------------------------------------

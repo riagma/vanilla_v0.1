@@ -1,10 +1,10 @@
-import { getToken } from '../contexto.js';
+import { contexto } from '../contexto.js';
 
 const BASE = '';
 
 async function llamarApi(ruta, opciones = {}) {
   const headers = opciones.headers || {};
-  const token = getToken();
+  const token = contexto.getToken();
   
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;

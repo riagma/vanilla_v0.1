@@ -5,10 +5,10 @@ import {
   esquemaDetalleEleccion 
 } from '../modelo/esquemas.js';
 
-export const servicioVotante = {
+export const servicioEleccion = {
   async cargarElecciones() {
     try {
-      const elecciones = await api.get('/api/votante/eleccion');
+      const elecciones = await api.get('/api/eleccion/disponibles');
       return validarDatos(elecciones, esquemaElecciones);
     } catch (error) {
       throw new Error('Error al cargar elecciones: ' + error.message);
@@ -31,7 +31,7 @@ export const servicioVotante = {
         eleccion,
         partidos,
         resultados,
-        registroVotante
+        registroEleccion
       ] = await Promise.all([
         api.get(`/api/votante/eleccion/${idEleccion}`),
         api.get(`/api/votante/eleccion/${idEleccion}/partidos`),
@@ -43,7 +43,7 @@ export const servicioVotante = {
         eleccion,
         partidos,
         resultados,
-        registroVotante
+        registroEleccion
       };
 
       return validarDatos(detalle, esquemaDetalleEleccion);

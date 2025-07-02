@@ -10,7 +10,7 @@ const router = Router();
 router.use('/registro', rutasRegistro);
 
 // Middleware de autenticación para todas las rutas
-router.use(verificarTokenVotante);
+// router.use(verificarTokenVotante);
 
 // Rutas del votante
 router.get('/', controladorVotante.obtenerDatosVotante);
@@ -19,7 +19,7 @@ router.get('/elecciones', controladorVotante.obtenerEleccionesDisponibles);
 router.get('/elecciones/:idEleccion', controladorVotante.obtenerEleccionPorId);
 router.get('/elecciones/:idEleccion/partidos', controladorVotante.obtenerPartidosEleccion);
 router.get('/elecciones/:idEleccion/resultados', controladorVotante.obtenerResultadosEleccion);
-router.get('/elecciones/:idEleccion/registro', controladorVotante.obtenerRegistroVotanteEleccion);
+router.get('/elecciones/:idEleccion/contrato', controladorVotante.obtenerRegistroVotanteEleccion);
 
 router.post(
   '/elecciones/:idEleccion/registro',

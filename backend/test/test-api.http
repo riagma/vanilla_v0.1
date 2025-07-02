@@ -21,23 +21,23 @@ Content-Type: application/json
 }
 
 ### Listar elecciones disponibles (Votante)
-GET {{baseUrl}}/api/votante/elecciones
+GET {{baseUrl}}/api/votante/eleccion
 Authorization: Bearer {{tokenVotante}}
 
 ### Obtener elección (Votante)
-GET {{baseUrl}}/api/votante/elecciones/3
+GET {{baseUrl}}/api/votante/eleccion/3
 Authorization: Bearer {{tokenVotante}}
 
 ### Obtener partidos de elección (Votante)
-GET {{baseUrl}}/api/votante/elecciones/3/partidos
+GET {{baseUrl}}/api/votante/eleccion/3/partidos
 Authorization: Bearer {{tokenVotante}}
 
 ### Obtener resultados de elección (Votante)
-GET {{baseUrl}}/api/votante/elecciones/3/resultados
+GET {{baseUrl}}/api/votante/eleccion/3/resultados
 Authorization: Bearer {{tokenVotante}}
 
 ### Crear registro de elección (Votante)
-POST {{baseUrl}}/api/votante/elecciones/3/registro
+POST {{baseUrl}}/api/votante/eleccion/3/registro
 Authorization: Bearer {{tokenVotante}}
 Content-Type: application/json
 
@@ -47,7 +47,7 @@ Content-Type: application/json
 }
 
 ### Eliminar registro de elección (Votante)
-DELETE {{baseUrl}}/api/votante/elecciones/3/registro
+DELETE {{baseUrl}}/api/votante/eleccion/3/registro
 Authorization: Bearer {{tokenVotante}}
 
 ##------------------------------------------------------------------------------
@@ -103,5 +103,5 @@ DELETE {{baseUrl}}/api/admin/elecciones/1
 Authorization: Bearer {{tokenAdmin}}
 
 ### Ver detalle de elección (Votante)
-GET {{baseUrl}}/api/votante/elecciones/1
+GET {{baseUrl}}/api/votante/eleccion/1
 Authorization: Bearer {{tokenVotante}}

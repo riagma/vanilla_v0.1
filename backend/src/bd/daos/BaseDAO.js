@@ -17,13 +17,19 @@ export class BaseDAO {
     }
   }
 
-  obtenerTodos(bd) {
-    return bd.prepare(`SELECT * FROM ${this.nombreTabla}`).all();
+  obtenerTodos(bd, campos = null) {
+    const seleccion = Array.isArray(campos) && campos.length > 0
+      ? campos.map(c => `"${c}"`).join(', ')
+      : '*';
+    return bd.prepare(`SELECT ${seleccion} FROM ${this.nombreTabla}`).all();
   }
 
-  obtenerPorId(bd, id) {
+  obtenerPorId(bd, id, campos = null) {
+    const seleccion = Array.isArray(campos) && campos.length > 0
+      ? campos.map(c => `"${c}"`).join(', ')
+      : '*';
     const { condiciones, valores } = this.crearWhere(id);
-    return bd.prepare(`SELECT * FROM ${this.nombreTabla} WHERE ${condiciones}`).get(valores);
+    return bd.prepare(`SELECT ${seleccion} FROM ${this.nombreTabla} WHERE ${condiciones}`).get(valores);
   }
 
   crear(bd, datos) {

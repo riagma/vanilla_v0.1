@@ -1,39 +1,38 @@
-import { extraerParametrosRuta } from '../utiles/utiles.js';
+import { contexto } from '../contexto.js';
 import { vistaLogin } from '../vistas/vistaLogin.js';
 import { vistaVotante } from '../vistas/vistaVotante.js';
-import { vistaAdmin } from '../vistas/vistaAdmin.js';
-import { vistaDetalleEleccion } from '../vistas/vistaDetalleEleccion.js';
+import { vistaEleccion } from '../vistas/vistaEleccion.js';
+import { extraerParametrosRuta } from '../utiles/utiles.js';
 
 export const RUTAS = {
-  VOTANTE: {
-    '/elecciones': (contenedor) => vistaVotante(contenedor),
-    '/elecciones/:id': (contenedor, params) => vistaDetalleEleccion(contenedor, parseInt(params.id))
-  },
-  ADMIN: {
-    '/elecciones': (contenedor) => vistaAdmin(contenedor),
-    '/elecciones/:id': null,
-  }
+  '/v': (contenedor) => vistaVotante(contenedor),
+  '/e/:id': (contenedor, params) => vistaEleccion(contenedor, parseInt(params.id))
 };
 
-export function obtenerVista(tipoUsuario, ruta) {
-  const rutasDisponibles = RUTAS[tipoUsuario];
-  if (!rutasDisponibles) {
-    throw new Error(`Tipo de usuario no válido: ${tipoUsuario}`);
+export function obtenerVista(ruta) {
+
+  if (!contexto.getUsuario() && ruta === '/') {
+    return (contenedor) => vistaLogin(contenedor);
+  } 
+  
+  if (!contexto.getUsuario()) {
+    console.log('No hay usuario autenticado, redirigiendo a login');
+    navegarA('/');
+    return;
   }
 
-  // Redirigir a '/elecciones' si el usuario tiene token y está intentando acceder a '/'
   if (ruta === '/') {
-    console.log(`Redirigiendo a '/elecciones' para el tipo de usuario: ${tipoUsuario}`);
-    navegarA('/elecciones');
-    return rutasDisponibles['/elecciones'];
+    console.log(`Redirigiendo a vista de votante...`);
+    navegarA('/v');
+    return;
   }
 
   // Usar extraerParametrosRuta de utiles.js
-  const [rutaBase, params] = extraerParametrosRuta(ruta, Object.keys(rutasDisponibles));
-  const vista = rutasDisponibles[rutaBase];
+  const [rutaBase, params] = extraerParametrosRuta(ruta, Object.keys(RUTAS));
+  const vista = RUTAS[rutaBase];
 
   if (!vista) {
-    throw new Error(`Ruta "${ruta}" no encontrada para ${tipoUsuario}`);
+    throw new Error(`Ruta "${ruta}" no encontrada`);
   }
 
   // Devolver una función que recibe el contenedor y aplica los parámetros

@@ -1,4 +1,4 @@
-import { observarContexto, getDatosVotante } from '../contexto.js';
+import { servicioEleccion } from '../servicios/servicioEleccion.js';
 import { servicioVotante } from '../servicios/servicioVotante.js';
 import { fichaEleccion } from '../componentes/fichaEleccion.js';
 import { navegarA } from '../rutas/enrutado.js';
@@ -9,13 +9,13 @@ export function vistaVotante(contenedor) {
   let destruida = false;
 
   function manejarVerDetalle(idEleccion) {
-    navegarA(`/elecciones/${idEleccion}`);
+    navegarA(`/e/${idEleccion}`);
   }
 
   async function cargarElecciones() {
     try {
       // console.log('Cargando elecciones...');
-      elecciones = await servicioVotante.cargarElecciones();
+      elecciones = await servicioEleccion.cargarElecciones();
       // console.log('Elecciones cargadas:', elecciones);
       if (destruida) return;
       renderizar();

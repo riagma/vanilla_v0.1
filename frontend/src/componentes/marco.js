@@ -1,12 +1,12 @@
-import { observarContexto, getToken, getUsuario } from '../contexto.js';
+import { contexto } from '../contexto.js';
 import { navegarA } from '../rutas/enrutado.js';
 import { servicioLogin } from '../servicios/servicioLogin.js';
 import { limpiarManejadores } from '../utiles/utiles.js';
 
 export function crearMarco(contenedor) {
   let manejadores = new Set();
-  let token = getToken();
-  let usuario = getUsuario();
+  let token = contexto.getToken();
+  let usuario = contexto.getUsuario();
 
   function renderizarCabecera() {
     limpiarManejadores(manejadores);
@@ -71,7 +71,7 @@ export function crearMarco(contenedor) {
     renderizarCabecera();
   }
 
-  const cancelarSuscripcion = observarContexto((contextoInmutable) => {
+  const cancelarSuscripcion = contexto.observarContexto((contextoInmutable) => {
     if (token !== contextoInmutable.token || usuario !== contextoInmutable.usuario) {
       token = contextoInmutable.token;
       usuario = contextoInmutable.usuario;

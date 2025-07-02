@@ -1,17 +1,17 @@
-import { observarContexto, getDatosVotante } from '../contexto.js';
-import { servicioVotante } from '../servicios/servicioVotante.js';
+import { contexto } from '../contexto.js';
+import { servicioEleccion } from '../servicios/servicioEleccion.js';
 import { formatearFecha } from '../utiles/formateo.js';
 import { navegarA } from '../rutas/enrutado.js';
 
-export function vistaDetalleEleccion(contenedor, idEleccion) {
+export function vistaEleccion(contenedor, idEleccion) {
   let detalleEleccion = null;
   let manejadores = new Set();
-  let datosVotanteActual = getDatosVotante();
+  let datosEleccionActual = contexto.getDatosEleccion();
   let destruida = false;
 
   async function cargarDetalle() {
     try {
-      detalleEleccion = await servicioVotante.cargarDetalleEleccion(idEleccion);
+      detalleEleccion = await servicioEleccion.cargarDetalleEleccion(idEleccion);
       if (destruida) return;
       renderizar();
     } catch (error) {
@@ -48,25 +48,25 @@ export function vistaDetalleEleccion(contenedor, idEleccion) {
   }
 
   function renderizarAcciones(estadoActual) {
-    const registroVotante = detalleEleccion.registroVotante;
+    const registroEleccion = detalleEleccion.registroEleccion;
     
     if (estadoActual === 'REGISTRO') {
-      if (!registroVotante) {
+      if (!registroEleccion) {
         return `<button id="botonRegistro" class="btn btn-primary">Registrarme</button>`;
       }
       return `
         <div class="alert alert-info">
-          Estado de registro: ${registroVotante.estado}
-          ${registroVotante.motivoRechazo ? `<br>Motivo: ${registroVotante.motivoRechazo}` : ''}
+          Estado de registro: ${registroEleccion.estado}
+          ${registroEleccion.motivoRechazo ? `<br>Motivo: ${registroEleccion.motivoRechazo}` : ''}
         </div>
       `;
     }
     
     if (estadoActual === 'VOTACION') {
-      if (!registroVotante || registroVotante.estado !== 'ACEPTADO') {
+      if (!registroEleccion || registroEleccion.estado !== 'ACEPTADO') {
         return `<div class="alert alert-warning">No estás registrado para votar</div>`;
       }
-      if (!detalleEleccion.registroVotante.haVotado) {
+      if (!detalleEleccion.registroEleccion.haVotado) {
         return `<button id="botonVotar" class="btn btn-primary">Votar</button>`;
       }
       return `<div class="alert alert-success">Ya has votado en esta elección</div>`;
@@ -194,7 +194,7 @@ export function vistaDetalleEleccion(contenedor, idEleccion) {
       if (botonRegistro) {
         const manejarRegistro = async () => {
           try {
-            await servicioVotante.registrarEnEleccion(idEleccion);
+            await servicioEleccion.registrarEnEleccion(idEleccion);
             await cargarDetalle();
           } catch (error) {
             mostrarError(error.message);
@@ -220,11 +220,11 @@ export function vistaDetalleEleccion(contenedor, idEleccion) {
   cargarDetalle();
 
   // Suscripción a cambios del contexto
-  const cancelarSuscripcion = observarContexto((contextoInmutable) => {
+  const cancelarSuscripcion = contexto.observarContexto((contextoInmutable) => {
     if (destruida) return;
-    const nuevosDatosVotante = contextoInmutable.datosVotante;
-    if (JSON.stringify(nuevosDatosVotante) !== JSON.stringify(datosVotanteActual)) {
-      datosVotanteActual = nuevosDatosVotante;
+    const nuevosDatosEleccion = contextoInmutable.datosEleccion;
+    if (JSON.stringify(nuevosDatosEleccion) !== JSON.stringify(datosEleccionActual)) {
+      datosEleccionActual = nuevosDatosEleccion;
       cargarDetalle();
     }
   });
