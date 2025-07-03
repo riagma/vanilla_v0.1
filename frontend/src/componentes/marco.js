@@ -1,12 +1,11 @@
-import { contexto } from '../contexto.js';
+import { contexto } from '../modelo/contexto.js';
 import { navegarA } from '../rutas/enrutado.js';
 import { servicioLogin } from '../servicios/servicioLogin.js';
 import { limpiarManejadores } from '../utiles/utiles.js';
 
 export function crearMarco(contenedor) {
   let manejadores = new Set();
-  let token = contexto.getToken();
-  let usuario = contexto.getUsuario();
+  let nombre = contexto.getNombreVotante() || contexto.getNombreUsuario();
 
   function renderizarCabecera() {
     limpiarManejadores(manejadores);
@@ -17,10 +16,10 @@ export function crearMarco(contenedor) {
       return;
     }
 
-    cabeceraAcciones.innerHTML = token
+    cabeceraAcciones.innerHTML = nombre
       ? `
         <div class="d-flex align-items-center">
-          <span class="text-light me-3">${usuario?.nombre || ''}</span>
+          <span class="text-light me-3">${nombre}</span>
           <button id="botonCerrarSesion" class="btn btn-outline-light">Cerrar Sesión</button>
         </div>
       `
@@ -71,10 +70,10 @@ export function crearMarco(contenedor) {
     renderizarCabecera();
   }
 
-  const cancelarSuscripcion = contexto.observarContexto((contextoInmutable) => {
-    if (token !== contextoInmutable.token || usuario !== contextoInmutable.usuario) {
-      token = contextoInmutable.token;
-      usuario = contextoInmutable.usuario;
+  const cancelarSuscripcion = contexto.observarContexto((estado) => {
+    const nuevoNombre = estado.nombreVotante || estado.nombreUsuario;
+    if (nuevoNombre !== nombre) {
+      nombre = nuevoNombre;
       renderizarCabecera(); // Solo actualiza la cabecera
     }
   });

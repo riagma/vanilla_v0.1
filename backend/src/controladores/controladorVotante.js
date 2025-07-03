@@ -10,8 +10,9 @@ export const controladorVotante = {
 
   async obtenerDatosVotante(peticion, respuesta) {
     try {
+      const { dni, nombre, primerApellido, segundoApellido, correoElectronico } = peticion.votante;
       respuesta.json({
-        votante: peticion.votante
+        votante: { dni, nombre, primerApellido, segundoApellido, correoElectronico }
       });
     } catch (error) {
       respuesta.status(500).json({ error: error.message });

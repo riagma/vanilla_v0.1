@@ -1,6 +1,6 @@
-import { contexto } from '../contexto.js';
+import { contexto } from '../modelo/contexto.js';
 import { servicioEleccion } from '../servicios/servicioEleccion.js';
-import { formatearFecha } from '../utiles/formateo.js';
+import { formatearFecha } from '../utiles/utilesFechas.js';
 import { navegarA } from '../rutas/enrutado.js';
 
 export function vistaEleccion(contenedor, idEleccion) {

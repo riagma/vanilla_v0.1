@@ -15,8 +15,6 @@ export const serviciosElecciones = {
       'fechaInicioVotacion', 
       'fechaFinVotacion',
       'fechaEscrutinio',
-      'claveVotoPublica',
-      'claveVotoPrivada',
     ];
     return await eleccionDAO.obtenerTodos(bd, campos);
   },

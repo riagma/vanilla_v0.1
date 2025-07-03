@@ -9,7 +9,7 @@ export const servicioEleccion = {
   async cargarElecciones() {
     try {
       const elecciones = await api.get('/api/eleccion/disponibles');
-      return validarDatos(elecciones, esquemaElecciones);
+      return elecciones; //validarDatos(elecciones, esquemaElecciones);
     } catch (error) {
       throw new Error('Error al cargar elecciones: ' + error.message);
     }

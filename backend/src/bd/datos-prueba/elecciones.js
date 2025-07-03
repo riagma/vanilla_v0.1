@@ -1,8 +1,12 @@
 import { addDays, subDays } from 'date-fns';
 import { encriptar, generarParClavesRSA } from '../../utiles/utilesCrypto.js';
 import { CLAVE_MAESTRA } from '../../utiles/constantes.js'; 
+import { formatearFechaHora } from '../../utiles/utilesFechas.js';
 
 // const ESTADOS = ['PENDIENTE', 'REGISTRO', 'VOTACION', 'CERRADA'];
+
+const ahora = new Date();
+const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 0, 0, 0, 0);
 
 export async function cargarElecciones(bd) {
   console.log('\nIniciando carga de elecciones...');
@@ -14,37 +18,13 @@ export async function cargarElecciones(bd) {
     
     const elecciones = [
       {
-        nombre: "Elecciones Generales 2024",
-        descripcion: "Elecciones al Congreso y Senado",
-        fechaInicioRegistro: null,
-        fechaFinRegistro: null,
-        fechaInicioVotacion: null,
-        fechaFinVotacion: null,
-        fechaEscrutinio: null,
-        claveVotoPublica: clavePublica,
-        claveVotoPrivadaEncriptada: await encriptar(clavePrivada, CLAVE_MAESTRA),
-        claveVotoPrivada: null,
-      },
-      {
         nombre: "Elecciones Municipales 2025",
         descripcion: "Elecciones a los Ayuntamientos",
-        fechaInicioRegistro: null,
-        fechaFinRegistro: null,
-        fechaInicioVotacion: null,
-        fechaFinVotacion: null,
-        fechaEscrutinio: null,
-        claveVotoPublica: clavePublica,
-        claveVotoPrivadaEncriptada: await encriptar(clavePrivada, CLAVE_MAESTRA),
-        claveVotoPrivada: null,
-      },
-      {
-        nombre: "Referendum Constitucional 2025",
-        descripcion: "Consulta sobre la reforma constitucional",
-        fechaInicioRegistro: null,
-        fechaFinRegistro: null,
-        fechaInicioVotacion: null,
-        fechaFinVotacion: null,
-        fechaEscrutinio: null,
+        fechaInicioRegistro: formatearFechaHora(hoy, { incDD: -62 }),
+        fechaFinRegistro: formatearFechaHora(hoy, { incDD: -42 }),
+        fechaInicioVotacion: formatearFechaHora(hoy, { incDD: -41 }),
+        fechaFinVotacion: formatearFechaHora(hoy, { incDD: -31 }),
+        fechaEscrutinio: formatearFechaHora(hoy, { incDD: -30 }),
         claveVotoPublica: clavePublica,
         claveVotoPrivadaEncriptada: await encriptar(clavePrivada, CLAVE_MAESTRA),
         claveVotoPrivada: null,
@@ -52,15 +32,39 @@ export async function cargarElecciones(bd) {
       {
         nombre: "Elecciones Autonómicas 2025",
         descripcion: "Elecciones al Parlamento Autonómico",
-        fechaInicioRegistro: null,
-        fechaFinRegistro: null,
-        fechaInicioVotacion: null,
-        fechaFinVotacion: null,
-        fechaEscrutinio: null,
+        fechaInicioRegistro: formatearFechaHora(hoy, { incDD: -22 }),
+        fechaFinRegistro: formatearFechaHora(hoy, { incDD: -2 }),
+        fechaInicioVotacion: formatearFechaHora(hoy, { incDD: -1 }),
+        fechaFinVotacion: formatearFechaHora(hoy, { incDD: 9 }),
+        fechaEscrutinio: formatearFechaHora(hoy, { incDD: -10 }),
         claveVotoPublica: clavePublica,
         claveVotoPrivadaEncriptada: await encriptar(clavePrivada, CLAVE_MAESTRA),
         claveVotoPrivada: null,
-      }
+      },
+      {
+        nombre: "Elecciones Generales 2025",
+        descripcion: "Elecciones al Congreso y Senado",
+        fechaInicioRegistro: formatearFechaHora(hoy, { incDD: -1 }),
+        fechaFinRegistro: formatearFechaHora(hoy, { incDD: 21 }),
+        fechaInicioVotacion: formatearFechaHora(hoy, { incDD: 22 }),
+        fechaFinVotacion: formatearFechaHora(hoy, { incDD: 32 }),
+        fechaEscrutinio: formatearFechaHora(hoy, { incDD: 33 }),
+        claveVotoPublica: clavePublica,
+        claveVotoPrivadaEncriptada: await encriptar(clavePrivada, CLAVE_MAESTRA),
+        claveVotoPrivada: null,
+      },
+      {
+        nombre: "Referendum Constitucional 2025",
+        descripcion: "Consulta sobre la reforma constitucional",
+        fechaInicioRegistro: formatearFechaHora(hoy, { incDD: 30 }),
+        fechaFinRegistro: formatearFechaHora(hoy, { incDD: 50 }),
+        fechaInicioVotacion: formatearFechaHora(hoy, { incDD: 51 }),
+        fechaFinVotacion: formatearFechaHora(hoy, { incDD: 61 }),
+        fechaEscrutinio: formatearFechaHora(hoy, { incDD: 62 }),
+        claveVotoPublica: clavePublica,
+        claveVotoPrivadaEncriptada: await encriptar(clavePrivada, CLAVE_MAESTRA),
+        claveVotoPrivada: null,
+      },
     ];
 
     // Preparar statement para mejor rendimiento

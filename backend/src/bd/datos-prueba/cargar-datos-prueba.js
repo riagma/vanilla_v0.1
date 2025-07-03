@@ -2,9 +2,9 @@ import Database from 'better-sqlite3';
 import bcrypt from 'bcrypt';
 
 import { RUTA_BD } from '../../utiles/constantes.js';
-import { cargarVotantes } from '../datos-prueba/votantes.js';
-import { cargarElecciones } from '../datos-prueba/elecciones.js';
-import { cargarPartidos } from '../datos-prueba/partidos.js';
+import { cargarVotantes } from './votantes.js';
+import { cargarElecciones } from './elecciones.js';
+import { cargarPartidos } from './partidos.js';
 
 async function cargarDatosPrueba() {
   const args = process.argv.slice(2);

@@ -1,7 +1,7 @@
 const DB_NAME = 'Voto3';
 const DB_VERSION = 1;
 
-class ServicioIndexedDB {
+class Voto3IDB {
   constructor() {
     this.db = null;
   }
@@ -20,14 +20,14 @@ class ServicioIndexedDB {
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
 
-        // Crear tabla votantes con clave primaria simple 'nombre'
+        // Crear tabla votantes con clave primaria simple 'nombreUsuario'
         if (!db.objectStoreNames.contains('votantes')) {
-          db.createObjectStore('votantes', { keyPath: 'nombre' });
+          db.createObjectStore('votantes', { keyPath: 'nombreUsuario' });
         }
 
-        // Crear tabla elecciones con clave primaria compuesta [nombre, eleccionId]
+        // Crear tabla elecciones con clave primaria compuesta [nombreUsuario, eleccionId]
         if (!db.objectStoreNames.contains('elecciones')) {
-          db.createObjectStore('elecciones', { keyPath: ['nombre', 'eleccionId'] });
+          db.createObjectStore('elecciones', { keyPath: ['nombreUsuario', 'eleccionId'] });
         }
       };
     });
@@ -45,12 +45,13 @@ class ServicioIndexedDB {
     });
   }
 
-  async obtenerVotante(nombre) {
+  async obtenerVotante(nombreUsuario) {
+    console.log(`Obteniendo votante: ${nombreUsuario}`);
     const transaction = this.db.transaction(['votantes'], 'readonly');
     const store = transaction.objectStore('votantes');
     
     return new Promise((resolve, reject) => {
-      const request = store.get(nombre);
+      const request = store.get(nombreUsuario);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -67,12 +68,12 @@ class ServicioIndexedDB {
     });
   }
 
-  async eliminarVotante(nombre) {
+  async eliminarVotante(nombreUsuario) {
     const transaction = this.db.transaction(['votantes'], 'readwrite');
     const store = transaction.objectStore('votantes');
     
     return new Promise((resolve, reject) => {
-      const request = store.delete(nombre);
+      const request = store.delete(nombreUsuario);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -89,7 +90,7 @@ class ServicioIndexedDB {
     });
   }
 
-  // CRUD para Elecciones (clave compuesta [nombre, eleccionId])
+  // CRUD para Elecciones (clave compuesta [nombreUsuario, eleccionId])
   async crearEleccion(eleccion) {
     const transaction = this.db.transaction(['elecciones'], 'readwrite');
     const store = transaction.objectStore('elecciones');
@@ -101,18 +102,18 @@ class ServicioIndexedDB {
     });
   }
 
-  async obtenerEleccion(nombre, eleccionId) {
+  async obtenerEleccion(nombreUsuario, eleccionId) {
     const transaction = this.db.transaction(['elecciones'], 'readonly');
     const store = transaction.objectStore('elecciones');
     
     return new Promise((resolve, reject) => {
-      const request = store.get([nombre, eleccionId]);
+      const request = store.get([nombreUsuario, eleccionId]);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
   }
 
-  async obtenerEleccionesPorVotante(nombre) {
+  async obtenerEleccionesPorVotante(nombreUsuario) {
     const transaction = this.db.transaction(['elecciones'], 'readonly');
     const store = transaction.objectStore('elecciones');
     
@@ -120,7 +121,7 @@ class ServicioIndexedDB {
       const request = store.getAll();
       request.onsuccess = () => {
         const todasElecciones = request.result;
-        const eleccionesVotante = todasElecciones.filter(e => e.nombre === nombre);
+        const eleccionesVotante = todasElecciones.filter(e => e.nombreUsuario === nombreUsuario);
         resolve(eleccionesVotante);
       };
       request.onerror = () => reject(request.error);
@@ -138,12 +139,12 @@ class ServicioIndexedDB {
     });
   }
 
-  async eliminarEleccion(nombre, eleccionId) {
+  async eliminarEleccion(nombreUsuario, eleccionId) {
     const transaction = this.db.transaction(['elecciones'], 'readwrite');
     const store = transaction.objectStore('elecciones');
     
     return new Promise((resolve, reject) => {
-      const request = store.delete([nombre, eleccionId]);
+      const request = store.delete([nombreUsuario, eleccionId]);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -162,4 +163,4 @@ class ServicioIndexedDB {
 }
 
 // Instancia singleton
-export const servicioIndexedDB = new ServicioIndexedDB();
+export const voto3IDB = new Voto3IDB();

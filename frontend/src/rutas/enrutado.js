@@ -1,21 +1,22 @@
-import { contexto } from '../contexto.js';
+import { contexto } from '../modelo/contexto.js';
 import { vistaLogin } from '../vistas/vistaLogin.js';
+import { vistaPanel } from '../vistas/vistaPanel.js';
 import { vistaVotante } from '../vistas/vistaVotante.js';
 import { vistaEleccion } from '../vistas/vistaEleccion.js';
 import { extraerParametrosRuta } from '../utiles/utiles.js';
 
 export const RUTAS = {
-  '/v': (contenedor) => vistaVotante(contenedor),
+  '/v': (contenedor) => vistaPanel(contenedor),
   '/e/:id': (contenedor, params) => vistaEleccion(contenedor, parseInt(params.id))
 };
 
 export function obtenerVista(ruta) {
 
-  if (!contexto.getUsuario() && ruta === '/') {
+  if (!contexto.getNombreUsuario() && ruta === '/') {
     return (contenedor) => vistaLogin(contenedor);
   } 
   
-  if (!contexto.getUsuario()) {
+  if (!contexto.getNombreUsuario()) {
     console.log('No hay usuario autenticado, redirigiendo a login');
     navegarA('/');
     return;

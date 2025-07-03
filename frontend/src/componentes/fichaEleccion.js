@@ -1,4 +1,4 @@
-import { formatearFecha } from '../utiles/formateo.js';
+import { formatearFecha } from '../utiles/utilesFechas.js';
 
 export function fichaEleccion(contenedor, eleccion, onVerDetalle) {
   let eventListeners = new Set();

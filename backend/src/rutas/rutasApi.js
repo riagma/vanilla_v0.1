@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { mwBaseDatos } from '../middlewares/mwBaseDatos.js';
 import { mwExcepcion } from '../middlewares/mwExcepcion.js';
+import { rutasVotante } from './rutasVotante.js';
 import { rutasEleccion } from './rutasEleccion.js';
 import { rutasRegistro } from './rutasRegistro.js';
 
@@ -8,6 +9,7 @@ const router = Router();
 
 router.use(mwBaseDatos);
 
+router.use('/votante', rutasVotante); 
 router.use('/eleccion', rutasEleccion);
 router.use('/registro', rutasRegistro);
 

@@ -1,11 +1,10 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-import { contexto } from './contexto.js';
-import { servicioIndexedDB } from './servicios/servicioIndexedDB.js';
+import { voto3IDB } from './modelo/voto3IDB.js';
 
 import { crearMarco } from './componentes/marco.js';
-import { obtenerVista, vistaInicial, navegarA } from './rutas/enrutado.js';
+import { obtenerVista } from './rutas/enrutado.js';
 
 //--------------
 let contenedorMarco = null; 
@@ -71,7 +70,7 @@ async function inicializarAplicacion() {
   // Inicializar IndexedDB
   try {
     console.log('Inicializando IndexedDB...');
-    const resultado = await servicioIndexedDB.inicializar();
+    const resultado = await voto3IDB.inicializar();
     if (!resultado) {
       throw new Error('No se pudo inicializar IndexedDB');
     }
@@ -110,29 +109,29 @@ window.addEventListener('beforeunload', () => { limpiarAplicacion(); });
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-const observer = new MutationObserver((mutationsList) => {
+// const observer = new MutationObserver((mutationsList) => {
 
-  for (const mutation of mutationsList) {
+//   for (const mutation of mutationsList) {
 
-    if (mutation.type === 'childList') {
+//     if (mutation.type === 'childList') {
 
-      const padreContenedorActual = contenedorMarco.parentNode;
+//       const padreContenedorActual = contenedorMarco.parentNode;
 
-      if (!contenedorMarco.isConnected) {
+//       if (!contenedorMarco.isConnected) {
 
-        console.group('El contenedor principal ha sido removido o reemplazado');
-        console.trace();
-        console.groupEnd();
+//         console.group('El contenedor principal ha sido removido o reemplazado');
+//         console.trace();
+//         console.groupEnd();
 
-        contenedorMarco = document.getElementById('contenedorMarco');
-      }
-    }
-  }
-});
+//         contenedorMarco = document.getElementById('contenedorMarco');
+//       }
+//     }
+//   }
+// });
 
-observer.observe(document.body, {
-  childList: true,
-  subtree: true
-});
+// observer.observe(document.body, {
+//   childList: true,
+//   subtree: true
+// });
 
 //------------------------------------------------------------------------------

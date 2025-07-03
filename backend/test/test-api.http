@@ -4,6 +4,10 @@
 
 ##------------------------------------------------------------------------------
 
+### Obtener datos votante (Votante)
+GET {{baseUrl}}/api/votante
+Authorization: Basic OTAwMDAwMDBaOlBhc3N3b3JkMTIzIQ==
+
 ### Obtener registro de elección (Votante)
 GET {{baseUrl}}/api/registro/1
 Authorization: Basic OTAwMDAwMDBaOlBhc3N3b3JkMTIzIQ==

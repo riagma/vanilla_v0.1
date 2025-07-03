@@ -34,16 +34,15 @@ export async function hashPassword(password) {
 }
 
 // Encriptar datos con clave derivada (AES-GCM)
-export async function encriptarConClave(claveDerivada, datos) {
+export async function encriptar(objeto, claveDerivada) {
   const enc = new TextEncoder();
-  const iv = crypto.getRandomValues(new Uint8Array(12)); // 96 bits recomendado para AES-GCM
-  const datosCodificados = enc.encode(JSON.stringify(datos));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const datosCodificados = enc.encode(JSON.stringify(objeto));
   const cifrado = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
     claveDerivada,
     datosCodificados
   );
-  // Devolver IV y datos cifrados en base64
   return {
     iv: Array.from(iv),
     cifrado: Array.from(new Uint8Array(cifrado))
@@ -51,11 +50,11 @@ export async function encriptarConClave(claveDerivada, datos) {
 }
 
 // Desencriptar datos con clave derivada (AES-GCM)
-export async function desencriptarConClave(claveDerivada, cifradoObj) {
-  const { iv, cifrado } = cifradoObj;
+export async function desencriptar(objetoCifrado, claveDerivada) {
+  const { iv, cifrado } = objetoCifrado;
   const dec = new TextDecoder();
-  const bufferCifrado = new Uint8Array(cifrado).buffer;
   const bufferIv = new Uint8Array(iv);
+  const bufferCifrado = new Uint8Array(cifrado); 
   const descifrado = await crypto.subtle.decrypt(
     { name: 'AES-GCM', iv: bufferIv },
     claveDerivada,

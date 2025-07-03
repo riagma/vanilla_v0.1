@@ -1,14 +1,13 @@
 import { z } from "zod";
 
-// Enumerado para los estados de una elección
-export const EstadosEleccion = {
-  PENDIENTE: 'PENDIENTE',
-  REGISTRO: 'REGISTRO',
-  VOTACION: 'VOTACION',
-  CERRADA: 'CERRADA'
-};
+export const esquemaVotante = z.object({
+  dni: z.string().min(1),
+  nombre: z.string().min(1),
+  primerApellido: z.string().min(1),
+  segundoApellido: z.string().min(1),
+  correoElectronico: z.string().email().optional().nullable()
+});
 
-// Esquema para Elección desde API
 export const esquemaEleccion = z.object({
   id: z.number().int().positive(),
   nombre: z.string().min(1),
@@ -17,8 +16,7 @@ export const esquemaEleccion = z.object({
   fechaFinRegistro: z.string().datetime(),
   fechaInicioVotacion: z.string().datetime(),
   fechaFinVotacion: z.string().datetime(),
-  fechaCelebracion: z.string().datetime(),
-  estado: z.enum(Object.values(EstadosEleccion))
+  fechaCelebracion: z.string().datetime()
 });
 
 // Array de elecciones

@@ -2,29 +2,25 @@ class Contexto {
   constructor() {
     this._observadores = new Set();
     this._estado = {
-      token: null,
-      tipoUsuario: null,
-      usuario: null,
-      datosAdmin: null,
-      datosVotante: null
+      nombreUsuario: null,
+      nombreVotante: null,
+      datosUsuario: null,
+      datosVotante: null,
     };
   }
 
   // Getters
-  getContexto() {
+  getEstado() {
     return { ...this._estado };
   }
-  getToken() {
-    return this._estado.token;
+  getNombreUsuario() {
+    return this._estado.nombreUsuario;
   }
-  getTipoUsuario() {
-    return this._estado.tipoUsuario;
+  getNombreVotante() {
+    return this._estado.nombreVotante;
   }
-  getUsuario() {
-    return this._estado.usuario ? { ...this._estado.usuario } : null;
-  }
-  getDatosAdmin() {
-    return this._estado.datosAdmin ? { ...this._estado.datosAdmin } : null;
+  getDatosUsuario() {
+    return this._estado.datosUsuario ? { ...this._estado.datosUsuario } : null;
   }
   getDatosVotante() {
     return this._estado.datosVotante ? { ...this._estado.datosVotante } : null;
@@ -42,11 +38,10 @@ class Contexto {
 
   limpiarContexto() {
     this.actualizarContexto({
-      token: null,
-      tipoUsuario: null,
-      usuario: null,
-      datosAdmin: null,
-      datosVotante: null
+      nombreUsuario: null,
+      nombreVotante: null,
+      datosUsuario: null,
+      datosVotante: null,
     });
   }
 
@@ -57,8 +52,8 @@ class Contexto {
   }
 
   _notificarCambios() {
-    const contextoInmutable = this.getContexto();
-    this._observadores.forEach(callback => callback(contextoInmutable));
+    const estadoInmutable = this.getEstado();
+    this._observadores.forEach(callback => callback(estadoInmutable));
   }
 }
 

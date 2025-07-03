@@ -1,13 +1,17 @@
-import { contexto } from '../contexto.js';
-
 const BASE = '';
 
 async function llamarApi(ruta, opciones = {}) {
   const headers = opciones.headers || {};
-  const token = contexto.getToken();
-  
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+
+  // Si se pasan credenciales, usa Basic Auth
+  if (opciones.credenciales) {
+    headers['Authorization'] = 
+      `Basic ${btoa(opciones.credenciales.dni + ':' + opciones.credenciales.contrasena)}`;
+  }
+
+  // Si se pasa token, usa Bearer Auth
+  if (opciones.token) {
+    headers['Authorization'] = `Bearer ${opciones.token}`;
   }
 
   if (opciones.body && !(opciones.body instanceof FormData)) {
@@ -30,8 +34,8 @@ async function llamarApi(ruta, opciones = {}) {
 }
 
 export const api = {
-  get: (ruta) => llamarApi(ruta),
-  post: (ruta, body) => llamarApi(ruta, { method: 'POST', body }),
-  put: (ruta, body) => llamarApi(ruta, { method: 'PUT', body }),
-  del: (ruta) => llamarApi(ruta, { method: 'DELETE' })
+  get: (ruta, opciones = {}) => llamarApi(ruta, opciones),
+  post: (ruta, body, opciones = {}) => llamarApi(ruta, { ...opciones, method: 'POST', body }),
+  put: (ruta, body, opciones = {}) => llamarApi(ruta, { ...opciones, method: 'PUT', body }),
+  del: (ruta, opciones = {}) => llamarApi(ruta, { ...opciones, method: 'DELETE' })
 };
