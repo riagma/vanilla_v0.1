@@ -4,13 +4,9 @@ import { fichaEleccion } from '../componentes/fichaEleccion.js';
 import { navegarA } from '../rutas/enrutado.js';
 
 export function vistaVotante(contenedor) {
-  // let manejadores = new Set();
-  let componentes = new Set();
-
   let elecciones = [];
+  let componentes = new Set();
   let destruida = false;
-
-  // let primerRender = true;
 
   function manejarVerDetalle(idEleccion) {
     navegarA(`/e/${idEleccion}`);
@@ -18,8 +14,11 @@ export function vistaVotante(contenedor) {
 
   async function cargarElecciones() {
     try {
+      // console.log('Cargando elecciones...');
       elecciones = await servicioEleccion.cargarElecciones();
-      if (!destruida) renderizar();
+      // console.log('Elecciones cargadas:', elecciones);
+      if (destruida) return;
+      renderizar();
     } catch (error) {
       if (destruida) return;
       console.error('Error al cargar elecciones:', error);

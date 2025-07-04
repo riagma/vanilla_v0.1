@@ -1,19 +1,10 @@
 import { formatearFecha } from '../utiles/utilesFechas.js';
 
 export function fichaEleccion(contenedor, eleccion, onVerDetalle) {
-  let eventListeners = new Set();
-
-  function limpiar() {
-    // Limpiar event listeners
-    eventListeners.forEach(([elem, event, handler]) => {
-      elem.removeEventListener(event, handler);
-    });
-    eventListeners.clear();
-  }
+  let manejadores = new Set();
 
   function renderizar() {
-    // Limpiar antes de re-renderizar
-    limpiar();
+    limpiarManejadores(manejadores);
 
     contenedor.innerHTML = `
       <div class="col">
@@ -45,7 +36,7 @@ export function fichaEleccion(contenedor, eleccion, onVerDetalle) {
     if (boton) {
       const handler = () => onVerDetalle(eleccion.id);
       boton.addEventListener('click', handler);
-      eventListeners.add([boton, 'click', handler]);
+      manejadores.add([boton, 'click', handler]);
     }
   }
 
@@ -53,5 +44,7 @@ export function fichaEleccion(contenedor, eleccion, onVerDetalle) {
   renderizar();
 
   // Retornar función de limpieza
-  return limpiar;
+  return () => {
+    limpiarManejadores(manejadores);
+  };
 }

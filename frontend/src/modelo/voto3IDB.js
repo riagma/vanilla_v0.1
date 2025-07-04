@@ -58,11 +58,17 @@ class Voto3IDB {
   }
 
   async actualizarVotante(votante) {
+    console.log(`Actualizando votante: ${votante.nombreUsuario}`);
+    const votanteAnterior = await this.obtenerVotante(votante.nombreUsuario);
+    if (!votanteAnterior) {
+      throw new Error(`Votante con nombre de usuario ${votante.nombreUsuario} no encontrado`);
+    }
+    const votanteActualizado = { ...votanteAnterior, ...votante };
     const transaction = this.db.transaction(['votantes'], 'readwrite');
     const store = transaction.objectStore('votantes');
     
     return new Promise((resolve, reject) => {
-      const request = store.put(votante);
+      const request = store.put(votanteActualizado);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });

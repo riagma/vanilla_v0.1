@@ -3,7 +3,8 @@ import { voto3IDB } from '../modelo/voto3IDB.js';
 import {
   generarSalt,
   derivarClave,
-  hashPassword
+  hashPassword,
+  desencriptar
 } from '../utiles/utilesCrypto.js';
 
 import { servicioVotante } from './servicioVotante.js';
@@ -73,7 +74,16 @@ export const servicioLogin = {
     contexto.actualizarContexto({ nombreUsuario });
     console.log('Login exitoso para:', nombreUsuario);
 
-    const datosCensales = await servicioVotante.recuperarDatosCensales();
-    console.log('Datos censales recuperados:', datosCensales);
+    if (!votante.censo) {
+      const censo = await servicioVotante.recuperarDatosCensales();
+      if (censo) {
+        votante.censo = censo;
+      } else {
+        console.warn('No se pudieron recuperar los datos censales.');
+      }
+    } else {
+      const censoDec = await desencriptar(votante.censo, claveDerivada);
+      contexto.actualizarContexto({ nombreVotante: censoDec.nombre });
+    }
   }
 };

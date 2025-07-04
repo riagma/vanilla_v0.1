@@ -1,16 +1,36 @@
 //------------------------------------------------------------------------------
 
 /**
+ * Añade un manejador de eventos y lo registra en el Set para su posterior limpieza
+ * @param {Set<[HTMLElement, string, Function]>} manejadores Set donde registrar el manejador
+ * @param {HTMLElement} elemento Elemento DOM al que añadir el evento
+ * @param {string} evento Nombre del evento (click, change, etc.)
+ * @param {Function} manejador Función manejadora del evento
+ */
+export function ayadirManejador(manejadores, elemento, evento, manejador) {
+  if (!manejadores || !elemento || !evento || !manejador) return;
+
+  elemento.addEventListener(evento, manejador);
+  manejadores.add([elemento, evento, manejador]);
+}
+
+//------------------------------------------------------------------------------
+
+/**
  * Limpia los manejadores de eventos registrados
  * @param {Set<[HTMLElement, string, Function]>} manejadores Set de arrays con [elemento, evento, función]
  */
 export function limpiarManejadores(manejadores) {
   if (!manejadores) return;
-  
   manejadores.forEach(([elemento, evento, manejador]) => {
-    elemento?.removeEventListener(evento, manejador);
-  });
+    elemento?.removeEventListener(evento, manejador); });
   manejadores.clear();
+}
+
+export function limpiarComponentes(componentes) {
+  if (!componentes) return;
+  componentes.forEach(limpiar => limpiar());
+  componentes.clear();
 }
 
 //------------------------------------------------------------------------------

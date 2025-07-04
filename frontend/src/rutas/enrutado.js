@@ -3,10 +3,11 @@ import { vistaLogin } from '../vistas/vistaLogin.js';
 import { vistaPanel } from '../vistas/vistaPanel.js';
 import { vistaVotante } from '../vistas/vistaVotante.js';
 import { vistaEleccion } from '../vistas/vistaEleccion.js';
-import { extraerParametrosRuta } from '../utiles/utiles.js';
+import { extraerParametrosRuta } from '../utiles/utilesVistas.js';
 
 export const RUTAS = {
   '/v': (contenedor) => vistaPanel(contenedor),
+  '/p': (contenedor) => vistaVotante(contenedor),
   '/e/:id': (contenedor, params) => vistaEleccion(contenedor, parseInt(params.id))
 };
 
@@ -28,7 +29,7 @@ export function obtenerVista(ruta) {
     return;
   }
 
-  // Usar extraerParametrosRuta de utiles.js
+  // Usar extraerParametrosRuta de utilesVistas.js
   const [rutaBase, params] = extraerParametrosRuta(ruta, Object.keys(RUTAS));
   const vista = RUTAS[rutaBase];
 

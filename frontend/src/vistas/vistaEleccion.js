@@ -2,6 +2,7 @@ import { contexto } from '../modelo/contexto.js';
 import { servicioEleccion } from '../servicios/servicioEleccion.js';
 import { formatearFecha } from '../utiles/utilesFechas.js';
 import { navegarA } from '../rutas/enrutado.js';
+import { limpiarManejadores } from '../utiles/utilesVistas.js';
 
 export function vistaEleccion(contenedor, idEleccion) {
   let detalleEleccion = null;
@@ -232,7 +233,7 @@ export function vistaEleccion(contenedor, idEleccion) {
   // Retornar función de limpieza
   return () => {
     destruida = true;
-    cancelarSuscripcion?.();
+    cancelarSuscripcion();
     limpiarManejadores(manejadores);
   };
 }

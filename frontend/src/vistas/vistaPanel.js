@@ -2,9 +2,11 @@
 
 // Servicio de elecciones (debes proveer este módulo)
 import { servicioEleccion } from '../servicios/servicioEleccion.js';
+import { servicioLogin } from '../servicios/servicioLogin.js';
 import { parsearFechaHora } from '../utiles/utilesFechas.js';
-
-let elections = [];
+import { fichaEleccionPanel } from '../componentes/fichaEleccionPanel.js';
+import { limpiarComponentes, limpiarManejadores } from '../utiles/utilesVistas.js';
+import { navegarA } from '../rutas/enrutado.js';
 
 function obtenerEstadoEleccion(el) {
   const ahora = new Date();
@@ -20,17 +22,35 @@ function obtenerEstadoEleccion(el) {
  * @param {HTMLElement} container - Elemento donde renderizar la SPA
  * @returns {Function} cleanup - Función para quitar listeners y liberar recursos
  */
-export async function vistaPanel(container) {
-  // Cargar elecciones desde el servicio
-  try {
-    elections = await servicioEleccion.cargarElecciones();
-  } catch (err) {
-    console.error('Error cargando elecciones:', err);
-    container.innerHTML = '<p class="text-danger">No se pudieron cargar las elecciones.</p>';
-    return () => { };
+export function vistaPanel(container) {
+
+  let destruida = false;
+
+  let componentes = new Set();
+  let manejadores = new Set();
+
+  let elecciones = [];
+
+
+
+  async function cargarElecciones() {
+    try {
+      // console.log('Cargando elecciones...');
+      elecciones = await servicioEleccion.cargarElecciones();
+      // console.log('Elecciones cargadas:', elecciones);
+      if (destruida) return;
+      renderizar('actuales');
+    } catch (error) {
+      if (destruida) return;
+      console.error('Error al cargar elecciones:', error);
+      mostrarError('Error al cargar las elecciones');
+    }
   }
 
-  // Insertar estructura HTML básica
+  //--------------
+  cargarElecciones();
+  //--------------
+
   container.innerHTML = `
     <nav class="d-flex justify-content-between align-items-center mb-4">
       <div class="d-flex align-items-center">
@@ -44,65 +64,74 @@ export async function vistaPanel(container) {
     </nav>
     <ul class="nav nav-tabs mb-3" id="electionTabs" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" data-status="futuras" data-bs-toggle="tab" type="button">Futuras</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" data-status="actuales" data-bs-toggle="tab" type="button">En Curso</button>
-      </li>
-      <li class="nav-item" role="presentation">
         <button class="nav-link" data-status="pasadas" data-bs-toggle="tab" type="button">Pasadas</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-status="actuales" data-bs-toggle="tab" type="button">En Curso</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" data-status="futuras" data-bs-toggle="tab" type="button">Futuras</button>
       </li>
     </ul>
     <div class="tab-content" id="electionContent">
-      <div class="tab-pane fade show active" data-status-container="futuras">
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
-      </div>
-      <div class="tab-pane fade" data-status-container="actuales">
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
-      </div>
       <div class="tab-pane fade" data-status-container="pasadas">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
+      </div>
+      <div class="tab-pane fade show active" data-status-container="actuales">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
+      </div>
+      <div class="tab-pane fade" data-status-container="futuras">
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
       </div>
     </div>
   `;
 
-  // Helper para renderizar
-  function renderElections(status) {
-    const pane = container.querySelector(`[data-status-container="${status}"] .row`);
-    let memoHTML = '';
-    elections
+  function renderizar(status) {
+    const panel = container.querySelector(`[data-status-container="${status}"] .row`);
+    
+    // Limpiar fichas anteriores
+    limpiarComponentes(componentes);
+    
+    // Limpiar contenedor
+    panel.innerHTML = '';
+    
+    // Renderizar nuevas fichas
+    elecciones
       .filter(e => obtenerEstadoEleccion(e) === status)
       .forEach(election => {
-        const algoLink = `https://algoexplorer.io/application/${election.appId}`;
-        memoHTML += `
-          <div class="col">
-            <div class="card h-100">
-              <div class="card-body d-flex flex-column">
-                <h5 class="card-title">${election.nombre}</h5>
-                <p class="card-text flex-grow-1">${election.descripcion}</p>
-                <ul class="list-unstyled small mb-3">
-                  <li><strong>Registro:</strong> ${election.fechaInicioRegistro} a ${election.fechaFinRegistro}</li>
-                  <li><strong>Votación:</strong> ${election.fechaInicioVotacion} a ${election.fechaFinVotacion}</li>
-                  <li><strong>Escrutinio:</strong> ${election.fechaEscrutinio}</li>
-                  <li><strong>App ID:</strong> <a href="${algoLink}" target="_blank">${election.appId}</a></li>
-                  <li><strong>App Addr:</strong> ${election.appAddr}</li>
-                  <li><strong>Token ID:</strong> ${election.tokenId}</li>
-                </ul>
-                <button class="btn btn-primary mt-auto">${status === 'futuras' ? 'Ver detalles' :
-            status === 'actuales' ? 'Ir a votar' :
-              'Ver resultados'
-          }</button>
-              </div>
-            </div>
-          </div>
-        `;
+        const fichaContainer = document.createElement('div');
+        const limpiarFicha = fichaEleccionPanel(fichaContainer, election, status, manejarAccionEleccion);
+        componentes.add(limpiarFicha);
+        panel.appendChild(fichaContainer.firstElementChild);
       });
-    pane.innerHTML = memoHTML;
+  }
+
+  // Manejar acciones de las fichas
+  function manejarAccionEleccion(eleccionId, status) {
+    const eleccion = elecciones.find(e => e.id === eleccionId);
+    if (!eleccion) return;
+    
+    switch(status) {
+      case 'futuras':
+        // Mostrar detalles de la elección
+        alert(`Ver detalles de: ${eleccion.nombre}`);
+        break;
+      case 'actuales':
+        // Ir a votar
+        alert(`Ir a votar en: ${eleccion.nombre}`);
+        break;
+      case 'pasadas':
+        // Ver resultados
+        alert(`Ver resultados de: ${eleccion.nombre}`);
+        break;
+    }
   }
 
   // Bind eventos\ n   
   const tabButtons = Array.from(container.querySelectorAll('#electionTabs button'));
   tabButtons.forEach(btn => btn.addEventListener('click', onTabClick));
+  tabButtons.forEach(btn => manejadores.add([btn, 'click', onTabClick]));
+
 
   function onTabClick(e) {
     const status = e.target.getAttribute('data-status');
@@ -113,19 +142,25 @@ export async function vistaPanel(container) {
     const pane = container.querySelector(`[data-status-container="${status}"]`);
     pane.classList.add('show', 'active');
     // Renderizar
-    renderElections(status);
+    renderizar(status);
   }
 
   // Render inicial
-  renderElections('futuras');
+  // renderElections('futuras');
 
   // Logout
+  function onCerrarSesion() {
+    servicioLogin.logout();
+    navegarA('/');
+  } 
   const logoutBtn = container.querySelector('#logoutBtn');
-  logoutBtn.addEventListener('click', () => alert('Sesión cerrada'));
+  logoutBtn.addEventListener('click', onCerrarSesion);
+  manejadores.add([logoutBtn, 'click', onCerrarSesion]);
 
   // Cleanup
   return () => {
-    tabButtons.forEach(btn => btn.removeEventListener('click', onTabClick));
-    logoutBtn.removeEventListener('click', () => alert('Sesión cerrada'));
+    destruida = true;
+    limpiarComponentes(componentes);
+    limpiarManejadores(manejadores);
   };
 }

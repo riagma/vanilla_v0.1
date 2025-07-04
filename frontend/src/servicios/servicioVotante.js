@@ -1,6 +1,11 @@
 import { api } from './api.js';
+import { contexto } from '../modelo/contexto.js';
 import { validarDatos, esquemaVotante } from '../modelo/esquemas.js';
 import { notificarAccesoIdentificado } from '../componentes/accesoServidor.js';
+import { servicioLogin } from '../servicios/servicioLogin.js';
+import { encriptar } from '../utiles/utilesCrypto.js';
+import { voto3IDB as idb } from '../modelo/voto3IDB.js';
+
 
 export const servicioVotante = {
   async recuperarDatosCensales() {
@@ -8,13 +13,21 @@ export const servicioVotante = {
       const credenciales = await notificarAccesoIdentificado('Verificar datos censales'); 
       if (!credenciales) {
         console.warn('Operación cancelada por el usuario');
-        return null; // O lanzar un error si prefieres
+        return null; 
       }
-      const votante = await api.get('/api/votante', { credenciales });
-      console.log('Datos censales recuperados:', votante);
-      return validarDatos(votante, esquemaVotante);
+      const votanteApi = await api.get('/api/votante', { credenciales });
+      if (!votanteApi) {
+        console.log('No se encontraron datos censales para el votante');
+        return null;
+      }
+      console.log('Datos censales recuperados:', votanteApi);
+      const votante = validarDatos(votanteApi, esquemaVotante);
+      contexto.actualizarContexto({ nombreVotante: votante.nombre });
+      const censo = await encriptar(votante, servicioLogin.getClaveDerivada());
+      await idb.actualizarVotante({ nombreUsuario: contexto.getNombreUsuario(), censo });
+      return votante;
     } catch (error) {
-      throw new Error('Error al cargar elecciones: ' + error.message);
+      throw new Error('Error al cargar los datos del censo: ' + error.message);
     }
   },
 

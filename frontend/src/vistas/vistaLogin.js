@@ -1,6 +1,6 @@
 import { servicioLogin } from '../servicios/servicioLogin.js';
 import { navegarA } from '../rutas/enrutado.js';
-import { limpiarManejadores } from '../utiles/utiles.js';
+import { limpiarManejadores } from '../utiles/utilesVistas.js';
 import { notificarAccesoIdentificado, wrapAccesoIdentificado } from '../componentes/accesoServidor.js';
 
 export function vistaLogin(container) {
