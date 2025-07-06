@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { algorand } from '../algorand/algorand.js';
 import { toNote } from '../algorand/algoUtiles.js';
-import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
-import { contratoBlockchainDAO, registroVotanteEleccionDAO, eleccionDAO, partidoDAO } from '../bd/DAOs.js';
+import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
+import { contratoBlockchainDAO, registroVotanteEleccionDAO, eleccionDAO, partidoDAO } from '../modelo/DAOs.js';
 
 import {
   encriptar,

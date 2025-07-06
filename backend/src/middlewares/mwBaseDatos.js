@@ -1,4 +1,4 @@
-import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
+import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
 
 export async function mwBaseDatos(peticion, respuesta, siguiente) {
   let bd;

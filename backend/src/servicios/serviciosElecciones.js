@@ -1,4 +1,4 @@
-import { daos, eleccionDAO } from '../bd/DAOs.js';
+import { daos, eleccionDAO } from '../modelo/DAOs.js';
 
 export const serviciosElecciones = {
 

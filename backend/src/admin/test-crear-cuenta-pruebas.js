@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { execSync } from 'child_process';
-import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
-import { cuentaBlockchainDAO } from '../bd/DAOs.js';
-import { encriptar, desencriptar } from '../utiles/utilesCrypto.js';
+import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
+import { cuentaBlockchainDAO } from '../modelo/DAOs.js';
+import { encriptar } from '../utiles/utilesCrypto.js';
 import { CLAVE_MAESTRA } from '../utiles/constantes.js';
 
 function run(cmd) {

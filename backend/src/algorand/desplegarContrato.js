@@ -7,7 +7,7 @@ import { stringifyJSON, encodeAddress } from 'algosdk';
 import { CONFIG } from '../utiles/constantes.js';
 import { algorand } from './algorand.js';
 import { inicializarEleccion } from './serviciosVoto3.js';
-import { cuentaBlockchainDAO, contratoBlockchainDAO } from '../bd/DAOs.js';
+import { cuentaBlockchainDAO, contratoBlockchainDAO } from '../modelo/DAOs.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

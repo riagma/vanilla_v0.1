@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { createInterface } from 'readline';
-import { cerrarConexionBD, abrirConexionBD } from '../bd/BD.js';
-import { eleccionDAO, contratoBlockchainDAO, pruebaZKDAO, raizZKDAO, anuladorZKDAO } from '../bd/DAOs.js';
+import { cerrarConexionBD, abrirConexionBD } from '../modelo/BD.js';
+import { eleccionDAO, contratoBlockchainDAO, pruebaZKDAO, raizZKDAO, anuladorZKDAO } from '../modelo/DAOs.js';
 import { desplegarContrato } from '../algorand/desplegarContrato.js';
 
 const eleccionId = process.argv[2] ? parseInt(process.argv[2]) : undefined;

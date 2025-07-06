@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { cerrarRegistroAnuladoresEleccion } from '../algorand/registrarAnuladores.js';
-import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
+import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
 
 const eleccionId = process.argv[2];
 

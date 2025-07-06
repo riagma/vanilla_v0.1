@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { algorand } from '../algorand/algorand.js';
-import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
-import { contratoBlockchainDAO, registroVotanteEleccionDAO, anuladorZKDAO, pruebaZKDAO, raizZKDAO } from '../bd/DAOs.js';
+import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
+import { contratoBlockchainDAO, registroVotanteEleccionDAO, anuladorZKDAO, pruebaZKDAO, raizZKDAO } from '../modelo/DAOs.js';
 import { registrarAnuladorEleccion, solicitarPapeletaEleccion } from '../algorand/registrarAnuladores.js';
 
 import { desencriptarJSON, calcularPoseidon2 } from '../utiles/utilesCrypto.js';

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { SECRETO } from '../utiles/constantes.js';
-import { votanteDAO, administradorDAO } from '../bd/DAOs.js';
+import { votanteDAO, administradorDAO } from '../modelo/DAOs.js';
 
 export const verificarTokenVotante = async (peticion, respuesta, siguiente) => {
   try {

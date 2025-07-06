@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
-import { eleccionDAO, contratoBlockchainDAO } from '../bd/DAOs.js';
+import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
+import { eleccionDAO, contratoBlockchainDAO } from '../modelo/DAOs.js';
 
 import { leerEstadoContrato, establecerEstadoContrato } from '../algorand/serviciosVoto3.js';
 

@@ -1,4 +1,4 @@
-import { contratoBlockchainDAO, daos, eleccionDAO, pruebaZKDAO, registroVotanteEleccionDAO } from '../bd/DAOs.js';
+import { contratoBlockchainDAO, daos, eleccionDAO, pruebaZKDAO, registroVotanteEleccionDAO } from '../modelo/DAOs.js';
 import { DatosVotanteEleccion } from '../tipos/DatosVotanteEleccion.js';
 
 export const serviciosRegistros = {

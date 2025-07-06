@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "cargar-datos": "node src/bd/scripts/cargar-datos-prueba.js"
+    "cargar-datos": "node src/modelo/scripts/cargar-datos-prueba.js"
   },
   "dependencies": {
     "@algorandfoundation/algokit-utils": "^9.1.0",

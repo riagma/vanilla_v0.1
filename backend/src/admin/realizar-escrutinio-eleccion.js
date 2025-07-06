@@ -7,11 +7,11 @@ import {
   resultadoEleccionDAO, 
   partidoEleccionDAO,
   resultadoPartidoDAO
-} from '../bd/DAOs.js';
+} from '../modelo/DAOs.js';
 
 import { desencriptar, desencriptarConClavePrivada } from '../utiles/utilesCrypto.js';
 
-import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
+import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
 import { TextDecoder, TextEncoder } from 'node:util';
 
 import { CLAVE_MAESTRA } from '../utiles/constantes.js';

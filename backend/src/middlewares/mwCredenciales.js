@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { votanteDAO } from '../bd/DAOs.js';
+import { votanteDAO } from '../modelo/DAOs.js';
 
 export const verificarCredencialesVotante = async (peticion, respuesta, siguiente) => {
   // Espera cabecera: authorization: Basic base64(usuario:contraseña)

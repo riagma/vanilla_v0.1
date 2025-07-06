@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { registrarRaicesEleccion } from '../algorand/registrarRaices.js';
-import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
-import { eleccionDAO, contratoBlockchainDAO, votanteDAO } from '../bd/DAOs.js';
+import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
+import { eleccionDAO, contratoBlockchainDAO, votanteDAO } from '../modelo/DAOs.js';
 
 
 const eleccionId = process.argv[2];

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import algosdk from 'algosdk';
 import { registrarVotanteEleccion } from '../algorand/registrarCompromisos.js';
-import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
-import { votanteDAO } from '../bd/DAOs.js';
+import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
+import { votanteDAO } from '../modelo/DAOs.js';
 import { 
   calcularPoseidon2,
   encriptarJSON,

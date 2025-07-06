@@ -83,7 +83,11 @@ export async function cargarElecciones(bd) {
       stmt.run(
         eleccion.nombre,
         eleccion.descripcion,
-        null, null, null, null, null,
+        eleccion.fechaInicioRegistro,
+        eleccion.fechaFinRegistro,
+        eleccion.fechaInicioVotacion,
+        eleccion.fechaFinVotacion,
+        eleccion.fechaEscrutinio,
         eleccion.claveVotoPublica, 
         eleccion.claveVotoPrivadaEncriptada, 
         null

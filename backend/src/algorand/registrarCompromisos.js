@@ -1,5 +1,5 @@
 // src/deployer/deployContract.js
-import { votanteDAO, eleccionDAO, registroVotanteEleccionDAO, contratoBlockchainDAO } from '../bd/DAOs.js';
+import { votanteDAO, eleccionDAO, registroVotanteEleccionDAO, contratoBlockchainDAO } from '../modelo/DAOs.js';
 
 import {
   leerEstadoContrato,

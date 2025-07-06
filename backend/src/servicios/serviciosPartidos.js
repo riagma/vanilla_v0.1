@@ -1,4 +1,4 @@
-import { daos } from '../bd/DAOs.js';
+import { daos } from '../modelo/DAOs.js';
 
 export const serviciosPartidos = {
   // Crear un partido

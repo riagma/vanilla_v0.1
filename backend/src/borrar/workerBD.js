@@ -1,16 +1,16 @@
 import { parentPort } from 'worker_threads';
 import Database from 'better-sqlite3';
-import { ConexionBD } from '../bd/BD.js';
-import { AdministradorDAO } from '../bd/daos/AdministradorDAO.js';
-import { VotanteDAO } from '../bd/daos/VotanteDAO.js';
-import { EleccionDAO } from '../bd/daos/EleccionDAO.js';
-import { PartidoDAO } from '../bd/daos/PartidoDAO.js';
-import { PartidoEleccionDAO } from '../bd/daos/PartidoEleccionDAO.js';
-import { RegistroVotanteEleccionDAO } from '../bd/daos/RegistroVotanteEleccionDAO.js';
-import { ResultadoEleccionDAO } from '../bd/daos/ResultadoEleccionDAO.js';
-import { ResultadoPartidoDAO } from '../bd/daos/ResultadoPartidoDAO.js';
-import { CuentaBlockchainDAO } from '../bd/daos/CuentaBlockchainDAO.js';
-import { ContratoBlockchainDAO } from '../bd/daos/ContratoBlockchainDAO.js';
+import { ConexionBD } from '../modelo/BD.js';
+import { AdministradorDAO } from '../modelo/daos/AdministradorDAO.js';
+import { VotanteDAO } from '../modelo/daos/VotanteDAO.js';
+import { EleccionDAO } from '../modelo/daos/EleccionDAO.js';
+import { PartidoDAO } from '../modelo/daos/PartidoDAO.js';
+import { PartidoEleccionDAO } from '../modelo/daos/PartidoEleccionDAO.js';
+import { RegistroVotanteEleccionDAO } from '../modelo/daos/RegistroVotanteEleccionDAO.js';
+import { ResultadoEleccionDAO } from '../modelo/daos/ResultadoEleccionDAO.js';
+import { ResultadoPartidoDAO } from '../modelo/daos/ResultadoPartidoDAO.js';
+import { CuentaBlockchainDAO } from '../modelo/daos/CuentaBlockchainDAO.js';
+import { ContratoBlockchainDAO } from '../modelo/daos/ContratoBlockchainDAO.js';
 
 const db = new ConexionBD().db;
 

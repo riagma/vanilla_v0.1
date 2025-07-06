@@ -3,7 +3,7 @@ import { microAlgos } from '@algorandfoundation/algokit-utils';
 
 import { ABIMethod, decodeAddress, stringifyJSON } from 'algosdk';
 import { algorand } from './algorand.js';
-import { contratoBlockchainDAO, cuentaBlockchainDAO } from '../bd/DAOs.js'; 
+import { contratoBlockchainDAO, cuentaBlockchainDAO } from '../modelo/DAOs.js'; 
 import { desencriptar } from '../utiles/utilesCrypto.js';
 import { CLAVE_MAESTRA } from '../utiles/constantes.js';
 

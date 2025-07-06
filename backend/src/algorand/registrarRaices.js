@@ -1,5 +1,5 @@
 // src/deployer/deployContract.js
-import { contratoBlockchainDAO, pruebaZKDAO, raizZKDAO } from '../bd/DAOs.js';
+import { contratoBlockchainDAO, pruebaZKDAO, raizZKDAO } from '../modelo/DAOs.js';
 
 import {
   leerEstadoContrato,

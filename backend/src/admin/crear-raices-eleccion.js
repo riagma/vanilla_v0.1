@@ -4,8 +4,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface } from 'readline';
 
-import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
-import { eleccionDAO, pruebaZKDAO, raizZKDAO, registroVotanteEleccionDAO } from '../bd/DAOs.js';
+import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
+import { eleccionDAO, pruebaZKDAO, raizZKDAO, registroVotanteEleccionDAO } from '../modelo/DAOs.js';
 import { comprimirArchivo, calcularDatosArbol, construirArbolMerkle } from '../utiles/utilesArbol.js';
 import { CIRCUIT_DIR, MERKLE11_JSON } from '../utiles/constantes.js';
 

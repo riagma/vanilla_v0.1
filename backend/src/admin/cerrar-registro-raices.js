@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { cerrarRegistroRaicesEleccion, leerDatosRaicesEleccion } from '../algorand/registrarRaices.js';
-import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
+import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
 
 const eleccionId = process.argv[2];
 

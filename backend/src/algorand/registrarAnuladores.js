@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import { UltraHonkBackend } from '@aztec/bb.js';
 
-import { anuladorZKDAO, contratoBlockchainDAO, raizZKDAO, eleccionDAO } from '../bd/DAOs.js';
+import { anuladorZKDAO, contratoBlockchainDAO, raizZKDAO, eleccionDAO } from '../modelo/DAOs.js';
 
 import {
   leerEstadoContrato,

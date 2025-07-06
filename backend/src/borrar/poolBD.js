@@ -31,4 +31,4 @@ export class WorkerPool {
 }
 
 // Crea y exporta el pool global de 4 workers
-export const poolBD = new WorkerPool(4, path.resolve('./src/bd/workerBD.js'));
+export const poolBD = new WorkerPool(4, path.resolve('./src/modelo/workerBD.js'));

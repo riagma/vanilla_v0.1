@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { randomBytes } from 'node:crypto';
-import { abrirConexionBD, cerrarConexionBD } from '../bd/BD.js';
+import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
 
 import { 
   registroVotanteEleccionDAO,
@@ -12,7 +12,7 @@ import {
   pruebaZKDAO,
   raizZKDAO,
 
- } from '../bd/DAOs.js';
+ } from '../modelo/DAOs.js';
 
 import {
   calcularPoseidon2,
