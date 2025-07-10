@@ -2,10 +2,7 @@ import { daos, eleccionDAO } from '../modelo/DAOs.js';
 
 export const serviciosElecciones = {
 
-  //----------------------------------------------------------------------------
-  //----------------------------------------------------------------------------
-
-  async obtenerTodas(bd) {
+  obtenerTodas(bd) {
     const campos = [
       'id', 
       'nombre',
@@ -16,16 +13,14 @@ export const serviciosElecciones = {
       'fechaFinVotacion',
       'fechaEscrutinio',
     ];
-    return await eleccionDAO.obtenerTodos(bd, campos);
+    return eleccionDAO.obtenerTodos(bd, campos);
   },
 
-  //----------------------------------------------------------------------------
-
-  async obtenerPorId(bd, id) {
-    const eleccion = await daos.eleccion.obtenerPorId(bd, { id });
+  obtenerPorId(bd, id) {
+    const eleccion = daos.eleccion.obtenerPorId(bd, { id });
     if (!eleccion) return null;
 
-    const partidos = await daos.partidoEleccion.obtenerPartidosEleccion(bd, id);
+    const partidos = daos.partidoEleccion.obtenerPartidosEleccion(bd, id);
 
     return {
       ...eleccion,
@@ -33,22 +28,26 @@ export const serviciosElecciones = {
     };
   },
 
-  //----------------------------------------------------------------------------
+  obtenerContratoEleccion(bd, id) {
+    const eleccion = daos.contratoBlockchain.obtenerPorId(bd, { id });
+    if (!eleccion) return null;
 
-  async obtenerDetalle(bd, id, dni) {
-    const eleccion = await daos.eleccion.obtenerPorId(bd, { id });
+    const partidos = daos.partidoEleccion.obtenerPartidosEleccion(bd, id);
+
+    return {
+      ...eleccion,
+      partidos
+    };
+  },
+
+  obtenerDetalle(bd, id, dni) {
+    const eleccion = daos.eleccion.obtenerPorId(bd, id);
     if (!eleccion) throw new Error('Elección no encontrada');
 
-    const partidos = await daos.partidoEleccion.obtenerPartidosEleccion(bd, id);
-    const registroVotante = await daos.registroVotanteEleccion.obtenerPorId(bd, dni, id);
-    const resultadosEleccion = await daos.resultadoEleccion.obtenerPorEleccionId(bd, id);
-    const resultadosPorPartido = await daos.resultadoPartido.obtenerPorEleccion(bd, id);
-
-    // // Asocia resultados a partidos
-    // const partidosConResultados = partidos.map(partido => ({
-    //   ...partido,
-    //   resultado: resultadosPorPartido.find(rp => rp.partidoId === partido.siglas) || null
-    // }));
+    const partidos = daos.partidoEleccion.obtenerPartidosEleccion(bd, id);
+    const registroVotante = daos.registroVotanteEleccion.obtenerPorId(bd, dni, id);
+    const resultadosEleccion = daos.resultadoEleccion.obtenerPorEleccionId(bd, id);
+    const resultadosPorPartido = daos.resultadoPartido.obtenerPorEleccion(bd, id);
 
     const resultadosCompletos = resultadosEleccion ? {
       ...resultadosEleccion,
@@ -63,39 +62,33 @@ export const serviciosElecciones = {
     };
   },
 
-  //----------------------------------------------------------------------------
-  //----------------------------------------------------------------------------
-
-  async crear(bd, datosEleccion) {
-    // Validar fechas
+  crear(bd, datosEleccion) {
     const fechas = validarFechasEleccion(datosEleccion);
 
-    // Crear elección con estado inicial
     const eleccionACrear = {
       ...datosEleccion,
       ...fechas,
       estado: 'PENDIENTE'
     };
 
-    return await daos.eleccion.crear(bd, eleccionACrear);
+    return daos.eleccion.crear(bd, eleccionACrear);
   },
 
-  async actualizar(bd, id, datosEleccion) {
-    const eleccionExistente = await daos.eleccion.obtenerPorId(bd, id);
+  actualizar(bd, id, datosEleccion) {
+    const eleccionExistente = daos.eleccion.obtenerPorId(bd, id);
     if (!eleccionExistente) {
       throw new Error('Elección no encontrada');
     }
 
-    // Validar fechas si se actualizan
     if (algunaFechaCambia(datosEleccion, eleccionExistente)) {
       validarFechasEleccion(datosEleccion);
     }
 
-    return await daos.eleccion.actualizar(bd, id, datosEleccion);
+    return daos.eleccion.actualizar(bd, id, datosEleccion);
   },
 
-  async eliminar(bd, id) {
-    const eleccionExistente = await daos.eleccion.obtenerPorId(bd, id);
+  eliminar(bd, id) {
+    const eleccionExistente = daos.eleccion.obtenerPorId(bd, id);
     if (!eleccionExistente) {
       throw new Error('Elección no encontrada');
     }
@@ -104,7 +97,7 @@ export const serviciosElecciones = {
       throw new Error('Solo se pueden eliminar elecciones pendientes');
     }
 
-    return await daos.eleccion.eliminar(bd, id);
+    return daos.eleccion.eliminar(bd, id);
   },
 };
 
@@ -129,7 +122,6 @@ function validarFechasEleccion(datosEleccion) {
     fechaEscrutinio: new Date(fechaEscrutinio)
   };
 
-  // Validar orden cronológico
   if (fechas.fechaInicioRegistro >= fechas.fechaFinRegistro) {
     throw new Error('La fecha de inicio de registro debe ser anterior a la de fin');
   }

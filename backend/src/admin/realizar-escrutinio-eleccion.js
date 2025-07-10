@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { indexer } from '../algorand/algorand.js';
-import { toNote, fromNote } from '../algorand/algoUtiles.js';
+import { fromNote } from '../algorand/algoUtiles.js';
 import { 
   eleccionDAO, 
   contratoBlockchainDAO, 
@@ -12,13 +12,13 @@ import {
 import { desencriptar, desencriptarConClavePrivada } from '../utiles/utilesCrypto.js';
 
 import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
-import { TextDecoder, TextEncoder } from 'node:util';
+import { TextEncoder } from 'node:util';
 
 import { CLAVE_MAESTRA } from '../utiles/constantes.js';
 
 
 const codificador = new TextEncoder();
-const decodificador = new TextDecoder();
+// const decodificador = new TextDecoder();
 
 const eleccionId = process.argv[2];
 

@@ -12,7 +12,30 @@ Authorization: Basic OTAwMDAwMDBaOlBhc3N3b3JkMTIzIQ==
 GET {{baseUrl}}/api/registro/1
 Authorization: Basic OTAwMDAwMDBaOlBhc3N3b3JkMTIzIQ==
 
+##------------------------------------------------------------------------------
 
+### Listar elecciones disponibles
+GET {{baseUrl}}/api/eleccion/disponibles
+
+### Detalle elección 1
+GET {{baseUrl}}/api/eleccion/1
+
+### Partidos elección 1
+GET {{baseUrl}}/api/eleccion/1/partidos
+
+### Contrato elección 1
+GET {{baseUrl}}/api/eleccion/1/contrato
+
+### PruebaZK elección 1
+GET {{baseUrl}}/api/eleccion/1/pruebaZK
+
+### RaizZK elección 1 bloque 0
+GET {{baseUrl}}/api/eleccion/1/raizZK/0
+
+### Resultados elección 1
+GET {{baseUrl}}/api/eleccion/1/resultados
+
+##------------------------------------------------------------------------------
 ##------------------------------------------------------------------------------
 
 ### LOGIN de votante

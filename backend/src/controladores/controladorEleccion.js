@@ -1,4 +1,5 @@
 import { serviciosElecciones } from '../servicios/serviciosElecciones.js';
+import { serviciosContratos, serviciosPruebas, serviciosRaices } from '../servicios/serviciosContratos.js';
 import { serviciosPartidos } from '../servicios/serviciosPartidos.js';
 import { serviciosResultados } from '../servicios/serviciosResultados.js';
 import { serviciosRegistros } from '../servicios/serviciosRegistros.js';
@@ -7,11 +8,10 @@ export const controladorEleccion = {
 
   //----------------------------------------------------------------------------
 
-  async obtenerEleccionesDisponibles(peticion, respuesta) {
+  obtenerEleccionesDisponibles(peticion, respuesta) {
     try {
-      // console.log('Listando elecciones...');
-      const elecciones = await serviciosElecciones.obtenerTodas(peticion.bd);
-      respuesta.json(elecciones || []);
+      const elecciones = serviciosElecciones.obtenerTodas(peticion.bd);
+      respuesta.json(elecciones ?? []);
     } catch (error) {
       respuesta.status(500).json({ error: error.message });
     }
@@ -19,16 +19,13 @@ export const controladorEleccion = {
 
   //----------------------------------------------------------------------------
 
-  async obtenerEleccionPorId(peticion, respuesta) {
+  obtenerDetalleEleccion(peticion, respuesta) {
     try {
-      const eleccion = await serviciosElecciones.obtenerPorId(
+      const eleccion = serviciosElecciones.obtenerPorId(
         peticion.bd,
         peticion.params.idEleccion
       );
-      if (!eleccion) {
-        return respuesta.status(404).json({ error: 'Elección no encontrada' });
-      }
-      respuesta.json(eleccion);
+      respuesta.json(eleccion ?? {});
     } catch (error) {
       respuesta.status(500).json({ error: error.message });
     }
@@ -36,13 +33,13 @@ export const controladorEleccion = {
 
   //----------------------------------------------------------------------------
 
-  async obtenerPartidosEleccion(peticion, respuesta) {
+  obtenerPartidosEleccion(peticion, respuesta) {
     try {
-      const partidos = await serviciosPartidos.obtenerPorEleccion(
+      const partidos = serviciosPartidos.obtenerPorEleccion(
         peticion.bd,
         peticion.params.idEleccion
       );
-      respuesta.json(partidos || []);
+      respuesta.json(partidos ?? []);
     } catch (error) {
       respuesta.status(500).json({ error: error.message });
     }
@@ -50,16 +47,59 @@ export const controladorEleccion = {
 
   //----------------------------------------------------------------------------
 
-  async obtenerResultadosEleccion(peticion, respuesta) {
+  obtenerContratoEleccion(peticion, respuesta) {
     try {
-      const resultados = await serviciosResultados.obtenerResultadoEleccion(
+      const contrato = serviciosContratos.obtenerPorId(
+        peticion.bd,
+        peticion.params.idEleccion
+      );
+      respuesta.json(contrato ?? {});
+    } catch (error) {
+      respuesta.status(500).json({ error: error.message });
+    }
+  },
+
+  //----------------------------------------------------------------------------
+
+  obtenerPruebaZkEleccion(peticion, respuesta) {
+    try {
+      const contrato = serviciosPruebas.obtenerPorId(
+        peticion.bd,
+        peticion.params.idEleccion
+      );
+      respuesta.json(contrato ?? {});
+    } catch (error) {
+      respuesta.status(500).json({ error: error.message });
+    }
+  },
+
+  //----------------------------------------------------------------------------
+
+  obtenerRaizZkEleccion(peticion, respuesta) {
+    try {
+      const contrato = serviciosRaices.obtenerPorId(
+        peticion.bd,
+        peticion.params.idEleccion,
+        peticion.params.idxBloque
+      );
+      respuesta.json(contrato ?? {});
+    } catch (error) {
+      respuesta.status(500).json({ error: error.message });
+    }
+  },
+
+  //----------------------------------------------------------------------------
+
+  obtenerResultadosEleccion(peticion, respuesta) {
+    try {
+      const resultados = serviciosResultados.obtenerResultadoEleccion(
         peticion.bd,
         peticion.params.idEleccion
       );
       if (!resultados) {
-        return respuesta.status(404).json({ error: 'Resultados no encontrados' });
+        respuesta.json({});
       }
-      const partidos = await serviciosResultados.obtenerResultadosPartidos(
+      const partidos = serviciosResultados.obtenerResultadosPartidos(
         peticion.bd,
         peticion.params.idEleccion
       );
@@ -72,6 +112,10 @@ export const controladorEleccion = {
     }
   },
 
+  //----------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
+
+  //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
 
   async obtenerRegistroEleccionEleccion(peticion, respuesta) {
@@ -92,22 +136,22 @@ export const controladorEleccion = {
 
   //----------------------------------------------------------------------------
 
-  async obtenerDetalleEleccion(peticion, respuesta) {
-    try {
-      const detalleEleccion = await serviciosElecciones.obtenerDetalle(
-        peticion.bd,
-        peticion.params.idEleccion,
-        peticion.votante.dni
-      );
-      if (!detalleEleccion) {
-        return respuesta.status(404).json({ error: 'Elección no encontrada' });
-      }
-      console.log('Detalle de elección:', detalleEleccion);
-      respuesta.json(detalleEleccion);
-    } catch (error) {
-      respuesta.status(500).json({ error: error.message });
-    }
-  },
+  // async obtenerDetalleEleccion(peticion, respuesta) {
+  //   try {
+  //     const detalleEleccion = await serviciosElecciones.obtenerDetalle(
+  //       peticion.bd,
+  //       peticion.params.idEleccion,
+  //       peticion.votante.dni
+  //     );
+  //     if (!detalleEleccion) {
+  //       return respuesta.status(404).json({ error: 'Elección no encontrada' });
+  //     }
+  //     console.log('Detalle de elección:', detalleEleccion);
+  //     respuesta.json(detalleEleccion);
+  //   } catch (error) {
+  //     respuesta.status(500).json({ error: error.message });
+  //   }
+  // },
 
   //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------

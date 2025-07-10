@@ -78,12 +78,12 @@ async function inicializarAplicacion() {
     console.error('Error al inicializar IndexedDB:', error);
     // Mostrar mensaje de error en la interfaz
     app.innerHTML = `
-    <div class="alert alert-danger mt-5" role="alert">
-      <h4 class="alert-heading">Error crítico</h4>
-      <p>No se pudo inicializar el almacenamiento local del navegador (IndexedDB).</p>
-      <hr>
-      <p class="mb-0">La aplicación no puede funcionar correctamente. Prueba a recargar la página o usa otro navegador.</p>
-    </div>
+      <div class="alert alert-danger mt-5" role="alert">
+        <h4 class="alert-heading">Error crítico</h4>
+        <p>No se pudo inicializar el almacenamiento local del navegador (IndexedDB).</p>
+        <hr>
+        <p class="mb-0">La aplicación no puede funcionar correctamente. Prueba a recargar la página o usa otro navegador.</p>
+      </div>
   `;
     // Opcional: deshabilitar más lógica
     throw error; // O simplemente return para no seguir ejecutando

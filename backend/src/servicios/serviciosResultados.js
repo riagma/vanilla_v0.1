@@ -3,41 +3,41 @@ import { daos } from '../modelo/DAOs.js';
 export const serviciosResultados = {
   // Operaciones para ResultadoEleccion
 
-  async crearResultadoEleccion(bd, datosResultado) {
-    return await daos.resultadoEleccion.crear(bd, datosResultado);
+  crearResultadoEleccion(bd, datosResultado) {
+    return daos.resultadoEleccion.crear(bd, datosResultado);
   },
 
-  async actualizarResultadoEleccion(bd, idEleccion, datosResultado) {
-    return await daos.resultadoEleccion.actualizar(bd, { idEleccion }, datosResultado);
+  actualizarResultadoEleccion(bd, idEleccion, datosResultado) {
+    return daos.resultadoEleccion.actualizar(bd, { idEleccion }, datosResultado);
   },
 
-  async eliminarResultadoEleccion(bd, idEleccion) {
-    return await daos.resultadoEleccion.eliminar(bd, { idEleccion });
+  eliminarResultadoEleccion(bd, idEleccion) {
+    return daos.resultadoEleccion.eliminar(bd, { idEleccion });
   },
 
-  async obtenerResultadoEleccion(bd, idEleccion) {
-    return await daos.resultadoEleccion.obtenerPorEleccionId(bd, idEleccion);
+  obtenerResultadoEleccion(bd, idEleccion) {
+    return daos.resultadoEleccion.obtenerPorEleccionId(bd, idEleccion);
   },
 
   // Operaciones para ResultadoPartido
 
-  async crearResultadoPartido(bd, datosResultado) {
-    return await daos.resultadoPartido.crear(bd, datosResultado);
+  crearResultadoPartido(bd, datosResultado) {
+    return daos.resultadoPartido.crear(bd, datosResultado);
   },
 
-  async actualizarResultadoPartido(bd, idEleccion, partidoId, datosResultado) {
-    return await daos.resultadoPartido.actualizar(bd, { idEleccion, partidoId }, datosResultado);
+  actualizarResultadoPartido(bd, idEleccion, partidoId, datosResultado) {
+    return daos.resultadoPartido.actualizar(bd, { idEleccion, partidoId }, datosResultado);
   },
 
-  async eliminarResultadoPartido(bd, idEleccion, partidoId) {
-    return await daos.resultadoPartido.eliminar(bd, { idEleccion, partidoId });
+  eliminarResultadoPartido(bd, idEleccion, partidoId) {
+    return daos.resultadoPartido.eliminar(bd, { idEleccion, partidoId });
   },
 
-  async obtenerResultadosPartidos(bd, idEleccion) {
-    return await daos.resultadoPartido.obtenerPorEleccion(bd, idEleccion);
+  obtenerResultadosPartidos(bd, idEleccion) {
+    return daos.resultadoPartido.obtenerPorEleccion(bd, idEleccion);
   },
 
-  async obtenerResultadoPartido(bd, idEleccion, partidoId) {
-    return await daos.resultadoPartido.obtenerPorId(bd, idEleccion, partidoId);
+  obtenerResultadoPartido(bd, idEleccion, partidoId) {
+    return daos.resultadoPartido.obtenerPorId(bd, idEleccion, partidoId);
   }
 };

@@ -110,21 +110,23 @@ export function vistaPanel(container) {
   function manejarAccionEleccion(eleccionId, status) {
     const eleccion = elecciones.find(e => e.id === eleccionId);
     if (!eleccion) return;
+
+    navegarA(`/e/${eleccionId}`);
     
-    switch(status) {
-      case 'futuras':
-        // Mostrar detalles de la elección
-        alert(`Ver detalles de: ${eleccion.nombre}`);
-        break;
-      case 'actuales':
-        // Ir a votar
-        alert(`Ir a votar en: ${eleccion.nombre}`);
-        break;
-      case 'pasadas':
-        // Ver resultados
-        alert(`Ver resultados de: ${eleccion.nombre}`);
-        break;
-    }
+    // switch(status) {
+    //   case 'futuras':
+    //     // Mostrar detalles de la elección
+    //     alert(`Ver detalles de: ${eleccion.nombre}`);
+    //     break;
+    //   case 'actuales':
+    //     // Ir a votar
+    //     alert(`Ir a votar en: ${eleccion.nombre}`);
+    //     break;
+    //   case 'pasadas':
+    //     // Ver resultados
+    //     alert(`Ver resultados de: ${eleccion.nombre}`);
+    //     break;
+    // }
   }
 
   // Bind eventos\ n   

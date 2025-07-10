@@ -23,7 +23,7 @@ export const servicioLogin = {
   },
 
   // Registro de nuevo votante
-  async registrarVotante(nombreUsuario, contrasena, repetirContrasena) {
+  async crearUsuario(nombreUsuario, contrasena, repetirContrasena) {
     if (!nombreUsuario || !contrasena || !repetirContrasena) {
       throw new Error('Todos los campos son obligatorios.');
     }
@@ -53,7 +53,7 @@ export const servicioLogin = {
   },
 
   // Login de votante existente
-  async loginVotante(nombreUsuario, contrasena) {
+  async loginUsuario(nombreUsuario, contrasena) {
     if (!nombreUsuario || !contrasena) {
       throw new Error('Nombre y contraseña obligatorios.');
     }
@@ -75,7 +75,7 @@ export const servicioLogin = {
     console.log('Login exitoso para:', nombreUsuario);
 
     if (!votante.censo) {
-      const censo = await servicioVotante.recuperarDatosCensales();
+      const censo = await servicioVotante.cargarVotanteApi();
       if (censo) {
         votante.censo = censo;
       } else {

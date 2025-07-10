@@ -82,7 +82,7 @@ export function vistaLogin(container) {
         const contrasena = data.get('contrasena');
         const repetirContrasena = data.get('repetirContrasena');
         try {
-          await servicioLogin.registrarVotante(nombreUsuario, contrasena, repetirContrasena);
+          await servicioLogin.crearUsuario(nombreUsuario, contrasena, repetirContrasena);
           navegarA('/v');
         } catch (err) {
           divError.textContent = err.message || 'Error al crear usuario.';
@@ -104,7 +104,7 @@ export function vistaLogin(container) {
         const nombreUsuario = data.get('nombreUsuario');
         const contrasena = data.get('contrasena');
         try {
-          await servicioLogin.loginVotante(nombreUsuario, contrasena);
+          await servicioLogin.loginUsuario(nombreUsuario, contrasena);
           navegarA('/v');
         } catch (err) {
           divError.textContent = err.message || 'Error de autenticación.';

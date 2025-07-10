@@ -135,11 +135,14 @@ class Voto3IDB {
   }
 
   async actualizarEleccion(eleccion) {
+    console.log(`Actualizando eleccion: ${eleccion.nombreUsuario} - ${eleccion.eleccionId}`);
+    const eleccionAnterior = await this.obtenerEleccion(eleccion.nombreUsuario, eleccion.eleccionId);
+    const eleccionActualizada = eleccionAnterior ? { ...eleccionAnterior, ...eleccion } : eleccion;
     const transaction = this.db.transaction(['elecciones'], 'readwrite');
     const store = transaction.objectStore('elecciones');
     
     return new Promise((resolve, reject) => {
-      const request = store.put(eleccion);
+      const request = store.put(eleccionActualizada);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });

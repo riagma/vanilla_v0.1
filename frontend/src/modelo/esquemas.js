@@ -8,15 +8,23 @@ export const esquemaVotante = z.object({
   correoElectronico: z.string().email().optional().nullable()
 });
 
+const fechaLocal = z.string().refine(
+  val => /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(val),
+  { message: "Formato de fecha inválido (debe ser YYYY-MM-DD HH:mm:ss)" }
+);
+
 export const esquemaEleccion = z.object({
   id: z.number().int().positive(),
   nombre: z.string().min(1),
   descripcion: z.string().min(1),
-  fechaInicioRegistro: z.string().datetime(),
-  fechaFinRegistro: z.string().datetime(),
-  fechaInicioVotacion: z.string().datetime(),
-  fechaFinVotacion: z.string().datetime(),
-  fechaCelebracion: z.string().datetime()
+  fechaInicioRegistro: fechaLocal,
+  fechaFinRegistro: fechaLocal,
+  fechaInicioVotacion: fechaLocal,
+  fechaFinVotacion: fechaLocal,
+  fechaEscrutinio: fechaLocal,
+  claveVotoPublica: z.string().optional().nullable(),
+  claveVotoPrivada: z.string().optional().nullable(),
+  claveVotoPrivadaEncriptada: z.string().optional().nullable()
 });
 
 // Array de elecciones
