@@ -1,10 +1,48 @@
-export default {
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  root: '.',
+  publicDir: 'public',
   server: {
     proxy: {
       '/api': 'http://localhost:3000'
     }
   },
   build: {
-    outDir: '../backend/public' // para que el backend sirva los estáticos directamente
+    outDir: '../backend/public', // para que el backend sirva los estáticos directamente
+    sourcemap: true,
+    target: 'esnext',
+    rollupOptions: {
+      input: {
+        main: './index.html'
+      }
+    }
+  },
+  optimizeDeps: {
+    esbuildOptions: { target: "esnext" },
+    exclude: ['@noir-lang/noirc_abi', '@noir-lang/acvm_js']
+  },
+  define: {
+    global: 'globalThis'
+  },
+  resolve: {
+    alias: {
+      '@': './src'
+    }
   }
-}
+});
+
+// export default {
+//   optimizeDeps: {
+//     esbuildOptions: { target: "esnext" },
+//     exclude: ['@noir-lang/noirc_abi', '@noir-lang/acvm_js']
+//   },  
+//   server: {
+//     proxy: {
+//       '/api': 'http://localhost:3000'
+//     }
+//   },
+//   build: {
+//     outDir: '../backend/public' // para que el backend sirva los estáticos directamente
+//   }
+// }

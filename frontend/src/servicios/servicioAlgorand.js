@@ -1,13 +1,10 @@
 import algosdk from 'algosdk';
-import { Buffer } from 'node:buffer';
-import { TextDecoder, TextEncoder } from 'node:util';
 
 const algod = new algosdk.Algodv2('', 'http://localhost:4001', '');
 const indexer = new algosdk.Indexer('', 'http://localhost:8980', '');
 
 const codificador = new TextEncoder();
 const decodificador = new TextDecoder();
-
 
 export const servicioAlgorand = {
 
@@ -80,7 +77,7 @@ export const servicioAlgorand = {
         return txId;
     },
 
-    async consultarPapeletaRecibida(addr) {
+    async consultarPapeletaEnviada(addr) {
         const txns = await indexer.searchForTransactions()
             .address(addr)
             .addressRole('sender')
@@ -107,7 +104,11 @@ export const servicioAlgorand = {
     },
 
     fromNote(base64) {
-        const bytes = Uint8Array.from(Buffer.from(base64, 'base64'));
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+        }
         const str = decodificador.decode(bytes);
         return JSON.parse(str);
     },

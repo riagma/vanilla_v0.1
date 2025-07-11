@@ -8,10 +8,11 @@ const router = Router();
 router.get('/disponibles', controladorEleccion.obtenerEleccionesDisponibles);
 router.get('/:idEleccion', controladorEleccion.obtenerDetalleEleccion);
 router.get('/:idEleccion/partidos', controladorEleccion.obtenerPartidosEleccion);
+router.get('/:idEleccion/resultados', controladorEleccion.obtenerResultadosEleccion);
+
 router.get('/:idEleccion/contrato', controladorEleccion.obtenerContratoEleccion);
 router.get('/:idEleccion/pruebaZK', controladorEleccion.obtenerPruebaZkEleccion);
 router.get('/:idEleccion/raizZK/:idxBloque', controladorEleccion.obtenerRaizZkEleccion);
-router.get('/:idEleccion/resultados', controladorEleccion.obtenerResultadosEleccion);
 
 // router.post(
 //   '/elecciones/:idEleccion/registro',

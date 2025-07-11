@@ -1,3 +1,57 @@
+
+import { poseidon2Hash, poseidon2HashAsync } from "@zkpassport/poseidon2"
+
+//----------------------------------------------------------------------------
+
+export function calcularPoseidon2(datos) {
+
+  const inputs = Array.isArray(datos) ? datos : [datos];
+
+  for (const x of inputs) {
+    if (typeof x !== 'bigint') {
+      throw new Error('Todos los elementos de entrada deben ser BigInt');
+    }
+  }
+
+  return poseidon2Hash(inputs);
+}
+
+//----------------------------------------------------------------------------
+
+export async function calcularPoseidon2Async(datos) {
+
+  const inputs = Array.isArray(datos) ? datos : [datos];
+
+  for (const x of inputs) {
+    if (typeof x !== 'bigint') {
+      throw new Error('Todos los elementos de entrada deben ser BigInt');
+    }
+  }
+
+  return await poseidon2HashAsync(inputs);
+}
+
+//----------------------------------------------------------------------------
+
+// SHA-256 en navegador (devuelve hex)
+export async function calcularSha256(datos) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(datos);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// randomBigInt en navegador
+export function randomBigInt(bytes = 24) {
+  const array = new Uint8Array(bytes);
+  crypto.getRandomValues(array);
+  return BigInt('0x' + Array.from(array).map(b => b.toString(16).padStart(2, '0')).join(''));
+}
+
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
+
 // Utilidad para generar salt aleatorio (hex)
 export function generarSalt(longitud = 16) {
   const array = new Uint8Array(longitud);

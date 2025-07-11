@@ -57,7 +57,6 @@ export async function vistaDetalleEleccion(container, idEleccion) {
     try {
         eleccion = await servicioEleccion.cargarEleccion(idEleccion);
         partidos = await servicioEleccion.cargarPartidos(idEleccion);
-        contrato = await servicioEleccion.cargarContrato(idEleccion);
 
         resultados = await servicioEleccion.cargarResultados(idEleccion);
 
