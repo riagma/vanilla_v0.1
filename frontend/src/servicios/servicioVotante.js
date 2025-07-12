@@ -4,9 +4,11 @@ import { validarDatos, esquemaVotante } from '../modelo/esquemas.js';
 import { notificarAccesoIdentificado } from '../componentes/accesoServidor.js';
 import { servicioAlgorand } from './servicioAlgorand.js';
 import { servicioLogin } from '../servicios/servicioLogin.js';
-import { desencriptar, encriptar } from '../utiles/utilesCrypto.js';
+import { encriptarJSON, desencriptarJSON, desencriptarNodeJSON} from '../utiles/utilesCrypto.js';
 import { voto3IDB as idb } from '../modelo/voto3IDB.js';
 import { calcularBloqueIndice } from '../utiles/utilesArbol.js';
+
+import { CLAVE_PRUEBAS } from '../utiles/constantes.js';
 
 
 export const servicioVotante = {
@@ -14,8 +16,8 @@ export const servicioVotante = {
   async cargarVotante() {
     try {
       const usuario = await idb.obtenerVotante(contexto.getNombreUsuario());
-      if (usuario && usuario.censo) {
-        return await desencriptar(usuario.censo, servicioLogin.getClaveDerivada());
+      if (usuario && usuario.votante) {
+        return await desencriptarJSON(usuario.votante, servicioLogin.getClaveDerivada());
       }
       return await this.cargarVotanteApi();
     } catch (error) {
@@ -37,10 +39,10 @@ export const servicioVotante = {
         return null;
       }
       console.log('Datos censales recuperados:', votanteApi);
-      const votante = validarDatos(votanteApi, esquemaVotante);
-      contexto.actualizarContexto({ nombreVotante: votante.nombre });
-      const censo = await encriptar(votante, servicioLogin.getClaveDerivada());
-      await idb.actualizarVotante({ nombreUsuario: contexto.getNombreUsuario(), censo });
+      const votantePlano = validarDatos(votanteApi, esquemaVotante);
+      contexto.actualizarContexto({ nombreVotante: votantePlano.nombre });
+      const votante = await encriptarJSON(votantePlano, servicioLogin.getClaveDerivada());
+      await idb.actualizarVotante(contexto.getNombreUsuario(), { votante });
       return votante;
     } catch (error) {
       throw new Error('Error al cargar los datos del censo: ' + error.message);
@@ -79,7 +81,7 @@ export const servicioVotante = {
       this.cargarDatosVotacion(idEleccion, registro.compromisoIdx);
       return await idb.obtenerEleccion(contexto.getNombreUsuario(), idEleccion);
     } catch (error) {
-      throw new Error('Error al cargar los datos del censo: ' + error.message);
+      throw new Error('Error al cargar los datos del registro: ' + error.message);
     }
   },
 
@@ -116,7 +118,10 @@ export const servicioVotante = {
         return null;
       }
       console.log('Datos privados de la elección:', eleccion.datosPrivados);
-      const datosPrivados = await desencriptar(eleccion.datosPrivados, servicioLogin.getClaveDerivada());
+      console.log('Clave derivada del usuario:', servicioLogin.getClaveDerivada());
+      // TODO: cambiar a desencriptarJSON
+      // const datosPrivados = await desencriptarJSON(eleccion.datosPrivados, servicioLogin.getClaveDerivada());
+      const datosPrivados = await desencriptarNodeJSON(eleccion.datosPrivados, CLAVE_PRUEBAS);
       if (!datosPrivados) {
         console.log('No se obtuvieron los datos privados del usuario');
         return null;

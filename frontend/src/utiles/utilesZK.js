@@ -49,23 +49,21 @@ await Promise.all([initACVM(fetch(acvm)), initNoirC(fetch(noirc))]);
 // 	}
 // }
 
-export const servicioCircuito = {
 
-	async testCircuito() {
-		try {
-			console.log("Cargando circuito Merkle11...");
-			const respuesta = await fetch('/merkle11.json');
-			if (!respuesta.ok) throw new Error('No se pudo cargar el JSON');
-			const merkle11 = await respuesta.json();
-			console.log(merkle11);
-			const noir = new Noir(merkle11);
-			const honk = new UltraHonkBackend(merkle11.bytecode);
+export async function testCircuito() {
+	try {
+		console.log("Cargando circuito Merkle11...");
+		const respuesta = await fetch('/circuits/E-001/merkle11.json');
+		if (!respuesta.ok) throw new Error('No se pudo cargar el JSON');
+		const merkle11 = await respuesta.json();
+		console.log(merkle11);
+		const noir = new Noir(merkle11);
+		const honk = new UltraHonkBackend(merkle11.bytecode);
 
-		} catch (err) {
-			console.error(err);
-			console.log("Oh 💔");
-		}
-	},
+	} catch (err) {
+		console.error(err);
+		console.log("Oh 💔");
+	}
 }
 
 // });

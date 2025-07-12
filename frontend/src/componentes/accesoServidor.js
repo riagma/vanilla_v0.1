@@ -1,20 +1,20 @@
 import { contexto } from '../modelo/contexto.js';
 import { voto3IDB as idb } from '../modelo/voto3IDB.js';
 import { servicioLogin } from '../servicios/servicioLogin.js';
-import { encriptar, desencriptar } from '../utiles/utilesCrypto.js';
+import { encriptarJSON, desencriptarJSON } from '../utiles/utilesCrypto.js';
 
 export async function notificarAccesoIdentificado(titulo = 'Acceso al servidor de Voto3') {
   const nombreUsuario = contexto.getNombreUsuario();
   if (!nombreUsuario) {
     throw new Error('No hay usuario autenticado');
   }
-  const votante = await idb.obtenerVotante(nombreUsuario);
-  if (!votante) {
+  const usuario = await idb.obtenerVotante(nombreUsuario);
+  if (!usuario) {
     throw new Error('Votante no encontrado en la base de datos');
   }
   let credenciales = null;
-  if (votante.credenciales) {
-    credenciales = await desencriptar(votante.credenciales, servicioLogin.getClaveDerivada());
+  if (usuario.credenciales) {
+    credenciales = await desencriptarJSON(usuario.credenciales, servicioLogin.getClaveDerivada());
   }
 
   console.log('Notificando acceso al servidor Voto3 para:', nombreUsuario);
@@ -150,9 +150,9 @@ export async function notificarAccesoIdentificado(titulo = 'Acceso al servidor d
       }
       try {
         if (rememberCheckbox.checked) {
-          const credenciales = await encriptar({ dni, contrasena }, servicioLogin.getClaveDerivada());
+          const credenciales = await encriptarJSON({ dni, contrasena }, servicioLogin.getClaveDerivada());
           console.log('Guardando credenciales en IDB:', nombreUsuario, credenciales);
-          await idb.actualizarVotante({ nombreUsuario, credenciales });
+          await idb.actualizarVotante(nombreUsuario, { credenciales });
         }
         bsModal.hide(); modal.remove();
         resolve({ dni, contrasena, recordar: rememberCheckbox.checked });

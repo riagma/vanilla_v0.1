@@ -1,10 +1,10 @@
 import { contexto } from '../modelo/contexto.js';
 import { voto3IDB } from '../modelo/voto3IDB.js';
 import {
-  generarSalt,
+  generarSaltSemilla,
   derivarClave,
   hashPassword,
-  desencriptar
+  desencriptarJSON
 } from '../utiles/utilesCrypto.js';
 
 import { servicioVotante } from './servicioVotante.js';
@@ -36,20 +36,24 @@ export const servicioLogin = {
       throw new Error('Ya existe un usuario con ese nombreUsuario.');
     }
     // Generar salt único para este usuario
-    const claveSalt = generarSalt();
+    const claveSalt = await generarSaltSemilla(nombreUsuario);
+    console.log('Salt generado:', claveSalt);
     const claveDerivada = await derivarClave(contrasena, claveSalt);
 
     // Derivar clave y hash
     const contrasenaHash = await hashPassword(contrasena);
-    const votante = { nombreUsuario, contrasenaHash, claveSalt };
-    console.log('Registrando votante:', votante);
-    await voto3IDB.crearVotante(votante);
+    const usuario = { nombreUsuario, contrasenaHash, claveSalt };
+    console.log('Registrando votante:', usuario);
+    await voto3IDB.crearVotante(usuario);
 
     // Guardar clave derivada en memoria para la sesión
     claveDerivadaSesion = claveDerivada;
 
     contexto.limpiarContexto();
     contexto.actualizarContexto({ nombreUsuario });
+    console.log('Usuario creado exitosamente:', nombreUsuario);
+
+    await servicioVotante.cargarVotanteApi();
   },
 
   // Login de votante existente
@@ -58,32 +62,25 @@ export const servicioLogin = {
       throw new Error('Nombre y contraseña obligatorios.');
     }
     // console.log('Intentando login con:', nombreUsuario);
-    const votante = await voto3IDB.obtenerVotante(nombreUsuario);
-    if (!votante) {
+    const usuario = await voto3IDB.obtenerVotante(nombreUsuario);
+    if (!usuario) {
       throw new Error('Usuario no encontrado.');
     }
     // console.log('Votante encontrado:', votante);
     const contrasenaHash = await hashPassword(contrasena);
-    if (votante.contrasenaHash !== contrasenaHash) {
+    if (usuario.contrasenaHash !== contrasenaHash) {
       throw new Error('Contraseña incorrecta.');
     }
     // Derivar clave con el salt guardado
-    const claveDerivada = await derivarClave(contrasena, votante.claveSalt);
+    const claveDerivada = await derivarClave(contrasena, usuario.claveSalt);
     claveDerivadaSesion = claveDerivada;
+
     contexto.limpiarContexto();
     contexto.actualizarContexto({ nombreUsuario });
     console.log('Login exitoso para:', nombreUsuario);
 
-    if (!votante.censo) {
-      const censo = await servicioVotante.cargarVotanteApi();
-      if (censo) {
-        votante.censo = censo;
-      } else {
-        console.warn('No se pudieron recuperar los datos censales.');
-      }
-    } else {
-      const censoDec = await desencriptar(votante.censo, claveDerivada);
-      contexto.actualizarContexto({ nombreVotante: censoDec.nombre });
+    if (!usuario.votante) {
+      await servicioVotante.cargarVotanteApi();
     }
   }
 };

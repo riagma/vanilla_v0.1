@@ -6,22 +6,13 @@ import { voto3IDB } from './modelo/voto3IDB.js';
 import { crearMarco } from './componentes/marco.js';
 import { obtenerVista } from './rutas/enrutado.js';
 
-import { servicioCircuito } from './servicios/servicioCircuito.js';
+import { testCircuito } from './utiles/utilesZK.js';
 
 //--------------
 let contenedorMarco = null; 
 let limpiarVistaActual = null;
 let limpiarMarco = null;
 //--------------
-
-    // "@aztec/bb.js": "^0.87.9",
-    // "@noir-lang/noir_js": "^1.0.0-beta.7",
-    // "@noir-lang/noir_wasm": "^1.0.0-beta.8",
-
-    // "@aztec/bb.js": "0.63.1",
-    // "@noir-lang/noir_js": "1.0.0-beta.0",
-    // "@noir-lang/noir_wasm": "1.0.0-beta.0",
-
 
 //------------------------------------------------------------------------------
 
@@ -106,7 +97,7 @@ async function inicializarAplicacion() {
   limpiarMarco = marco.limpiarMarco;
   console.log('Marco creado:', contenedorMarco);
 
-  await servicioCircuito.testCircuito();
+  await testCircuito();
   
   renderizar();
 }

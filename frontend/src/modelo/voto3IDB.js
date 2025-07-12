@@ -57,16 +57,14 @@ class Voto3IDB {
     });
   }
 
-  async actualizarVotante(votante) {
-    console.log(`Actualizando votante: ${votante.nombreUsuario}`);
-    const votanteAnterior = await this.obtenerVotante(votante.nombreUsuario);
-    if (!votanteAnterior) {
-      throw new Error(`Votante con nombre de usuario ${votante.nombreUsuario} no encontrado`);
-    }
-    const votanteActualizado = { ...votanteAnterior, ...votante };
+  async actualizarVotante(nombreUsuario, votante) {
+    console.log(`Actualizando votante: ${nombreUsuario}`);
+    const votanteNuevo = { ...votante, nombreUsuario };
+    const votanteAnterior = await this.obtenerVotante(nombreUsuario);
+    const votanteActualizado = votanteAnterior ? { ...votanteAnterior, ...votanteNuevo } : votanteNuevo;
     const transaction = this.db.transaction(['votantes'], 'readwrite');
     const store = transaction.objectStore('votantes');
-    
+    console.log('Votante actualizado:', votanteActualizado);
     return new Promise((resolve, reject) => {
       const request = store.put(votanteActualizado);
       request.onsuccess = () => resolve(request.result);
