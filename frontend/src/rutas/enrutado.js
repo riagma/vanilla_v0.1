@@ -1,16 +1,12 @@
 import { contexto } from '../modelo/contexto.js';
 import { vistaLogin } from '../vistas/vistaLogin.js';
 import { vistaPanel } from '../vistas/vistaPanel.js';
-import { vistaVotante } from '../vistas/vistaVotante.js';
 import { vistaEleccion } from '../vistas/vistaEleccion.js';
-import { vistaDetalleEleccion } from '../vistas/vistaDetalleEleccion.js';
 import { extraerParametrosRuta } from '../utiles/utilesVistas.js';
 
 export const RUTAS = {
-  '/v': (contenedor) => vistaPanel(contenedor),
-  '/p': (contenedor) => vistaVotante(contenedor),
-  // '/e/:id': (contenedor, params) => vistaEleccion(contenedor, parseInt(params.id)),
-  '/e/:id': (contenedor, params) => vistaDetalleEleccion(contenedor, parseInt(params.id)),
+  '/p': (contenedor) => vistaPanel(contenedor),
+  '/e/:id': (contenedor, params) => vistaEleccion(contenedor, parseInt(params.id)),
 };
 
 export function obtenerVista(ruta) {
@@ -26,8 +22,8 @@ export function obtenerVista(ruta) {
   }
 
   if (ruta === '/') {
-    console.log(`Redirigiendo a vista de votante...`);
-    navegarA('/v');
+    console.log('Redirigiendo a vista de panel ...');
+    navegarA('/p');
     return;
   }
 

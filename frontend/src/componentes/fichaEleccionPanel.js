@@ -6,7 +6,7 @@ export function fichaEleccionPanel(contenedor, eleccion, status, onAccion) {
   function renderizar() {
     limpiarManejadores(manejadores);
 
-    const algoLink = eleccion.appId ? `https://algoexplorer.io/application/${eleccion.appId}` : '';
+    const algoLink = eleccion.appId ? `https://lora.algokit.io/localnet/application/${eleccion.appId}` : '';
     
     contenedor.innerHTML = `
       <div class="col">

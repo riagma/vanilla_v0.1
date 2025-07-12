@@ -13,6 +13,26 @@ const fechaLocal = z.string().refine(
   { message: "Formato de fecha inválido (debe ser YYYY-MM-DD HH:mm:ss)" }
 );
 
+// Esquema para Partido
+export const esquemaPartido = z.object({
+  siglas: z.string().min(1),
+  nombre: z.string().min(1).optional().nullable(),
+  descripcion: z.string().min(1).optional().nullable()
+});
+
+// Esquema para Contrato
+export const esquemaContrato = z.object({
+  contratoId: z.number().int().positive(),
+  appId: z.string().min(1),
+  appAddr: z.string().min(1),
+  tokenId: z.string().min(1),
+  cuentaId: z.number().int().positive(),
+  rondaInicialCompromisos: z.string().min(1),
+  rondaFinalCompromisos: z.string().min(1),
+  rondaInicialAnuladores: z.string().min(1),
+  rondaFinalAnuladores: z.string().min(1)
+});
+
 export const esquemaEleccion = z.object({
   id: z.number().int().positive(),
   nombre: z.string().min(1),
@@ -24,7 +44,9 @@ export const esquemaEleccion = z.object({
   fechaEscrutinio: fechaLocal,
   claveVotoPublica: z.string().optional().nullable(),
   claveVotoPrivada: z.string().optional().nullable(),
-  claveVotoPrivadaEncriptada: z.string().optional().nullable()
+  claveVotoPrivadaEncriptada: z.string().optional().nullable(),
+  partidos: z.array(esquemaPartido).optional().nullable(),
+  contrato: esquemaContrato.optional().nullable() 
 });
 
 // Array de elecciones
@@ -39,15 +61,6 @@ export const esquemaRespuestaLogin = z.object({
     dni: z.string().optional(),
     correo: z.string().email().optional()
   })
-});
-
-// Esquema para Partido
-export const esquemaPartido = z.object({
-  // id: z.number().int().positive(),
-  nombre: z.string().min(1),
-  siglas: z.string().min(1),
-  logo: z.string().url().optional().nullable(),
-  programa: z.string().min(1).optional().nullable()
 });
 
 // Esquema para resultado de Partido

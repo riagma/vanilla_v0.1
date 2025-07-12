@@ -30,8 +30,17 @@ export function vistaPanel(container) {
   let manejadores = new Set();
 
   let elecciones = [];
+  let contratos = [];
 
-
+  function mostrarError(mensaje) {
+    contenedor.innerHTML = `
+      <div class="container mt-4">
+        <div class="alert alert-danger" role="alert">
+          ${mensaje}
+        </div>
+      </div>
+    `;
+  }
 
   async function cargarElecciones() {
     try {
@@ -88,13 +97,13 @@ export function vistaPanel(container) {
 
   function renderizar(status) {
     const panel = container.querySelector(`[data-status-container="${status}"] .row`);
-    
+
     // Limpiar fichas anteriores
     limpiarComponentes(componentes);
-    
+
     // Limpiar contenedor
     panel.innerHTML = '';
-    
+
     // Renderizar nuevas fichas
     elecciones
       .filter(e => obtenerEstadoEleccion(e) === status)
@@ -112,7 +121,7 @@ export function vistaPanel(container) {
     if (!eleccion) return;
 
     navegarA(`/e/${eleccionId}`);
-    
+
     // switch(status) {
     //   case 'futuras':
     //     // Mostrar detalles de la elección
@@ -154,7 +163,7 @@ export function vistaPanel(container) {
   function onCerrarSesion() {
     servicioLogin.logout();
     navegarA('/');
-  } 
+  }
   const logoutBtn = container.querySelector('#logoutBtn');
   logoutBtn.addEventListener('click', onCerrarSesion);
   manejadores.add([logoutBtn, 'click', onCerrarSesion]);
