@@ -7,6 +7,14 @@ export function formatearFecha(date = null) {
   return `${YY}-${MM}-${DD}`;
 }
 
+export function formatearFechaWeb(date = null) {
+  let d = date ? new Date(date) : new Date();
+  const YY = d.getFullYear();
+  const MM = String(d.getMonth() + 1).padStart(2, '0');
+  const DD = String(d.getDate()).padStart(2, '0');
+  return `${DD}-${MM}-${YY}`;
+}
+
 // Date a "YYYY-MM-DD HH:MM:SS" (local)
 export function formatearFechaHora(date = null) {
   let d = date ? new Date(date) : new Date();

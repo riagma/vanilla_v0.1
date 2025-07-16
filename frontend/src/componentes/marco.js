@@ -5,88 +5,79 @@ import { limpiarManejadores } from '../utiles/utilesVistas.js';
 
 export function crearMarco(contenedor) {
   let manejadores = new Set();
+
   let nombreVotante = contexto.getNombreVotante() || '';
   let nombreUsuario = contexto.getNombreUsuario() || '';
+
+  let nombre = nombreVotante || nombreUsuario || '';
 
   function renderizarCabecera() {
     limpiarManejadores(manejadores);
 
-    const tituloVoto3 = document.getElementById('tituloVoto3');
-    if (!tituloVoto3) {
-      console.error('No se encontró el contenedor del título Voto3');
+    const cabeceraVariable = document.getElementById('cabeceraVariable');
+    if (!cabeceraVariable) {
+      console.error('No se encontró el contenedor variable de la cabecera');
       return;
     }
 
+    let estiloTitulo = '';
+
     if (nombreVotante) {
-      tituloVoto3.innerHTML = `
-        <span id="tituloVoto3"
-          style="display:inline-block; font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
-                 font-weight: 900; font-size: 2em; color: #28a745; /* verde */
-                 text-shadow: 0 1px 6px #28a74555; letter-spacing: 2px;">
-          Voto3
-        </span>
+      estiloTitulo = `
+        style="display:inline-block; font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+                font-weight: 900; font-size: 2em; color: #28a745; /* verde */
+                text-shadow: 0 1px 6px #28a74555; letter-spacing: 2px;"
       `;
     } else if (nombreUsuario) {
-      tituloVoto3.innerHTML = `
-        <span id="tituloVoto3"
-          style="display:inline-block; font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
-                 font-weight: 900; font-size: 2em; color: #007bff; /* azul */
-                 text-shadow: 0 1px 6px #007bff55; letter-spacing: 2px;">
-          Voto3
-        </span>
+      estiloTitulo = `
+        style="display:inline-block; font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+                font-weight: 900; font-size: 2em; color: #007bff; /* azul */
+                text-shadow: 0 1px 6px #007bff55; letter-spacing: 2px;"
       `;
     } else {
-      tituloVoto3.innerHTML = `
-        <span id="tituloVoto3"
-          style="display:inline-block; font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
-                 font-weight: 900; font-size: 2em; color: #fff;
-                 text-shadow: 0 1px 6px #007bff55; letter-spacing: 2px;">
-          Voto3
-        </span>
+      estiloTitulo = `
+        style="display:inline-block; font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+                font-weight: 900; font-size: 2em; color: #fff;
+                text-shadow: 0 1px 6px #007bff55; letter-spacing: 2px;"
       `;
     }
 
-    // const cabeceraAcciones = document.getElementById('cabeceraAcciones');
-    // if (!cabeceraAcciones) {
-    //   console.error('No se encontró el contenedor de acciones de la cabecera');
-    //   return;
-    // }
+    cabeceraVariable.innerHTML = `
+      <div class="d-flex flex-column align-items-center justify-content-center">
+        <h1 class="h4 mb-0 text-center">Sistema de Votación</h1>
+        <div class="mt-1 mb-2 w-100 d-flex justify-content-center">
+          <span id="tituloVoto3" ${estiloTitulo}>Voto3</span>
+        </div>
+        <div class="w-100">
+          ${nombre ? `<div class="d-flex justify-content-between align-items-center px-3 py-2 bg-dark bg-opacity-75 rounded border border-2 border-secondary mt-2"
+              style="box-shadow: 0 2px 8px #0001;">
+            <div class="user-info">
+              <h5 id="nombreUsuario" class="mb-0 text-white">${nombre}</h5>
+              <small id="estadoUsuario" class="text-light">Votante registrado</small>
+            </div>
+            <button id="botonCerrarSesion" class="btn btn-outline-light ms-3">Cerrar sesión</button>
+          </div>` : ''}
+        </div>
+      </div>
+    `;
 
-    // cabeceraAcciones.innerHTML = nombre
-    //   ? `
-    //     <div class="d-flex align-items-center">
-    //       <span class="text-light me-3">${nombre}</span>
-    //       <button id="botonCerrarSesion" class="btn btn-outline-light">Cerrar Sesión</button>
-    //     </div>
-    //   `
-    //   : '';
-
-    // const botonCerrarSesion = document.getElementById('botonCerrarSesion');
-    // if (botonCerrarSesion) {
-    //   const manejarCierreSesion = () => {
-    //     servicioLogin.logout();
-    //     navegarA('/');
-    //   };
-    //   botonCerrarSesion.addEventListener('click', manejarCierreSesion);
-    //   manejadores.add([botonCerrarSesion, 'click', manejarCierreSesion]);
-    // }
+    const botonCerrarSesion = document.getElementById('botonCerrarSesion');
+    if (botonCerrarSesion) {
+      const manejarCierreSesion = () => {
+        servicioLogin.logout();
+        navegarA('/');
+      };
+      botonCerrarSesion.addEventListener('click', manejarCierreSesion);
+      manejadores.add([botonCerrarSesion, 'click', manejarCierreSesion]);
+    }
   }
 
   function renderizar() {
-    limpiarManejadores(manejadores);
-
     contenedor.innerHTML = `
       <div class="d-flex flex-column min-vh-100">
         <!-- Cabecera fija -->
         <header class="bg-dark text-white py-3">
-          <div class="container">
-            <div class="d-flex flex-column align-items-center justify-content-center">
-              <h1 class="h4 mb-0 text-center">Sistema de Votación</h1>
-              <div class="mt-1 mb-2 w-100 d-flex justify-content-center">
-                <span id="tituloVoto3" style="display:inline-block; font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace; font-weight: 900; font-size: 2em; color: #fff; text-shadow: 0 1px 6px #007bff55; letter-spacing: 2px;">Voto3</span>
-              </div>
-              <div id="cabeceraAcciones" class="w-100 d-flex justify-content-end"></div>
-            </div>
+          <div id="cabeceraVariable" class="container">
           </div>
         </header>
 
@@ -115,7 +106,8 @@ export function crearMarco(contenedor) {
     if (nombreUsuarioNuevo !== nombreUsuario || nombreVotanteNuevo !== nombreVotante) {
       nombreVotante = contexto.getNombreVotante() || '';
       nombreUsuario = contexto.getNombreUsuario() || '';
-      renderizarCabecera(); 
+      nombre = nombreVotante || nombreUsuario || '';
+      renderizarCabecera();
     }
   });
 

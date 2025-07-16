@@ -1,38 +1,18 @@
 // vistas/vistaEleccion.js
 import { servicioEleccion } from '../servicios/servicioEleccion.js';
 import { servicioVotante } from '../servicios/servicioVotante.js';
+import { servicioAlgorand } from '../servicios/servicioAlgorand.js';
 import { formatearFecha, parsearFechaHora } from '../utiles/utilesFechas.js';
 import { limpiarComponentes, limpiarManejadores } from '../utiles/utilesVistas.js';
-import { componentePartido } from '../componentes/componentePartido.js';
+import { fichaPartido } from '../componentes/fichaPartido.js';
 import { componentePresentarse } from '../componentes/componentePresentarse.js';
-import { componenteRegistroUsuario } from '../componentes/componenteRegistroUsuario.js';
+import { fichaRegistro } from '../componentes/fichaRegistro.js';
 import { componenteVotacionUsuario } from '../componentes/componenteVotacionUsuario.js';
-import { componenteResultados } from '../componentes/componenteResultados.js';
+import { fichaResultados } from '../componentes/fichaResultados.js';
 import { navegarA } from '../rutas/enrutado.js';
 
-/**  
- * Determina el estado global de la elección  
- * @returns 'futura' | 'enCurso' | 'pasada'  
- */
-function obtenerEstadoEleccion(el) {
-  const ahora = new Date();
-  const inicioRegistro = parsearFechaHora(el.fechaInicioRegistro);
-  const finRegistro = parsearFechaHora(el.fechaFinRegistro);
-  const inicioVoto = parsearFechaHora(el.fechaInicioVotacion);
-  const finVoto = parsearFechaHora(el.fechaFinVotacion);
-  const escrutinio = parsearFechaHora(el.fechaEscrutinio);
+import { ESTADO_ELECCION, ELECCION_ACTUAL } from '../utiles/constantes.js';
 
-  if (ahora < inicioRegistro) return 'futura';
-  if (ahora <= escrutinio) return 'enCurso';
-  return 'pasada';
-}
-
-/**
- * Monta la vista de detalle de una elección dentro de `container`.  
- * @param {HTMLElement} container 
- * @param {number|string} idEleccion 
- * @returns {Function} cleanup 
- */
 export function vistaEleccion(container, idEleccion) {
   let destruida = false;
   const componentes = new Set();
@@ -53,7 +33,7 @@ export function vistaEleccion(container, idEleccion) {
   manejadores.add([btnVolver, 'click', null]);
 
   // 2) Carga de datos
-  let eleccion, estado, partidos, resultados;
+  let eleccion, partidos, resultados;
   let votante, estaEnCenso, registroUsuario, votoUsuario;
 
   async function cargarDatos() {
@@ -65,8 +45,6 @@ export function vistaEleccion(container, idEleccion) {
       container.innerHTML = `<div class="alert alert-danger">Error al cargar datos: ${err.message}</div>`;
       return () => { };
     }
-
-    estado = obtenerEstadoEleccion(eleccion);
 
     try {
       votante = await servicioVotante.cargarVotante();
@@ -98,9 +76,8 @@ export function vistaEleccion(container, idEleccion) {
     const inicioVot = formatearFecha(parsearFechaHora(eleccion.fechaInicioVotacion));
     const finVot = formatearFecha(parsearFechaHora(eleccion.fechaFinVotacion));
     const escru = formatearFecha(parsearFechaHora(eleccion.fechaEscrutinio));
-    const linkAlgo = eleccion.appId
-      ? `https://algoexplorer.io/application/${eleccion.appId}`
-      : '#';
+    const appId = eleccion.contrato?.appId || '';
+    const linkAlgo = servicioAlgorand.urlApplication(appId);
 
     // 3) Header con info básica
     const hdr = container.querySelector('#electionHeader');
@@ -112,7 +89,7 @@ export function vistaEleccion(container, idEleccion) {
         <li><strong>Votación:</strong> ${inicioVot} – ${finVot}</li>
         <li><strong>Escrutinio:</strong> ${escru}</li>
         <li><strong>Blockchain:</strong> 
-          <a href="${linkAlgo}" target="_blank">${eleccion.appId}</a>
+          <a href="${linkAlgo}" target="_blank">${appId}</a>
         </li>
       </ul>
     `;
@@ -125,12 +102,12 @@ export function vistaEleccion(container, idEleccion) {
     panes.push({ id: 'info', contenedor: document.createElement('div') });
 
     // Futuras → “Presentarse”
-    if (estado === 'futura' && estaEnCenso) {
+    if (eleccion.estado === ESTADO_ELECCION.FUTURA && estaEnCenso) {
       tabs.push({ id: 'presentarse', label: 'Presentarse' });
       panes.push({ id: 'presentarse', contenedor: document.createElement('div') });
     }
     // En curso → Registro y/o Votación
-    if (estado === 'enCurso') {
+    if (eleccion.estado === ESTADO_ELECCION.ACTUAL) {
       const ahora = new Date();
       if (ahora < parsearFechaHora(eleccion.fechaFinRegistro)) {
         tabs.push({ id: 'registro', label: 'Registro' });
@@ -142,7 +119,7 @@ export function vistaEleccion(container, idEleccion) {
       }
     }
     // Pasadas → siempre Resultados (y mostrar registro/voto históricos)
-    if (estado === 'pasada') {
+    if (eleccion.estado === ESTADO_ELECCION.PASADA) {
       tabs.push({ id: 'registro', label: 'Registro' });
       panes.push({ id: 'registro', contenedor: document.createElement('div') });
       tabs.push({ id: 'votacion', label: 'Votación' });
@@ -178,13 +155,13 @@ export function vistaEleccion(container, idEleccion) {
     paneInfo.appendChild(rowPartidos);
     partidos.forEach(partido => {
       const cont = document.createElement('div');
-      const cleanup = componentePartido(cont, partido);
+      const cleanup = fichaPartido(cont, partido);
       componentes.add(cleanup);
       rowPartidos.appendChild(cont);
     });
 
     // — Presentarse
-    if (estado === 'futura' && estaEnCenso) {
+    if (eleccion.estado === ESTADO_ELECCION.FUTURA && estaEnCenso) {
       const paneP = panes.find(p => p.id === 'presentarse').contenedor;
       const cleanup = componentePresentarse(paneP, idEleccion, votante);
       componentes.add(cleanup);
@@ -194,7 +171,7 @@ export function vistaEleccion(container, idEleccion) {
     if (panes.some(p => p.id === 'registro')) {
       const paneR = panes.find(p => p.id === 'registro').contenedor;
       const esPeriodReg = new Date() < parsearFechaHora(eleccion.fechaFinRegistro);
-      const cleanup = componenteRegistroUsuario(
+      const cleanup = fichaRegistro(
         paneR,
         idEleccion,
         registroUsuario,
@@ -229,7 +206,7 @@ export function vistaEleccion(container, idEleccion) {
     // — Resultados
     if (panes.some(p => p.id === 'resultados')) {
       const paneX = panes.find(p => p.id === 'resultados').contenedor;
-      const cleanup = componenteResultados(paneX, resultados, partidos, votante);
+      const cleanup = fichaResultados(paneX, resultados, partidos, votante);
       componentes.add(cleanup);
     }
   }

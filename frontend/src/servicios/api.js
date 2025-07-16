@@ -25,7 +25,10 @@ async function llamarApi(ruta, opciones = {}) {
     body: opciones.body || null
   });
 
-  if (!res.ok) {
+  if (!res.ok && res.status === 404) {
+    return null; // Si no se encuentra el recurso, retornar null
+  
+  } else if (!res.ok) {
     const error = await res.json().catch(() => ({ message: res.statusText }));
     throw new Error(error.message || res.statusText);
   }

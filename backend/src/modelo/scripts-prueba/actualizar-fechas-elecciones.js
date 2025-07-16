@@ -34,7 +34,7 @@ try {
       fechaFinRegistro: calcularFechaHora({ fechaHora, incDD: -2 }),
       fechaInicioVotacion: calcularFechaHora({ fechaHora, incDD: -1 }),
       fechaFinVotacion: calcularFechaHora({ fechaHora, incDD: 9 }),
-      fechaEscrutinio: calcularFechaHora({ fechaHora, incDD: -10 }),
+      fechaEscrutinio: calcularFechaHora({ fechaHora, incDD: 10 }),
     });
 
     eleccionDAO.actualizar(bd, { id: 3 }, {

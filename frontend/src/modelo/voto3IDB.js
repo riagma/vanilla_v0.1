@@ -20,9 +20,9 @@ class Voto3IDB {
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
 
-        // Crear tabla votantes con clave primaria simple 'nombreUsuario'
-        if (!db.objectStoreNames.contains('votantes')) {
-          db.createObjectStore('votantes', { keyPath: 'nombreUsuario' });
+        // Crear tabla usuarios con clave primaria simple 'nombreUsuario'
+        if (!db.objectStoreNames.contains('usuarios')) {
+          db.createObjectStore('usuarios', { keyPath: 'nombreUsuario' });
         }
 
         // Crear tabla elecciones con clave primaria compuesta [nombreUsuario, eleccionId]
@@ -33,23 +33,30 @@ class Voto3IDB {
     });
   }
 
-  // CRUD para Votantes
-  async crearVotante(votante) {
-    const transaction = this.db.transaction(['votantes'], 'readwrite');
-    const store = transaction.objectStore('votantes');
+  async crearUsuario(usuario) {
+    const transaction = this.db.transaction(['usuarios'], 'readwrite');
+    const store = transaction.objectStore('usuarios');
     
     return new Promise((resolve, reject) => {
-      const request = store.add(votante);
+      const request = store.add(usuario);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
   }
 
-  async obtenerVotante(nombreUsuario) {
-    console.log(`Obteniendo votante: ${nombreUsuario}`);
-    const transaction = this.db.transaction(['votantes'], 'readonly');
-    const store = transaction.objectStore('votantes');
-    
+  async obtenerUsuario(nombreUsuario) {
+    console.log(`Obteniendo usuario: ${nombreUsuario}`);
+    let transaction, store;
+    try {
+      transaction = this.db.transaction(['usuarios'], 'readonly');
+      store = transaction.objectStore('usuarios');
+    } catch (error) {
+      if (error && error.name === 'NotFoundError') {
+        throw new Error("La store 'usuarios' no existe en la base de datos IndexedDB");
+      }
+      throw new Error("Error al abrir la transacción de 'usuarios': " + error.message);
+    }
+
     return new Promise((resolve, reject) => {
       const request = store.get(nombreUsuario);
       request.onsuccess = () => resolve(request.result);
@@ -57,24 +64,24 @@ class Voto3IDB {
     });
   }
 
-  async actualizarVotante(nombreUsuario, votante) {
-    console.log(`Actualizando votante: ${nombreUsuario}`);
-    const votanteNuevo = { ...votante, nombreUsuario };
-    const votanteAnterior = await this.obtenerVotante(nombreUsuario);
-    const votanteActualizado = votanteAnterior ? { ...votanteAnterior, ...votanteNuevo } : votanteNuevo;
-    const transaction = this.db.transaction(['votantes'], 'readwrite');
-    const store = transaction.objectStore('votantes');
-    console.log('Votante actualizado:', votanteActualizado);
+  async actualizarUsuario(nombreUsuario, usuario) {
+    console.log(`Actualizando usuario: ${nombreUsuario}`);
+    const usuarioNuevo = { ...usuario, nombreUsuario };
+    const usuarioAnterior = await this.obtenerUsuario(nombreUsuario);
+    const usuarioActualizado = usuarioAnterior ? { ...usuarioAnterior, ...usuarioNuevo } : usuarioNuevo;
+    const transaction = this.db.transaction(['usuarios'], 'readwrite');
+    const store = transaction.objectStore('usuarios');
+    console.log('Votante actualizado:', usuarioActualizado);
     return new Promise((resolve, reject) => {
-      const request = store.put(votanteActualizado);
+      const request = store.put(usuarioActualizado);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
   }
 
-  async eliminarVotante(nombreUsuario) {
-    const transaction = this.db.transaction(['votantes'], 'readwrite');
-    const store = transaction.objectStore('votantes');
+  async eliminarUsuario(nombreUsuario) {
+    const transaction = this.db.transaction(['usuarios'], 'readwrite');
+    const store = transaction.objectStore('usuarios');
     
     return new Promise((resolve, reject) => {
       const request = store.delete(nombreUsuario);
@@ -83,9 +90,9 @@ class Voto3IDB {
     });
   }
 
-  async listarVotantes() {
-    const transaction = this.db.transaction(['votantes'], 'readonly');
-    const store = transaction.objectStore('votantes');
+  async listarUsuarios() {
+    const transaction = this.db.transaction(['usuarios'], 'readonly');
+    const store = transaction.objectStore('usuarios');
     
     return new Promise((resolve, reject) => {
       const request = store.getAll();
@@ -94,7 +101,6 @@ class Voto3IDB {
     });
   }
 
-  // CRUD para Elecciones (clave compuesta [nombreUsuario, eleccionId])
   async crearEleccion(eleccion) {
     const transaction = this.db.transaction(['elecciones'], 'readwrite');
     const store = transaction.objectStore('elecciones');
@@ -117,7 +123,7 @@ class Voto3IDB {
     });
   }
 
-  async obtenerEleccionesPorVotante(nombreUsuario) {
+  async obtenerEleccionesPorUsuario(nombreUsuario) {
     const transaction = this.db.transaction(['elecciones'], 'readonly');
     const store = transaction.objectStore('elecciones');
     

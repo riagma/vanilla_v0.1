@@ -31,7 +31,7 @@ export const servicioLogin = {
       throw new Error('Las contraseñas no coinciden.');
     }
     // Comprobar que no existe ya
-    const existente = await voto3IDB.obtenerVotante(nombreUsuario);
+    const existente = await voto3IDB.obtenerUsuario(nombreUsuario);
     if (existente) {
       throw new Error('Ya existe un usuario con ese nombreUsuario.');
     }
@@ -44,7 +44,7 @@ export const servicioLogin = {
     const contrasenaHash = await hashPassword(contrasena);
     const usuario = { nombreUsuario, contrasenaHash, claveSalt };
     console.log('Registrando votante:', usuario);
-    await voto3IDB.crearVotante(usuario);
+    await voto3IDB.crearUsuario(usuario);
 
     // Guardar clave derivada en memoria para la sesión
     claveDerivadaSesion = claveDerivada;
@@ -62,7 +62,7 @@ export const servicioLogin = {
       throw new Error('Nombre y contraseña obligatorios.');
     }
     // console.log('Intentando login con:', nombreUsuario);
-    const usuario = await voto3IDB.obtenerVotante(nombreUsuario);
+    const usuario = await voto3IDB.obtenerUsuario(nombreUsuario);
     if (!usuario) {
       throw new Error('Usuario no encontrado.');
     }
@@ -79,8 +79,6 @@ export const servicioLogin = {
     contexto.actualizarContexto({ nombreUsuario });
     console.log('Login exitoso para:', nombreUsuario);
 
-    if (!usuario.votante) {
-      await servicioVotante.cargarVotanteApi();
-    }
+    await servicioVotante.cargarVotante();
   }
 };

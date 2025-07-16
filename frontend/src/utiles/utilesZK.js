@@ -29,20 +29,20 @@ await Promise.all([initACVM(fetch(acvm)), initNoirC(fetch(noirc))]);
 // export async function getProof() {
 // 	try {
 // 		// noir goes here
-// 		const { program } = await getCircuit();
-// 		const noir = new Noir(program);
-// 		const backend = new UltraHonkBackend(program.bytecode);
-// 		const age = document.getElementById("age").value;
-// 		show("logs", "Generating witness... ⏳");
-// 		const { witness } = await noir.execute({ age });
-// 		show("logs", "Generated witness... ✅");
-// 		show("logs", "Generating proof... ⏳");
-// 		const proof = await backend.generateProof(witness);
-// 		show("logs", "Generated proof... ✅");
-// 		show("results", proof.proof);
-// 		show("logs", "Verifying proof... ⌛");
-// 		const isValid = await backend.verifyProof(proof);
-// 		show("logs", `Proof is ${isValid ? "valid" : "invalid"}... ✅`);
+		// const { program } = await getCircuit();
+		// const noir = new Noir(program);
+		// const backend = new UltraHonkBackend(program.bytecode);
+		// const age = document.getElementById("age").value;
+		// show("logs", "Generating witness... ⏳");
+		// const { witness } = await noir.execute({ age });
+		// show("logs", "Generated witness... ✅");
+		// show("logs", "Generating proof... ⏳");
+		// const proof = await backend.generateProof(witness);
+		// show("logs", "Generated proof... ✅");
+		// show("results", proof.proof);
+		// show("logs", "Verifying proof... ⌛");
+		// const isValid = await backend.verifyProof(proof);
+		// show("logs", `Proof is ${isValid ? "valid" : "invalid"}... ✅`);
 // 	} catch (err) {
 // 		console.error(err);
 // 		show("logs", "Oh 💔");

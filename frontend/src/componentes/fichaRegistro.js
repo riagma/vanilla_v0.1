@@ -2,7 +2,7 @@
 import { servicioEleccion } from '../servicios/servicioEleccion.js';
 import { limpiarManejadores } from '../utiles/utilesVistas.js';
 
-export function componenteRegistroUsuario(
+export function fichaRegistro(
   contenedor,
   idEleccion,
   registroUsuario,
@@ -13,20 +13,29 @@ export function componenteRegistroUsuario(
 
   function render() {
     limpiarManejadores(manejadores);
+    let html = '';
+
     if (!periodoAbierto) {
-      contenedor.innerHTML = `<div class="alert alert-secondary">El periodo de registro ya ha cerrado.</div>`;
-      return;
+      html += `<div class="alert alert-secondary">El periodo de registro ya se ha cerrado.</div>`;
+      // return;
     }
     if (registroUsuario) {
-      contenedor.innerHTML = `
+      html += `
         <ul class="list-unstyled">
           <li><strong>Cuenta:</strong> ${registroUsuario.cuentaAlgorand}</li>
           <li><strong>Compromiso:</strong> ${registroUsuario.compromiso}</li>
           <li><strong>Índice:</strong> ${registroUsuario.indice}</li>
           <li><strong>Tx:</strong> ${registroUsuario.txId}</li>
         </ul>`;
+    } else if (periodoAbierto) {
+      html += `<button id="btnRegistrar" class="btn btn-outline-primary">Registrarse</button>`;
     } else {
-      contenedor.innerHTML = `<button id="btnRegistrar" class="btn btn-outline-primary">Registrarse</button>`;
+      html += `<div class="alert alert-secondary">No se registró para esta elección.</div>`;
+    }
+
+    contenedor.innerHTML = html;
+
+    if (!registroUsuario && periodoAbierto) {
       const btn = contenedor.querySelector('#btnRegistrar');
       const handler = async () => {
         await servicioEleccion.registrarUsuario(idEleccion, usuario);
@@ -34,7 +43,7 @@ export function componenteRegistroUsuario(
         render();
       };
       btn.addEventListener('click', handler);
-      manejadores.add([btn,'click',handler]);
+      manejadores.add([btn, 'click', handler]);
     }
   }
 

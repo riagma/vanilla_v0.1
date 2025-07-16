@@ -1,5 +1,5 @@
 // muestra el nombre y descripción de cada partido
-export function componentePartido(contenedor, partido) {
+export function fichaPartido(contenedor, partido) {
   contenedor.innerHTML = `
     <div class="card h-100">
       <div class="card-body">

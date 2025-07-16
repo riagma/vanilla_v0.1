@@ -4,7 +4,7 @@ import { validarDatos, esquemaVotante } from '../modelo/esquemas.js';
 import { notificarAccesoIdentificado } from '../componentes/accesoServidor.js';
 import { servicioAlgorand } from './servicioAlgorand.js';
 import { servicioLogin } from '../servicios/servicioLogin.js';
-import { encriptarJSON, desencriptarJSON, desencriptarNodeJSON} from '../utiles/utilesCrypto.js';
+import { encriptarJSON, desencriptarJSON, desencriptarNodeJSON } from '../utiles/utilesCrypto.js';
 import { voto3IDB as idb } from '../modelo/voto3IDB.js';
 import { calcularBloqueIndice } from '../utiles/utilesArbol.js';
 
@@ -15,9 +15,12 @@ export const servicioVotante = {
 
   async cargarVotante() {
     try {
-      const usuario = await idb.obtenerVotante(contexto.getNombreUsuario());
+      const usuario = await idb.obtenerUsuario(contexto.getNombreUsuario());
       if (usuario && usuario.votante) {
-        return await desencriptarJSON(usuario.votante, servicioLogin.getClaveDerivada());
+        const votantePlano = await desencriptarJSON(usuario.votante, servicioLogin.getClaveDerivada());
+        const nombreVotante = votantePlano.nombre + ' ' + votantePlano.primerApellido + ' ' + votantePlano.segundoApellido;
+        contexto.actualizarContexto({ nombreVotante });
+        return votantePlano;
       }
       return await this.cargarVotanteApi();
     } catch (error) {
@@ -40,10 +43,11 @@ export const servicioVotante = {
       }
       console.log('Datos censales recuperados:', votanteApi);
       const votantePlano = validarDatos(votanteApi, esquemaVotante);
-      contexto.actualizarContexto({ nombreVotante: votantePlano.nombre });
+      const nombreVotante = votantePlano.nombre + ' ' + votantePlano.primerApellido + ' ' + votantePlano.segundoApellido;
+      contexto.actualizarContexto({ nombreVotante });
       const votante = await encriptarJSON(votantePlano, servicioLogin.getClaveDerivada());
-      await idb.actualizarVotante(contexto.getNombreUsuario(), { votante });
-      return votante;
+      await idb.actualizarUsuario(contexto.getNombreUsuario(), { votante });
+      return votantePlano;
     } catch (error) {
       throw new Error('Error al cargar los datos del censo: ' + error.message);
     }
@@ -128,13 +132,13 @@ export const servicioVotante = {
       }
       console.log('Datos privados del usuario:', datosPrivados);
 
-      const { txId, nota } = servicioAlgorand.consultarPapeletaEnviada(datosPrivados.cuenta);
+      const { txId, nota } = await servicioAlgorand.consultarPapeletaEnviada(datosPrivados.cuentaAddr, eleccion.tokenId);
 
       console.log('Voto cargado:', { txId, nota });
       return { txId, nota };
 
     } catch (error) {
-      throw new Error('Error al cargar el voto de Algorand:' + error.message);
+      throw new Error('Error al cargar el voto de Algorand: ' + error.message);
     }
   },
 };

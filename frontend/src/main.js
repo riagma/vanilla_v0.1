@@ -6,7 +6,9 @@ import { voto3IDB } from './modelo/voto3IDB.js';
 import { crearMarco } from './componentes/marco.js';
 import { obtenerVista } from './rutas/enrutado.js';
 
-import { testCircuito } from './utiles/utilesZK.js';
+import { configurarAlgorand, configurarExplorador } from './servicios/servicioAlgorand.js';
+
+// import { testCircuito } from './utiles/utilesZK.js';
 
 //--------------
 let contenedorMarco = null; 
@@ -97,7 +99,19 @@ async function inicializarAplicacion() {
   limpiarMarco = marco.limpiarMarco;
   console.log('Marco creado:', contenedorMarco);
 
-  await testCircuito();
+  // await testCircuito();
+
+  configurarAlgorand('', 'http://localhost', 8980);
+
+  const configuracionExplorador = obtenerConfiguracionExplorador('https://lora.algokit.io/localnet/');
+
+  configurarExplorador(
+    configuracionExplorador.server,
+    configuracionExplorador.account,
+    configuracionExplorador.asset,
+    configuracionExplorador.application,
+    configuracionExplorador.transaction
+  );
   
   renderizar();
 }
@@ -109,6 +123,47 @@ if (document.readyState === 'loading') {
 // Escuchar cambios de navegación
 window.addEventListener('hashchange', renderizar);
 window.addEventListener('beforeunload', () => { limpiarAplicacion(); });
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+function obtenerConfiguracionExplorador(serverBase) {
+
+  let server = serverBase.endsWith('/') ? serverBase : serverBase + '/';
+
+  let account = 'account/';
+  let asset = 'asset/';
+  let application = 'application/';
+  let transaction = 'transaction/';
+
+  if (serverBase.includes('allo.info')) {
+    account = 'address/';
+    asset = 'asa/';
+    application = 'app/';
+    transaction = 'txn/';
+
+  } else if (serverBase.includes('explorer.perawallet.app')) {
+    account = 'account/';
+    asset = 'asset/';
+    application = 'application/';
+    transaction = 'tx/';
+  
+  } else if (serverBase.includes('lora.algokit.io')) {
+    account = 'account/';
+    asset = 'asset/';
+    application = 'application/';
+    transaction = 'transaction/';
+  } 
+
+  return {
+    server,
+    account,
+    asset,
+    application,
+    transaction
+  };
+}
+
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

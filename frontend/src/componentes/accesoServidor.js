@@ -8,9 +8,9 @@ export async function notificarAccesoIdentificado(titulo = 'Acceso al servidor d
   if (!nombreUsuario) {
     throw new Error('No hay usuario autenticado');
   }
-  const usuario = await idb.obtenerVotante(nombreUsuario);
+  const usuario = await idb.obtenerUsuario(nombreUsuario);
   if (!usuario) {
-    throw new Error('Votante no encontrado en la base de datos');
+    throw new Error('Usuario no encontrado en la base de datos');
   }
   let credenciales = null;
   if (usuario.credenciales) {
@@ -152,7 +152,7 @@ export async function notificarAccesoIdentificado(titulo = 'Acceso al servidor d
         if (rememberCheckbox.checked) {
           const credenciales = await encriptarJSON({ dni, contrasena }, servicioLogin.getClaveDerivada());
           console.log('Guardando credenciales en IDB:', nombreUsuario, credenciales);
-          await idb.actualizarVotante(nombreUsuario, { credenciales });
+          await idb.actualizarUsuario(nombreUsuario, { credenciales });
         }
         bsModal.hide(); modal.remove();
         resolve({ dni, contrasena, recordar: rememberCheckbox.checked });
