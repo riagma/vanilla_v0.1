@@ -25,18 +25,20 @@ class Voto3IDB {
           db.createObjectStore('usuarios', { keyPath: 'nombreUsuario' });
         }
 
-        // Crear tabla elecciones con clave primaria compuesta [nombreUsuario, eleccionId]
-        if (!db.objectStoreNames.contains('elecciones')) {
-          db.createObjectStore('elecciones', { keyPath: ['nombreUsuario', 'eleccionId'] });
+        // Crear tabla registro con clave primaria compuesta [nombreUsuario, eleccionId]
+        if (!db.objectStoreNames.contains('registro')) {
+          db.createObjectStore('registro', { keyPath: ['nombreUsuario', 'eleccionId'] });
         }
       };
     });
   }
 
+  //------------------------------------------------------------------------------
+
   async crearUsuario(usuario) {
     const transaction = this.db.transaction(['usuarios'], 'readwrite');
     const store = transaction.objectStore('usuarios');
-    
+
     return new Promise((resolve, reject) => {
       const request = store.add(usuario);
       request.onsuccess = () => resolve(request.result);
@@ -45,17 +47,8 @@ class Voto3IDB {
   }
 
   async obtenerUsuario(nombreUsuario) {
-    console.log(`Obteniendo usuario: ${nombreUsuario}`);
-    let transaction, store;
-    try {
-      transaction = this.db.transaction(['usuarios'], 'readonly');
-      store = transaction.objectStore('usuarios');
-    } catch (error) {
-      if (error && error.name === 'NotFoundError') {
-        throw new Error("La store 'usuarios' no existe en la base de datos IndexedDB");
-      }
-      throw new Error("Error al abrir la transacción de 'usuarios': " + error.message);
-    }
+    const transaction = this.db.transaction(['usuarios'], 'readonly');
+    const store = transaction.objectStore('usuarios');
 
     return new Promise((resolve, reject) => {
       const request = store.get(nombreUsuario);
@@ -82,7 +75,7 @@ class Voto3IDB {
   async eliminarUsuario(nombreUsuario) {
     const transaction = this.db.transaction(['usuarios'], 'readwrite');
     const store = transaction.objectStore('usuarios');
-    
+
     return new Promise((resolve, reject) => {
       const request = store.delete(nombreUsuario);
       request.onsuccess = () => resolve(request.result);
@@ -93,7 +86,7 @@ class Voto3IDB {
   async listarUsuarios() {
     const transaction = this.db.transaction(['usuarios'], 'readonly');
     const store = transaction.objectStore('usuarios');
-    
+
     return new Promise((resolve, reject) => {
       const request = store.getAll();
       request.onsuccess = () => resolve(request.result);
@@ -101,10 +94,12 @@ class Voto3IDB {
     });
   }
 
-  async crearEleccion(eleccion) {
-    const transaction = this.db.transaction(['elecciones'], 'readwrite');
-    const store = transaction.objectStore('elecciones');
-    
+  //------------------------------------------------------------------------------
+
+  async crearRegistro(eleccion) {
+    const transaction = this.db.transaction(['registro'], 'readwrite');
+    const store = transaction.objectStore('registro');
+
     return new Promise((resolve, reject) => {
       const request = store.add(eleccion);
       request.onsuccess = () => resolve(request.result);
@@ -112,10 +107,10 @@ class Voto3IDB {
     });
   }
 
-  async obtenerEleccion(nombreUsuario, eleccionId) {
-    const transaction = this.db.transaction(['elecciones'], 'readonly');
-    const store = transaction.objectStore('elecciones');
-    
+  async obtenerRegistro(nombreUsuario, eleccionId) {
+    const transaction = this.db.transaction(['registro'], 'readonly');
+    const store = transaction.objectStore('registro');
+
     return new Promise((resolve, reject) => {
       const request = store.get([nombreUsuario, eleccionId]);
       request.onsuccess = () => resolve(request.result);
@@ -123,10 +118,47 @@ class Voto3IDB {
     });
   }
 
-  async obtenerEleccionesPorUsuario(nombreUsuario) {
-    const transaction = this.db.transaction(['elecciones'], 'readonly');
-    const store = transaction.objectStore('elecciones');
-    
+  async actualizarRegistro(nombreUsuario, eleccionId, eleccion) {
+    console.log(`Actualizando eleccion: ${nombreUsuario} - ${eleccionId}`);
+    const eleccionNueva = { ...eleccion, nombreUsuario, eleccionId };
+    const eleccionAnterior = await this.obtenerRegistro(nombreUsuario, eleccionId);
+    const eleccionActualizada = eleccionAnterior ? { ...eleccionAnterior, ...eleccionNueva } : eleccionNueva;
+    const transaction = this.db.transaction(['registro'], 'readwrite');
+    const store = transaction.objectStore('registro');
+    console.log('Elección actualizada:', eleccionActualizada);
+    return new Promise((resolve, reject) => {
+      const request = store.put(eleccionActualizada);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async eliminarRegistro(nombreUsuario, eleccionId) {
+    const transaction = this.db.transaction(['registro'], 'readwrite');
+    const store = transaction.objectStore('registro');
+
+    return new Promise((resolve, reject) => {
+      const request = store.delete([nombreUsuario, eleccionId]);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async listarRegistros() {
+    const transaction = this.db.transaction(['registro'], 'readonly');
+    const store = transaction.objectStore('registro');
+
+    return new Promise((resolve, reject) => {
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async obtenerRegistrosPorUsuario(nombreUsuario) {
+    const transaction = this.db.transaction(['registro'], 'readonly');
+    const store = transaction.objectStore('registro');
+
     return new Promise((resolve, reject) => {
       const request = store.getAll();
       request.onsuccess = () => {
@@ -137,44 +169,8 @@ class Voto3IDB {
       request.onerror = () => reject(request.error);
     });
   }
-
-  async actualizarEleccion(nombreUsuario, eleccionId, eleccion) {
-    console.log(`Actualizando eleccion: ${nombreUsuario} - ${eleccionId}`);
-    const eleccionNueva = { ...eleccion, nombreUsuario, eleccionId };
-    const eleccionAnterior = await this.obtenerEleccion(nombreUsuario, eleccionId);
-    const eleccionActualizada = eleccionAnterior ? { ...eleccionAnterior, ...eleccionNueva } : eleccionNueva;
-    const transaction = this.db.transaction(['elecciones'], 'readwrite');
-    const store = transaction.objectStore('elecciones');
-    console.log('Elección actualizada:', eleccionActualizada);
-    return new Promise((resolve, reject) => {
-      const request = store.put(eleccionActualizada);
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-  }
-
-  async eliminarEleccion(nombreUsuario, eleccionId) {
-    const transaction = this.db.transaction(['elecciones'], 'readwrite');
-    const store = transaction.objectStore('elecciones');
-    
-    return new Promise((resolve, reject) => {
-      const request = store.delete([nombreUsuario, eleccionId]);
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-  }
-
-  async listarElecciones() {
-    const transaction = this.db.transaction(['elecciones'], 'readonly');
-    const store = transaction.objectStore('elecciones');
-    
-    return new Promise((resolve, reject) => {
-      const request = store.getAll();
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-  }
 }
 
-// Instancia singleton
+//------------------------------------------------------------------------------
 export const voto3IDB = new Voto3IDB();
+//------------------------------------------------------------------------------

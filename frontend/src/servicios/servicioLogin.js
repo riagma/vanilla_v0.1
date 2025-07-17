@@ -30,23 +30,18 @@ export const servicioLogin = {
     if (contrasena !== repetirContrasena) {
       throw new Error('Las contraseñas no coinciden.');
     }
-    // Comprobar que no existe ya
     const existente = await voto3IDB.obtenerUsuario(nombreUsuario);
     if (existente) {
       throw new Error('Ya existe un usuario con ese nombreUsuario.');
     }
-    // Generar salt único para este usuario
-    const claveSalt = await generarSaltSemilla(nombreUsuario);
-    console.log('Salt generado:', claveSalt);
-    const claveDerivada = await derivarClave(contrasena, claveSalt);
 
-    // Derivar clave y hash
+    const claveSalt = await generarSaltSemilla(nombreUsuario);
+    const claveDerivada = await derivarClave(contrasena, claveSalt);
     const contrasenaHash = await hashPassword(contrasena);
     const usuario = { nombreUsuario, contrasenaHash, claveSalt };
     console.log('Registrando votante:', usuario);
     await voto3IDB.crearUsuario(usuario);
 
-    // Guardar clave derivada en memoria para la sesión
     claveDerivadaSesion = claveDerivada;
 
     contexto.limpiarContexto();
@@ -61,19 +56,16 @@ export const servicioLogin = {
     if (!nombreUsuario || !contrasena) {
       throw new Error('Nombre y contraseña obligatorios.');
     }
-    // console.log('Intentando login con:', nombreUsuario);
     const usuario = await voto3IDB.obtenerUsuario(nombreUsuario);
     if (!usuario) {
       throw new Error('Usuario no encontrado.');
     }
-    // console.log('Votante encontrado:', votante);
     const contrasenaHash = await hashPassword(contrasena);
     if (usuario.contrasenaHash !== contrasenaHash) {
       throw new Error('Contraseña incorrecta.');
     }
-    // Derivar clave con el salt guardado
-    const claveDerivada = await derivarClave(contrasena, usuario.claveSalt);
-    claveDerivadaSesion = claveDerivada;
+
+    claveDerivadaSesion = await derivarClave(contrasena, usuario.claveSalt);
 
     contexto.limpiarContexto();
     contexto.actualizarContexto({ nombreUsuario });

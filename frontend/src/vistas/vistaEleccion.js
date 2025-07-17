@@ -33,29 +33,74 @@ export function vistaEleccion(container, idEleccion) {
   manejadores.add([btnVolver, 'click', null]);
 
   // 2) Carga de datos
-  let eleccion, partidos, resultados;
-  let votante, estaEnCenso, registroUsuario, votoUsuario;
+  let eleccion, partidos, contrato, resultados;
+
+  let usuario, registro;
+
 
   async function cargarDatos() {
     try {
       eleccion = await servicioEleccion.cargarEleccion(idEleccion);
       partidos = await servicioEleccion.cargarPartidos(idEleccion);
+      contrato = await servicioEleccion.cargarContrato(idEleccion);
       resultados = await servicioEleccion.cargarResultados(idEleccion);
+
     } catch (err) {
-      container.innerHTML = `<div class="alert alert-danger">Error al cargar datos: ${err.message}</div>`;
+      container.innerHTML = `<div class="alert alert-danger">Error al cargar datos elección: ${err.message}</div>`;
+      return () => { };
+    }
+
+    if (!eleccion) {
+      container.innerHTML = `<div class="alert alert-warning">Elección no encontrada</div>`;
       return () => { };
     }
 
     try {
+
+      if (!contexto.estaIdentificado()) {
+        
+        await servicioVotante.cargarVotanteApi();
+      }
+
+      if (contexto.estaIdentificado()) {
+
+        registro = await idb.obtenerRegistro(contexto.getNombreUsuario(), idEleccion);
+
+        if (!registro) {
+
+          registro = {};
+          registro.nombreUsuario = contexto.getNombreUsuario();
+          registro.eleccionId = idEleccion;
+
+          registro.claveVotoPublica = eleccion.claveVotoPublica;
+          registro.claveVotoPrivada = eleccion.claveVotoPrivada;
+
+          registro.idSesion = "";
+
+          await idb.crearRegistro(registro);
+        }
+      }
+
+      usuario = await idb.obtenerUsuario(contexto.getNombreUsuario());
+
+      if(!usuario) {
+        throw new Error('Usuario no encontrado en la base de datos');
+      }
+
+      if (!usuario.votante) {
+        await servicioVotante.cargarVotanteApi();
+      }
+      
+      
       votante = await servicioVotante.cargarVotante();
       estaEnCenso = !!votante;
 
-      if (estaEnCenso) {
-        registroUsuario = await servicioVotante.cargarRegistroEleccion(idEleccion);
+      if (contexto.estaIdentificado()) {
+        registro = await servicioVotante.cargarCompromiso(idEleccion);
         votoUsuario = await servicioVotante.cargarVotoEleccion(idEleccion);
       }
     } catch (err) {
-      container.innerHTML = `<div class="alert alert-danger">Error al cargar datos: ${err.message}</div>`;
+      container.innerHTML = `<div class="alert alert-danger">Error al cargar datos votante: ${err.message}</div>`;
       return () => { };
     }
     if (destruida) return;
@@ -102,7 +147,7 @@ export function vistaEleccion(container, idEleccion) {
     panes.push({ id: 'info', contenedor: document.createElement('div') });
 
     // Futuras → “Presentarse”
-    if (eleccion.estado === ESTADO_ELECCION.FUTURA && estaEnCenso) {
+    if (eleccion.estado === ESTADO_ELECCION.FUTURA && contexto.estaIdentificado()) {
       tabs.push({ id: 'presentarse', label: 'Presentarse' });
       panes.push({ id: 'presentarse', contenedor: document.createElement('div') });
     }
@@ -161,7 +206,7 @@ export function vistaEleccion(container, idEleccion) {
     });
 
     // — Presentarse
-    if (eleccion.estado === ESTADO_ELECCION.FUTURA && estaEnCenso) {
+    if (eleccion.estado === ESTADO_ELECCION.FUTURA && contexto.estaIdentificado()) {
       const paneP = panes.find(p => p.id === 'presentarse').contenedor;
       const cleanup = componentePresentarse(paneP, idEleccion, votante);
       componentes.add(cleanup);
@@ -174,7 +219,7 @@ export function vistaEleccion(container, idEleccion) {
       const cleanup = fichaRegistro(
         paneR,
         idEleccion,
-        registroUsuario,
+        registro,
         esPeriodReg,
         votante
       );

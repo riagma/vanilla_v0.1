@@ -1,16 +1,26 @@
 import { limpiarManejadores } from '../utiles/utilesVistas.js';
 import { parsearFechaHora, formatearFechaWeb } from '../utiles/utilesFechas.js';
+import { ESTADO_ELECCION, ELECCION_ACTUAL } from '../utiles/constantes.js';
+
 import { servicioAlgorand } from '../servicios/servicioAlgorand.js';
 
-export function fichaEleccion(contenedor, eleccion, status, onAccion) {
+export function fichaEleccion(contenedor, eleccion, onAccion) {
   let manejadores = new Set();
 
   function renderizar() {
-    console.debug('Renderizando fichaEleccion', eleccion, status);
+    console.debug('Renderizando fichaEleccion', eleccion);
     limpiarManejadores(manejadores);
 
-    const appId = eleccion.contrato?.appId || '';
-    const algoLink = servicioAlgorand.urlApplication(appId);
+    const status = eleccion.estado;
+
+    const textBoton = {
+      [ESTADO_ELECCION.FUTURA]: 'Ver detalles',
+      [ESTADO_ELECCION.ACTUAL]: 'Ir a votar',
+      [ESTADO_ELECCION.PASADA]: 'Ver resultados'
+    }[status];
+
+    // const appId = eleccion.contrato?.appId || '';
+    // const algoLink = servicioAlgorand.urlApplication(appId);
 
     const fechaInicioRegistro = formatearFechaWeb(parsearFechaHora(eleccion.fechaInicioRegistro));
     const fechaFinRegistro = formatearFechaWeb(parsearFechaHora(eleccion.fechaFinRegistro));
@@ -28,15 +38,16 @@ export function fichaEleccion(contenedor, eleccion, status, onAccion) {
               <li><strong>Registro:</strong> Del ${fechaInicioRegistro} al ${fechaFinRegistro}</li>
               <li><strong>Votación:</strong> Del ${fechaInicioVotacion} al ${fechaFinVotacion}</li>
               <li><strong>Escrutinio:</strong> El ${fechaEscrutinio}</li>
-              <li><strong>Blockchain:</strong> <a href="${algoLink}" target="_blank">${appId}</a></li>
             </ul>
             <button class="btn btn-primary mt-auto btn-accion" data-election-id="${eleccion.id}">
-              ${status === 'futuras' ? 'Ver detalles' : status === 'actuales' ? 'Ir a votar' : 'Ver resultados'}
+              ${textBoton}
             </button>
           </div>
         </div>
       </div>
     `;
+
+    // <li><strong>Blockchain:</strong> <a href="${algoLink}" target="_blank">${appId}</a></li>
 
     // Registrar nuevos listeners
     const boton = contenedor.querySelector('.btn-accion');

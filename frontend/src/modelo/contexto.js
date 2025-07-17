@@ -2,6 +2,7 @@ class Contexto {
   constructor() {
     this._observadores = new Set();
     this._estado = {
+      idSesion: null, 
       nombreUsuario: null,
       nombreVotante: null,
       datosUsuario: null,
@@ -12,6 +13,9 @@ class Contexto {
   // Getters
   getEstado() {
     return { ...this._estado };
+  }
+  getIdSesion() {
+    return this._estado.idSesion;
   }
   getNombreUsuario() {
     return this._estado.nombreUsuario;
@@ -26,9 +30,26 @@ class Contexto {
     return this._estado.datosVotante ? { ...this._estado.datosVotante } : null;
   }
 
-  // Setters
+  estaIdentificado() {
+    return !!this._estado.nombreVotante;
+  }
+
+  _generarIdSesion() {
+    if (window.crypto && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return (
+      Date.now().toString(36) + Math.random().toString(36).substring(2, 15)
+    );
+  }
+
   actualizarContexto(nuevoEstado) {
     const estadoAnterior = { ...this._estado };
+
+    if (nuevoEstado.nombreUsuario && this._estado.nombreUsuario !== nuevoEstado.nombreUsuario) {
+      nuevoEstado.sesionId = this._generarIdSesion();
+    }
+
     Object.assign(this._estado, nuevoEstado);
 
     if (JSON.stringify(estadoAnterior) !== JSON.stringify(this._estado)) {
@@ -38,6 +59,7 @@ class Contexto {
 
   limpiarContexto() {
     this.actualizarContexto({
+      idSesion: null, 
       nombreUsuario: null,
       nombreVotante: null,
       datosUsuario: null,

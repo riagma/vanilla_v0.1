@@ -14,7 +14,7 @@ export function vistaPanel(contenedor) {
   let manejadores = new Set();
 
   let elecciones = [];
-  let contratos = [];
+  // let contratos = [];
 
   function mostrarError(mensaje) {
     contenedor.innerHTML = `
@@ -73,7 +73,7 @@ export function vistaPanel(contenedor) {
     </div>
   `;
 
-  async function renderizar(status) {
+  function renderizar(status) {
     const panel = contenedor.querySelector(`[data-status-container="${status}"] .row`);
 
     limpiarComponentes(componentes);
@@ -82,12 +82,13 @@ export function vistaPanel(contenedor) {
 
     elecciones
       .filter(e => e.estado === status)
-      .forEach(async election => {
-        if (!election.contrato) {
-          election.contrato = await servicioEleccion.cargarContrato(election.id);
-        }
+      // .forEach(async election => {
+      //   if (!election.contrato) {
+      //     election.contrato = await servicioEleccion.cargarContrato(election.id);
+      //   }
+      .forEach(election => {
         const fichaContainer = document.createElement('div');
-        const limpiarFicha = fichaEleccion(fichaContainer, election, status, manejarAccionEleccion);
+        const limpiarFicha = fichaEleccion(fichaContainer, election, manejarAccionEleccion);
         componentes.add(limpiarFicha);
         panel.appendChild(fichaContainer.firstElementChild);
       });
@@ -98,19 +99,21 @@ export function vistaPanel(contenedor) {
     const eleccion = elecciones.find(e => e.id === eleccionId);
     if (!eleccion) return;
 
-    switch(status) {
-      case `${ESTADO_ELECCION.FUTURA}`:
-        navegarA(`/e/${eleccionId}`);
-        break;
-      case `${ESTADO_ELECCION.ACTUAL}`:
-        navegarA(`/e/${eleccionId}`);
-        break;
-      case `${ESTADO_ELECCION.PASADA}`:
-        navegarA(`/e/${eleccionId}`);
-        break;
-      default:
-        navegarA(`/e/${eleccionId}`);
-    }
+    navegarA(`/e/${eleccionId}`);
+
+    // switch(status) {
+    //   case `${ESTADO_ELECCION.FUTURA}`:
+    //     navegarA(`/e/${eleccionId}`);
+    //     break;
+    //   case `${ESTADO_ELECCION.ACTUAL}`:
+    //     navegarA(`/e/${eleccionId}`);
+    //     break;
+    //   case `${ESTADO_ELECCION.PASADA}`:
+    //     navegarA(`/e/${eleccionId}`);
+    //     break;
+    //   default:
+    //     navegarA(`/e/${eleccionId}`);
+    // }
   }
 
   const tabButtons = Array.from(contenedor.querySelectorAll('#electionTabs button'));
