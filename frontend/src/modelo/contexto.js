@@ -47,7 +47,7 @@ class Contexto {
     const estadoAnterior = { ...this._estado };
 
     if (nuevoEstado.nombreUsuario && this._estado.nombreUsuario !== nuevoEstado.nombreUsuario) {
-      nuevoEstado.sesionId = this._generarIdSesion();
+      nuevoEstado.idSesion = this._generarIdSesion();
     }
 
     Object.assign(this._estado, nuevoEstado);

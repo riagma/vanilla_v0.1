@@ -174,6 +174,5 @@ export async function desencriptarNodeJSON(cifradoBase64, claveDerivada) {
   return JSON.parse(cadena);
 }
 
-
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------

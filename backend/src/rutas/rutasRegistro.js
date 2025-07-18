@@ -14,6 +14,7 @@ router.use(verificarCredencialesVotante);
 
 // Obtener un registro por ID
 router.get('/:idEleccion', controladorRegistro.obtenerRegistroVotanteEleccion);
+router.put('/:idEleccion', controladorRegistro.crearRegistroVotanteEleccion);
 
 // Crear un nuevo registro
 // router.post('/', async (req, res) => {

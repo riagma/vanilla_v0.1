@@ -1,12 +1,7 @@
 // muestra estadísticas globales y por partido
 import { limpiarManejadores } from '../utiles/utilesVistas.js';
 
-export function fichaResultados(
-  contenedor,
-  resultados,
-  partidos,
-  usuario
-) {
+export function fichaResultados(contenedor, resultados) {
   let manejadores = new Set();
 
   function render() {

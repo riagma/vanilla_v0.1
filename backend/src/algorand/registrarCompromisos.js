@@ -20,7 +20,7 @@ export async function abrirRegistroCompromisosEleccion(bd, eleccionId) {
   if (!eleccion) {
     throw new Error(`No se encontró la elección con ID ${eleccionId}`);
   }
-  
+
   const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
   if (!contrato) {
     throw new Error(`No se encontró el contrato para la elección ${eleccionId}`);
@@ -95,6 +95,8 @@ export async function registrarVotanteEleccion(bd, { votanteId, eleccionId, comp
       compromiso: compromisoNote
     });
 
+    console.log(resultadoRegistrar);
+
     registroVotanteEleccionDAO.actualizar(bd, { votanteId, eleccionId }, { compromisoTxId: resultadoRegistrar.txId });
 
     console.log(`Compromiso registrado para el votante ${votanteId} en la elección ${eleccionId}}`);
@@ -102,9 +104,11 @@ export async function registrarVotanteEleccion(bd, { votanteId, eleccionId, comp
 
     return registroVotante.compromisoIdx;
 
-  } catch (Error) {
+  } catch (error) {
     // TODO: Buscar el assert o su descripción en el error
-    console.error(`Error al registrar compromiso en la elección ${eleccionId}:`, Error.message);
+    console.error(`Error al registrar compromiso en la elección ${eleccionId}:`, error.message);
+    error.message.includes('assert') && console.error('Asegúrate de que el contrato esté desplegado y en estado adecuado.');
+    throw new Error(`Error al registrar compromiso: ${error.message}`);
   }
 }
 

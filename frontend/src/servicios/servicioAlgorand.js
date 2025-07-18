@@ -46,9 +46,9 @@ export const servicioAlgorand = {
 
   crearCuentaAleatoria() {
     const cuenta = algosdk.generateAccount();
-    console.log("Cuenta creada:", cuenta.addr);
-    console.log("Mnemonic:", algosdk.secretKeyToMnemonic(cuenta.sk));
-    return cuenta;
+    // console.log("Cuenta creada:", cuenta.addr);
+    // console.log("Mnemonic:", algosdk.secretKeyToMnemonic(cuenta.sk));
+    return { cuentaAddr: cuenta.addr.toString(), mnemonico: algosdk.secretKeyToMnemonic(cuenta.sk) };
   },
 
   async hacerOptIn(cuenta) {

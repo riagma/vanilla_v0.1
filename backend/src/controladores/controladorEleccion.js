@@ -25,7 +25,10 @@ export const controladorEleccion = {
         peticion.bd,
         peticion.params.idEleccion
       );
-      respuesta.json(eleccion ?? {});
+      if (!eleccion) {
+        return respuesta.status(404).json({ error: 'Elección no encontrada' });
+      }
+      respuesta.json(eleccion);
     } catch (error) {
       respuesta.status(500).json({ error: error.message });
     }
@@ -53,7 +56,10 @@ export const controladorEleccion = {
         peticion.bd,
         peticion.params.idEleccion
       );
-      respuesta.json(contrato ?? {});
+      if (!contrato) {
+        return respuesta.status(404).json({ error: 'Contrato no encontrado' });
+      }
+      respuesta.json(contrato);
     } catch (error) {
       respuesta.status(500).json({ error: error.message });
     }
@@ -63,11 +69,14 @@ export const controladorEleccion = {
 
   obtenerPruebaZkEleccion(peticion, respuesta) {
     try {
-      const contrato = serviciosPruebas.obtenerPorId(
+      const pruebaZK = serviciosPruebas.obtenerPorId(
         peticion.bd,
         peticion.params.idEleccion
       );
-      respuesta.json(contrato ?? {});
+      if (!pruebaZK) {
+        return respuesta.status(404).json({ error: 'Prueba ZK no encontrada' });
+      }
+      respuesta.json(pruebaZK);
     } catch (error) {
       respuesta.status(500).json({ error: error.message });
     }
@@ -77,12 +86,15 @@ export const controladorEleccion = {
 
   obtenerRaizZkEleccion(peticion, respuesta) {
     try {
-      const contrato = serviciosRaices.obtenerPorId(
+      const raizZK = serviciosRaices.obtenerPorId(
         peticion.bd,
         peticion.params.idEleccion,
         peticion.params.idxBloque
       );
-      respuesta.json(contrato ?? {});
+      if (!raizZK) {
+        return respuesta.status(404).json({ error: 'Raíz ZK no encontrada' });
+      }
+      respuesta.json(raizZK);
     } catch (error) {
       respuesta.status(500).json({ error: error.message });
     }

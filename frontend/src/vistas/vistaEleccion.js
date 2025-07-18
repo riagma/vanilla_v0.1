@@ -1,4 +1,4 @@
-// vistas/vistaEleccion.js
+import { contexto } from '../modelo/contexto.js';
 import { servicioEleccion } from '../servicios/servicioEleccion.js';
 import { servicioVotante } from '../servicios/servicioVotante.js';
 import { servicioAlgorand } from '../servicios/servicioAlgorand.js';
@@ -33,17 +33,17 @@ export function vistaEleccion(container, idEleccion) {
   manejadores.add([btnVolver, 'click', null]);
 
   // 2) Carga de datos
-  let eleccion, partidos, contrato, resultados;
-
-  let usuario, registro;
-
+  let eleccion, partidos, contrato, resultados, registro;
 
   async function cargarDatos() {
     try {
       eleccion = await servicioEleccion.cargarEleccion(idEleccion);
       partidos = await servicioEleccion.cargarPartidos(idEleccion);
       contrato = await servicioEleccion.cargarContrato(idEleccion);
-      resultados = await servicioEleccion.cargarResultados(idEleccion);
+
+      if (eleccion.estado === ESTADO_ELECCION.PASADA) {
+        resultados = await servicioEleccion.cargarResultados(idEleccion);
+      }
 
     } catch (err) {
       container.innerHTML = `<div class="alert alert-danger">Error al cargar datos elección: ${err.message}</div>`;
@@ -57,52 +57,15 @@ export function vistaEleccion(container, idEleccion) {
 
     try {
 
-      if (!contexto.estaIdentificado()) {
-        
-        await servicioVotante.cargarVotanteApi();
+      if (eleccion.estado !== ESTADO_ELECCION.FUTURA) {
+        registro = await servicioVotante.cargarRegistroEleccion(idEleccion, eleccion, contrato);
       }
 
-      if (contexto.estaIdentificado()) {
-
-        registro = await idb.obtenerRegistro(contexto.getNombreUsuario(), idEleccion);
-
-        if (!registro) {
-
-          registro = {};
-          registro.nombreUsuario = contexto.getNombreUsuario();
-          registro.eleccionId = idEleccion;
-
-          registro.claveVotoPublica = eleccion.claveVotoPublica;
-          registro.claveVotoPrivada = eleccion.claveVotoPrivada;
-
-          registro.idSesion = "";
-
-          await idb.crearRegistro(registro);
-        }
-      }
-
-      usuario = await idb.obtenerUsuario(contexto.getNombreUsuario());
-
-      if(!usuario) {
-        throw new Error('Usuario no encontrado en la base de datos');
-      }
-
-      if (!usuario.votante) {
-        await servicioVotante.cargarVotanteApi();
-      }
-      
-      
-      votante = await servicioVotante.cargarVotante();
-      estaEnCenso = !!votante;
-
-      if (contexto.estaIdentificado()) {
-        registro = await servicioVotante.cargarCompromiso(idEleccion);
-        votoUsuario = await servicioVotante.cargarVotoEleccion(idEleccion);
-      }
     } catch (err) {
-      container.innerHTML = `<div class="alert alert-danger">Error al cargar datos votante: ${err.message}</div>`;
+      container.innerHTML = `<div class="alert alert-danger">Error al cargar el registro de elección: ${err.message}</div>`;
       return () => { };
     }
+
     if (destruida) return;
     renderizar();
   }
@@ -111,17 +74,24 @@ export function vistaEleccion(container, idEleccion) {
   cargarDatos();
   //--------------
 
+  function actualizarRegistro(nuevoRegistro) {
+    registro = nuevoRegistro;
+    // if (destruida) return;
+    // renderizar();
+  }
+
   function renderizar() {
     if (destruida) return;
     limpiarComponentes(componentes);
 
+    const ahora = new Date();
     // fechas parseadas
     const inicioReg = formatearFecha(parsearFechaHora(eleccion.fechaInicioRegistro));
     const finReg = formatearFecha(parsearFechaHora(eleccion.fechaFinRegistro));
     const inicioVot = formatearFecha(parsearFechaHora(eleccion.fechaInicioVotacion));
     const finVot = formatearFecha(parsearFechaHora(eleccion.fechaFinVotacion));
     const escru = formatearFecha(parsearFechaHora(eleccion.fechaEscrutinio));
-    const appId = eleccion.contrato?.appId || '';
+    const appId = contrato?.appId || '';
     const linkAlgo = servicioAlgorand.urlApplication(appId);
 
     // 3) Header con info básica
@@ -153,7 +123,6 @@ export function vistaEleccion(container, idEleccion) {
     }
     // En curso → Registro y/o Votación
     if (eleccion.estado === ESTADO_ELECCION.ACTUAL) {
-      const ahora = new Date();
       if (ahora < parsearFechaHora(eleccion.fechaFinRegistro)) {
         tabs.push({ id: 'registro', label: 'Registro' });
         panes.push({ id: 'registro', contenedor: document.createElement('div') });
@@ -215,14 +184,7 @@ export function vistaEleccion(container, idEleccion) {
     // — Registro
     if (panes.some(p => p.id === 'registro')) {
       const paneR = panes.find(p => p.id === 'registro').contenedor;
-      const esPeriodReg = new Date() < parsearFechaHora(eleccion.fechaFinRegistro);
-      const cleanup = fichaRegistro(
-        paneR,
-        idEleccion,
-        registro,
-        esPeriodReg,
-        votante
-      );
+      const cleanup = fichaRegistro(paneR, eleccion, registro, actualizarRegistro);
       componentes.add(cleanup);
     }
 
@@ -236,22 +198,22 @@ export function vistaEleccion(container, idEleccion) {
       const despuesVoto =
         ahora >= parsearFechaHora(eleccion.fechaFinVotacion) &&
         ahora < parsearFechaHora(eleccion.fechaEscrutinio);
-      const cleanup = componenteVotacionUsuario(
-        paneV,
-        idEleccion,
-        partidos,
-        votoUsuario,
-        dentroVoto,
-        despuesVoto,
-        votante
-      );
-      componentes.add(cleanup);
+      // const cleanup = componenteVotacionUsuario(
+      //   paneV,
+      //   idEleccion,
+      //   partidos,
+      //   votoUsuario,
+      //   dentroVoto,
+      //   despuesVoto,
+      //   votante
+      // );
+      // componentes.add(cleanup);
     }
 
     // — Resultados
     if (panes.some(p => p.id === 'resultados')) {
       const paneX = panes.find(p => p.id === 'resultados').contenedor;
-      const cleanup = fichaResultados(paneX, resultados, partidos, votante);
+      const cleanup = fichaResultados(paneX, resultados);
       componentes.add(cleanup);
     }
   }

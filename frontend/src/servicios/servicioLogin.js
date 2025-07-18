@@ -48,7 +48,7 @@ export const servicioLogin = {
     contexto.actualizarContexto({ nombreUsuario });
     console.log('Usuario creado exitosamente:', nombreUsuario);
 
-    await servicioVotante.cargarVotanteApi();
+    await servicioVotante.cargarVotante();
   },
 
   // Login de votante existente
