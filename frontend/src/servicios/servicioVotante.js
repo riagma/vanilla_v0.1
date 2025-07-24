@@ -351,36 +351,54 @@ export const servicioVotante = {
 
       //--------------
 
-      const respCircuito = await fetch(registro.urlCircuito);
-      if (!respCircuito.ok) {
-        throw new Error('No se pudo cargar el archivo: ' + registro.urlCircuito);
-      }
-      const merkle11Texto = await respCircuito.text();
-      const merkle11Json = JSON.parse(merkle11Texto);
-      if (!merkle11Json || typeof merkle11Json !== 'object') {
-        throw new Error('El archivo de circuito no es un JSON válido o la URL es incorrecta');
-      }
-
-      //--------------
-
-      const respCompromisos = await fetch(registro.urlCompromisos);
-      if (!respCompromisos.ok) {
-        throw new Error('No se pudo cargar el archivo: ' + registro.urlCompromisos);
-      }
-      const compromisosTexto = await respCompromisos.text();
-      const compromisosJson = JSON.parse(compromisosTexto);
-      if (!compromisosJson || !Array.isArray(compromisosJson)) {
-        throw new Error('El archivo de compromisos no es un JSON válido o la URL es incorrecta');
-      }
-
-      //--------------
-
       const { proof, publicInputs } = await calcularPruebaDatosPublicos(
         datosCompromiso.secreto,
         datosCompromiso.anulador,
         registro.compromisoBloqueIdx,
         registro.urlCircuito,
         registro.urlCompromisos);
+
+      //--------------
+
+      const bodyRegistrar = { 
+        cuentaAddr: datosCompromiso.cuentaAddr, 
+        proofBase64: btoa(String.fromCharCode(...proof)), 
+        publicInputs 
+      };
+
+      const respRegistrar = await api.put(`/api/papeleta/${idEleccion}/registrar`, bodyRegistrar);
+      if (!respRegistrar) {
+        throw new Error('Error al registrar la papeleta en el servidor');
+      } 
+      console.log('Papeleta registrada:', respRegistrar);
+
+      //--------------
+
+      const balance = await servicioAlgorand.revisarBalance(datosCompromiso.cuentaAddr, registro.contratoAssetId);
+      const tieneOptIn = await servicioAlgorand.revisarOptIn(datosCompromiso.cuentaAddr, registro.contratoAssetId);
+
+      // console.log(`Balance: ${balance} microALGOs`);
+      // console.log(tieneOptIn ? "Ya está opt-in" : "No ha hecho opt-in");
+
+      if (balance > 100000 && !tieneOptIn) {
+        console.log("Haciendo opt-in...");
+        const txIdOptIn = await servicioAlgorand.hacerOptIn(datosCompromiso.mnemonico, registro.contratoAssetId);
+        console.log("Opt-in realizado con txID:", txIdOptIn);
+      } else {
+        console.log("No es necesario hacer opt-in o ya se ha hecho.");
+      }
+ 
+      //--------------
+
+      const bodySolicitar = { 
+        anulador: datosCompromiso.anulador
+      };
+
+      const respSolicitar = await api.put(`/api/papeleta/${idEleccion}/solicitar`, bodySolicitar);
+      if (!respSolicitar) {
+        throw new Error('Error al solicitar la papeleta en el servidor');
+      } 
+      console.log('Papeleta solicitada:', respSolicitar);
 
       //--------------
 

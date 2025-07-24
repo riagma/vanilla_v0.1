@@ -68,6 +68,16 @@ export function bytesToHex(bytes) {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+export function hexStr2BigInt(hexStr) {
+  return BigInt(hexStr.startsWith("0x") ? hexStr : "0x" + hexStr);
+}
+
+export function bigInt2HexStr(bigIntValue) {
+  let hex = bigIntValue.toString(16);
+  return hex.length % 2 ? "0x0" + hex : "0x" + hex;
+}
+
+
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 

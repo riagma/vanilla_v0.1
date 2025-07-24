@@ -11,20 +11,20 @@ const rutaFrontend = path.join(__dirname, './public');
 const rutaDescargas = path.join(__dirname, './circuits');
 
 export async function iniciarServidor() {
-  const aplicacion = express();
+  const app = express();
 
   // Middlewares globales
-  aplicacion.use(cors());
+  app.use(cors());
 
-  aplicacion.use('/api', express.json());
-  aplicacion.use('/api', rutasApi);
+  app.use('/api', express.json({ limit: '10mb' }));
+  app.use('/api', rutasApi);
 
-  aplicacion.use(express.static(rutaFrontend));
+  app.use(express.static(rutaFrontend));
 
-  aplicacion.use('/circuits', express.static(rutaDescargas));
+  app.use('/circuits', express.static(rutaDescargas));
 
   // Ruta catch-all para SPA (debe ir después de las rutas de la API y de los estáticos)
-  aplicacion.get('*', (peticion, respuesta) => {
+  app.get('*', (peticion, respuesta) => {
     if (peticion.path.startsWith('/circuits')) {
       return respuesta.status(404).send('Archivo no encontrado');
     }
@@ -36,9 +36,9 @@ export async function iniciarServidor() {
 
   // Iniciar servidor
   return new Promise((resolve) => {
-    aplicacion.listen(PUERTO, () => {
+    app.listen(PUERTO, () => {
       console.log(`Servidor iniciado en http://localhost:${PUERTO}`);
-      resolve(aplicacion);
+      resolve(app);
     });
   });
 }

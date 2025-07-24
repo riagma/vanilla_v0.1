@@ -36,6 +36,17 @@ GET {{baseUrl}}/api/eleccion/1/raizZK/0
 GET {{baseUrl}}/api/eleccion/1/resultados
 
 ##------------------------------------------------------------------------------
+
+### Registrar solicitud 2
+PUT {{baseUrl}}/api/papeleta/2/registrar
+Content-Type: application/json
+
+{
+  "kk": "Password123!"
+}
+
+
+##------------------------------------------------------------------------------
 ##------------------------------------------------------------------------------
 
 ### LOGIN de votante

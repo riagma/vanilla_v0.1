@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { Noir } from '@noir-lang/noir_js';
 import { UltraHonkBackend } from '@aztec/bb.js';
 import { ArbolMerkle } from './ArbolMerkle.js'
-import { calcularPoseidon2, calcularSha256 } from './utilesCrypto.js';
+import { calcularPoseidon2, calcularSha256, bigInt2HexStr } from './utilesCrypto.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -65,12 +65,18 @@ export async function cargarFicheroCompromisos(ficheroCompromisos) {
 
 //----------------------------------------------------------------------------
 
-export async function calcularPruebaDatosPublicos({ 
-  clave, 
-  anulador, 
-  bloqueIdx, 
-  ficheroMerkle11, 
+export async function calcularPruebaDatosPublicos({
+  clave,
+  anulador,
+  bloqueIdx,
+  ficheroMerkle11,
   ficheroCompromisos }) {
+
+  console.log('Clave:', clave, bigInt2HexStr(BigInt(clave)));
+  console.log('Anulador:', anulador, bigInt2HexStr(BigInt(anulador)));
+  console.log('BloqueIdx:', bloqueIdx);
+  console.log('Merkle11:', ficheroMerkle11);
+  console.log('Compromisos:', ficheroCompromisos);
 
   const { noir, honk } = await cargarFicheroMerkle11(ficheroMerkle11);
   const compromisos = await cargarFicheroCompromisos(ficheroCompromisos);
@@ -88,7 +94,7 @@ export async function calcularPruebaDatosPublicos({
     anulador_hash,
   };
 
-  // console.log('Inputs:', inputs);
+  console.log('Inputs:', inputs);
 
   const { witness } = await noir.execute(inputs);
 
@@ -96,7 +102,9 @@ export async function calcularPruebaDatosPublicos({
 
   const proofHash = calcularSha256(proof);
 
-  // console.log('Prueba generada:', proofHash, publicInputs);
+  const datosPublicos = publicInputs.map(pi => BigInt(pi).toString());
+  console.log('Datos públicos:', datosPublicos);
+  console.log('Proof Hash:', proofHash);
 
   return { proof, proofHash, publicInputs };
 }

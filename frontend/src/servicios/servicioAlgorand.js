@@ -18,10 +18,14 @@ let explorerAsset = null;
 let explorerApplication = null;
 let explorerTransaction = null;
 
-export function configurarAlgorand(token, server, port) {
+export function configurarAlgorandClient(token, server, port) {
   algod = new algosdk.Algodv2(token, server, port);
+  console.log("Configurado Algorand Client:", server, port);
+}
+
+export function configurarAlgorandIndexer(token, server, port) {
   indexer = new algosdk.Indexer(token, server, port);
-  console.log("Configurado Algorand:", server, port);
+  console.log("Configurado Algorand Indexer:", server, port);
 }
 
 export function configurarExplorador(server, account, asset, application, transaction) {
@@ -51,7 +55,13 @@ export const servicioAlgorand = {
     return { cuentaAddr: cuenta.addr.toString(), mnemonico: algosdk.secretKeyToMnemonic(cuenta.sk) };
   },
 
-  async hacerOptIn(cuenta) {
+  async hacerOptIn(mnemonico, assetId) {
+    const cuenta = algosdk.mnemonicToSecretKey(mnemonico);
+    if (!algod) {
+      throw new Error("El cliente Algorand no está configurado.");  
+    }
+    console.log("Haciendo opt-in para la cuenta:", cuenta.addr);
+
     const params = await algod.getTransactionParams().do();
 
     const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
@@ -70,10 +80,17 @@ export const servicioAlgorand = {
     return txId;
   },
 
-  async revisarOptIn(assetId) {
-    const cuentaInfo = await algod.accountInformation(cuenta.addr).do();
+  async revisarOptIn(addr, assetId) {
+    const cuentaInfo = await algod.accountInformation(addr).do();
     const tiene = cuentaInfo.assets.find(a => a['asset-id'] === assetId);
     console.log(tiene ? "Ya está opt-in" : "No ha hecho opt-in");
+    return tiene ? true : false;
+  },
+
+  async revisarBalance(addr) {
+    const cuentaInfo = await algod.accountInformation(addr).do();
+    console.log(`Balance: ${cuentaInfo.amount} microALGOs`);
+    return Number(cuentaInfo.amount);
   },
 
   async consultarPapeletaRecibida(addr, assetId) {

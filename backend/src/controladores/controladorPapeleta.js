@@ -1,23 +1,40 @@
-import { serviciosElecciones } from '../servicios/serviciosElecciones.js';
 import { serviciosRegistros } from '../servicios/serviciosRegistros.js';
 import { registrarVotanteEleccion } from '../algorand/registrarCompromisos.js';
+import { calcularSha256 } from '../utiles/utilesCrypto.js';
+import { registrarAnuladorEleccion } from '../algorand/registrarAnuladores.js';
 
-
-export const controladorRegistro = {
+export const controladorPapeleta = {
 
   //----------------------------------------------------------------------------
 
-  obtenerRegistroVotanteEleccion(peticion, respuesta) {
+  async registrarSolicitudPapeleta(peticion, respuesta) {
     try {
-      const registro = serviciosRegistros.obtenerRegistroVotanteEleccion(
-        peticion.bd,
-        peticion.votante.dni,
-        parseInt(peticion.params.idEleccion)
-      );
-      if (!registro) {
-        return respuesta.status(404).json({ error: 'Registro no encontrado' });
+      console.log(`Registrando solicitud de papeleta para la elección ${peticion.params.idEleccion}`);
+
+      const { cuentaAddr, proofBase64, publicInputs } = peticion.body;
+      if (!cuentaAddr || !proofBase64 || !publicInputs) {
+        return respuesta.status(400).json({ error: 'Cuenta, prueba y entradas públicas son requeridas' });
       }
-      respuesta.json(registro);
+
+      const proof = Buffer.from(proofBase64, 'base64');
+      const proofHash = calcularSha256(proof);
+
+      // TODO: comentar después de pruebas
+      console.log(cuentaAddr);
+      console.log(proofHash);
+      console.log(publicInputs);
+
+      const resultadoRegistrar = await registrarAnuladorEleccion(peticion.bd, {
+        eleccionId: parseInt(peticion.params.idEleccion),
+        destinatario: cuentaAddr,
+        proof,
+        proofHash,
+        publicInputs,
+      });
+
+      console.log('Resultado del registro:', resultadoRegistrar);
+      respuesta.json({ txId: resultadoRegistrar.txId, proofHash });
+
     } catch (error) {
       respuesta.status(500).json({ error: error.message });
     }
@@ -25,29 +42,27 @@ export const controladorRegistro = {
 
   //----------------------------------------------------------------------------
 
-  async crearRegistroVotanteEleccion(peticion, respuesta, siguiente) {
+  async completarSolicitudPapeleta(peticion, respuesta) {
     try {
-      const { compromiso, datosPrivados } = peticion.body;
-      if (!compromiso || !datosPrivados) {
-        return respuesta.status(400).json({ error: 'Compromiso y datos privados son requeridos' });
+      console.log(`Registrando solicitud de papeleta para la elección ${peticion.params.idEleccion}`);
+
+      const { anulador } = peticion.body;
+      if (!anulador) {
+        return respuesta.status(400).json({ error: 'Anulador es requerido' });
       }
 
-      await registrarVotanteEleccion(peticion.bd, {
-        votanteId: peticion.votante.dni,
+      console.log(anulador);
+
+      const resultadoSolicitar = await solicitarPapeletaEleccion(peticion.bd, {
         eleccionId: parseInt(peticion.params.idEleccion),
-        compromiso,
-        datosPrivados
+        anulador,
       });
 
-      const registro = serviciosRegistros.obtenerRegistroVotanteEleccion(
-        peticion.bd,
-        peticion.votante.dni,
-        parseInt(peticion.params.idEleccion)
-      );
+      console.log('Resultado de la solicitud:', resultadoSolicitar);
+      respuesta.json({ txId: resultadoSolicitar.txId, anulador });
 
-      respuesta.status(201).json(registro);
     } catch (error) {
-      respuesta.status(400).json({ error: error.message });
+      respuesta.status(500).json({ error: error.message });
     }
   },
 

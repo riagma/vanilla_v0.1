@@ -17,7 +17,7 @@
 // await Promise.all([initACVM(fetch(acvm)), initNoirC(fetch(noirc))]);
 
 import { ArbolMerkle } from './ArbolMerkle.js'
-import { calcularPoseidon2 } from './utilesCrypto.js';
+import { calcularPoseidon2, calcularSha256, bigInt2HexStr } from './utilesCrypto.js';
 import { diagnosticarCircuito, generarPrueba } from './utilesZK.js';
 
 const PROFUNDIDAD = 11;
@@ -70,7 +70,13 @@ export async function calcularPruebaDatosPublicos(
   urlCircuito,
   urlCompromisos) {
 
-  // const circuito = await cargarFicheroMerkle11(urlCircuito);
+  console.log('Clave:', clave, bigInt2HexStr(BigInt(clave)));
+  console.log('Anulador:', anulador, bigInt2HexStr(BigInt(anulador)));
+  console.log('BloqueIdx:', bloqueIdx);
+  console.log('Merkle11:', urlCircuito);
+  console.log('Compromisos:', urlCompromisos);
+
+  const circuito = await cargarFicheroMerkle11(urlCircuito);
   const compromisos = await cargarFicheroCompromisos(urlCompromisos);
 
   const arbolMerkle = construirArbolMerkle(compromisos);
@@ -86,15 +92,17 @@ export async function calcularPruebaDatosPublicos(
     anulador_hash,
   };
 
-  // console.log('Inputs:', inputs);
+  console.log('Inputs:', inputs);
 
-  const circuito = await diagnosticarCircuito(urlCircuito);
+  // const circuito = await diagnosticarCircuito(urlCircuito);
 
   const { proof, publicInputs } = await generarPrueba(circuito, inputs);
 
-  // const proofHash = calcularSha256(proof);
+  const proofHash = await calcularSha256(proof);
 
-  // console.log('Prueba generada:', proofHash, publicInputs);
+  const datosPublicos = publicInputs.map(pi => BigInt(pi).toString());
+  console.log('Datos públicos:', datosPublicos);
+  console.log('Proof Hash:', proofHash);
 
   return { proof, publicInputs };
 }

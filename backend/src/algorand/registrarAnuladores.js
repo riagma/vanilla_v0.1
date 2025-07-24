@@ -3,6 +3,8 @@ import { UltraHonkBackend } from '@aztec/bb.js';
 
 import { anuladorZKDAO, contratoBlockchainDAO, raizZKDAO, eleccionDAO } from '../modelo/DAOs.js';
 
+import { MERKLE11_JSON } from '../utiles/constantes.js';
+
 import {
   leerEstadoContrato,
   abrirRegistroAnuladores,
@@ -14,7 +16,7 @@ import {
 
 //--------------
 
-const merkle11Texto = await fs.readFile('../../noir/merkle11/target/merkle11.json', 'utf8');
+const merkle11Texto = await fs.readFile(MERKLE11_JSON, 'utf8');
 const merkle11Json = JSON.parse(merkle11Texto);
 const honk = new UltraHonkBackend(merkle11Json.bytecode, { threads: 8 });
 
@@ -160,6 +162,8 @@ export async function solicitarPapeletaEleccion(bd, { eleccionId, anulador }) {
     anuladorZKDAO.actualizar(bd, { pruebaId: eleccionId, anulador }, { papeletaTxId: resultadoEnviar.txId });
 
     console.log(`Papeleta de elección ${eleccionId} enviada al destinatario ${registroAnulador.destinatario}`);
+
+    return resultadoEnviar;
 
   } catch (Error) {
     // TODO: Buscar el assert o su descripción en el error

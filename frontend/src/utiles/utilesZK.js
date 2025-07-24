@@ -103,14 +103,12 @@ export async function generarPrueba(circuito, inputs) {
     console.log("Ejecutando circuito con inputs:", inputs);
     const { witness } = await noir.execute(inputs);
     
-
     console.log("Generando prueba");
     const respHonk = await honk.generateProof(witness);
+    console.log("Prueba generada:");
     
-    return {
-      proof: respHonk.proof,
-      publicInputs: respHonk.publicInputs
-    };
+    return respHonk;
+    
   } catch (err) {
     console.error("Error generando prueba:", err);
     throw err;
