@@ -1,4 +1,3 @@
-
 import { poseidon2Hash, poseidon2HashAsync } from "@zkpassport/poseidon2"
 
 const codificador = new TextEncoder();
@@ -60,7 +59,8 @@ export function hexToBytes(hex) {
   if (hex.length % 2 !== 0) throw new Error('Hex inválido');
   const arr = new Uint8Array(hex.length / 2);
   for (let i = 0; i < arr.length; i++) {
-    arr[i] = parseInt(hex.substr(i*2, 2), 16); }
+    arr[i] = parseInt(hex.substr(i * 2, 2), 16);
+  }
   return arr;
 }
 
@@ -143,23 +143,27 @@ export async function encriptarJSON(objeto, claveDerivada) {
 }
 
 export async function desencriptarJSON(cifradoBase64, claveDerivada) {
-  const cadena = await desencriptar(cifradoBase64, claveDerivada);
-  return JSON.parse(cadena);
+  try {
+    const cadena = await desencriptar(cifradoBase64, claveDerivada);
+    return JSON.parse(cadena);
+  } catch (e) {
+    throw e; // Reenvía la excepción
+  }
 }
 
 //----------------------------------------------------------------------------
 
 export async function desencriptarNode(cifradoBase64, claveTexto) {
   try {
-  const binario = Uint8Array.from(atob(cifradoBase64), c => c.charCodeAt(0));
-  const salt = binario.slice(0, 16);
-  const vectorInicial = binario.slice(16, 28);
-  const cifrado = binario.slice(28);
-  const clave = await derivarClave(claveTexto, bytesToHex(salt));
-  const plano = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv: vectorInicial }, clave, cifrado
-  );
-  return decodificador.decode(plano);
+    const binario = Uint8Array.from(atob(cifradoBase64), c => c.charCodeAt(0));
+    const salt = binario.slice(0, 16);
+    const vectorInicial = binario.slice(16, 28);
+    const cifrado = binario.slice(28);
+    const clave = await derivarClave(claveTexto, bytesToHex(salt));
+    const plano = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: vectorInicial }, clave, cifrado
+    );
+    return decodificador.decode(plano);
   } catch (e) {
     console.error("Error al desencriptar:", e);
     throw e;
@@ -170,8 +174,12 @@ export async function desencriptarNode(cifradoBase64, claveTexto) {
 
 
 export async function desencriptarNodeJSON(cifradoBase64, claveDerivada) {
-  const cadena = await desencriptarNode(cifradoBase64, claveDerivada);
-  return JSON.parse(cadena);
+  try {
+    const cadena = await desencriptarNode(cifradoBase64, claveDerivada);
+    return JSON.parse(cadena);
+  } catch (e) {
+    throw e; // Reenvía la excepción
+  }
 }
 
 //----------------------------------------------------------------------------

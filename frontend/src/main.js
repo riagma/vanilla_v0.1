@@ -1,3 +1,7 @@
+// import { Buffer } from 'buffer';
+// window.Buffer = Buffer;
+// global.Buffer = Buffer; 
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 

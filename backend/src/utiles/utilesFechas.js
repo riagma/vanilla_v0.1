@@ -34,8 +34,8 @@ export function parsearFechaHora(fechaHora) {
 }
 
 // "YYYY-MM-DD" a "YYYY-MM-DD" (local)
-export function calcularFecha({ fechaHora = null, incYY = 0, incMM = 0, incDD = 0 }) {
-  let d = fechaHora ? parsearFecha(fechaHora) : new Date();
+export function calcularFecha({ fecha = null, incYY = 0, incMM = 0, incDD = 0 }) {
+  let d = fecha ? parsearFecha(fecha) : new Date();
   d.setFullYear(d.getFullYear() + incYY);
   d.setMonth(d.getMonth() + incMM);
   d.setDate(d.getDate() + incDD);

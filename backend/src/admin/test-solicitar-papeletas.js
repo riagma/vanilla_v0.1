@@ -155,7 +155,7 @@ try {
 
       const resultadoOptIn = await realizarOptInCuentaVotante(
         contrato.tokenId, 
-        datosPrivados.cuentaMnemonic);
+        datosPrivados.mnemonico);
 
       await solicitarPapeletaEleccion(bd, { eleccionId, anulador: anuladorHash });
 

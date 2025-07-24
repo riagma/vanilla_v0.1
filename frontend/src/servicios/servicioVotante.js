@@ -9,6 +9,7 @@ import { calcularBloqueIndice } from '../utiles/utilesArbol.js';
 import { servicioEleccion } from './servicioEleccion.js';
 import { CLAVE_PRUEBAS } from '../utiles/constantes.js';
 import { formatearFechaWeb } from '../utiles/utilesFechas.js';
+import { calcularPruebaDatosPublicos } from '../utiles/utilesArbol.js';
 import { mostrarSpinnerOverlay, ocultarSpinnerOverlay } from '../componentes/SpinnerOverlay.js';
 
 
@@ -123,24 +124,20 @@ export const servicioVotante = {
 
   //------------------------------------------------------------------------------
 
-  async cargarVotoEleccion(idEleccion, compromisoPrivado, assetId) {
+  async cargarVotoEleccion(cuentaAddr, assetId) {
     try {
-      // TODO: cambiar a desencriptarJSON
-      // const datosPrivados = await desencriptarJSON(compromisoPrivado, servicioLogin.getClaveDerivada());
-      let compromisoDatos;
-      if (idEleccion === 1) {
-        compromisoDatos = await desencriptarNodeJSON(compromisoPrivado, CLAVE_PRUEBAS);
-      } else {
-        compromisoDatos = await desencriptarJSON(compromisoPrivado, servicioLogin.getClaveDerivada());
-      }
-      if (!compromisoDatos) {
-        console.log('No se obtuvieron los datos privados del usuario');
-        return null;
-      }
-      const cuentaAddr = compromisoDatos.cuentaAddr;
-      console.log('Cuenta del compromiso del usuario:', cuentaAddr);
+      const respRecibida = await servicioAlgorand.consultarPapeletaRecibida(cuentaAddr, assetId);
+      const respEnviada = await servicioAlgorand.consultarPapeletaRecibida(cuentaAddr, assetId);
 
-      return await servicioAlgorand.consultarPapeletaEnviada(cuentaAddr, assetId);
+      return {
+        datePape: respRecibida ? respRecibida.date : null,
+        txIdPape: respRecibida ? respRecibida.txId : null,
+
+        dateVoto: respEnviada ? respEnviada.date : null,
+        txIdVoto: respEnviada ? respEnviada.txId : null,
+
+        notaVoto: respEnviada && respEnviada.nota ? respEnviada.nota.voto : null
+      }
 
     } catch (error) {
       throw new Error('Error al cargar el voto de Algorand: ' + error.message);
@@ -198,17 +195,9 @@ export const servicioVotante = {
         }
 
         if (registro.compromisoPrivado) {
-          // TODO: cambiar a desencriptarJSON con claveDerivada
-          if (idEleccion === 1) {
-            const compromisoPrivado = await desencriptarNodeJSON(registro.compromisoPrivado, CLAVE_PRUEBAS);
-            if (compromisoPrivado) {
-              registro.compromisoAddr = compromisoPrivado.cuentaAddr;
-            }
-          } else {
-            const compromisoPrivado = await desencriptarJSON(registro.compromisoPrivado, servicioLogin.getClaveDerivada());
-            if (compromisoPrivado) {
-              registro.compromisoAddr = compromisoPrivado.cuentaAddr;
-            }
+          const datosCompromiso = await desencriptarDatosCompromiso(registro.compromisoPrivado, idEleccion);
+          if (datosCompromiso) {
+            registro.compromisoAddr = datosCompromiso.cuentaAddr;
           }
         }
 
@@ -234,10 +223,13 @@ export const servicioVotante = {
         }
 
         if (registro.compromisoPrivado && registro.contratoAssetId) {
-          const votoEleccion = await this.cargarVotoEleccion(idEleccion, registro.compromisoPrivado, registro.contratoAssetId);
+          const votoEleccion = await this.cargarVotoEleccion(registro.compromisoAddr, registro.contratoAssetId);
           if (votoEleccion) {
-            registro.votoTxId = votoEleccion.txId;
-            registro.votoNota = votoEleccion.nota?.voto;
+            registro.papeDate = votoEleccion.datePape ? formatearFechaWeb(votoEleccion.datePape) : null;
+            registro.papeTxId = votoEleccion.txIdPape;
+            registro.votoDate = votoEleccion.dateVoto ? formatearFechaWeb(votoEleccion.dateVoto) : null;
+            registro.votoTxId = votoEleccion.txIdVoto;
+            registro.votoNota = votoEleccion.notaVoto;
           }
         }
 
@@ -335,122 +327,84 @@ export const servicioVotante = {
   //------------------------------------------------------------------------------
   //------------------------------------------------------------------------------
 
-  // async cargarVotanteApi() {
-  //   try {
-  //     const credenciales = await notificarAccesoIdentificado('Verificar datos censales');
-  //     if (!credenciales) {
-  //       console.warn('Operación cancelada por el usuario');
-  //       return null;
-  //     }
-  //     const votanteApi = await api.get('/api/votante', { credenciales });
-  //     if (!votanteApi) {
-  //       console.log('No se encontraron datos censales para el votante');
-  //       return null;
-  //     }
-  //     console.log('Datos censales recuperados:', votanteApi);
-  //     const votantePlano = validarDatos(votanteApi, esquemaVotante);
-  //     const nombreVotante = votantePlano.nombre + ' ' + votantePlano.primerApellido + ' ' + votantePlano.segundoApellido;
-  //     contexto.actualizarContexto({ nombreVotante });
-  //     const votante = await encriptarJSON(votantePlano, servicioLogin.getClaveDerivada());
-  //     await idb.actualizarUsuario(contexto.getNombreUsuario(), { votante });
-  //     return votantePlano;
-  //   } catch (error) {
-  //     throw new Error('Error al cargar los datos del censo: ' + error.message);
-  //   }
-  // },
+  async solicitarPapeletaEleccion(idEleccion) {
+    try {
+      mostrarSpinnerOverlay('Solicitando papeleta, por favor espere...');
 
-  // async cargarRegistroEleccion(idEleccion) {
-  //   try {
-  //     const registro = await idb.obtenerRegistro(contexto.getNombreUsuario(), idEleccion);
-  //     if (registro) {
-  //       return registro;
-  //     }
-  //   } catch (error) {
-  //     console.error('Error al cargar el votante desde IDB:', error);
-  //     return await this.cargarRegistroEleccionApi(idEleccion);
-  //   }
+      let registro = await this.cargarRegistroEleccion(idEleccion);
+      if (!registro) {
+        throw new Error('Registro no encontrado para la elección: ' + idEleccion);
+      }
 
-  //   return await this.cargarRegistroEleccionApi(idEleccion);
-  // },
+      if (!registro.compromiso || !registro.compromisoPrivado) {
+        throw new Error('No se ha registrado el compromiso para la elección: ' + idEleccion);
+      }
 
-  // async cargarRegistroEleccionApi(idEleccion) {
-  //   try {
-  //     const credenciales = await notificarAccesoIdentificado('Cargar datos registro');
-  //     if (!credenciales) {
-  //       console.warn('Operación cancelada por el usuario');
-  //       return null;
-  //     }
-  //     const registroApi = await api.get(`/api/registro/${idEleccion}`, { credenciales });
-  //     if (!registroApi) {
-  //       console.log('No se encontraron datos de registro para la elección');
-  //       return null;
-  //     }
-  //     console.log('Datos de registro recuperados:', registroApi);
-  //     // const registro = validarDatos(registroApi, esquemaRegistroVotante);
-  //     const { votanteId, eleccionId, ...registro } = registroApi;
-  //     await idb.actualizarRegistro(contexto.getNombreUsuario(), idEleccion, registro);
-  //     this.cargarDatosVotacion(idEleccion, registro.compromisoIdx);
-  //     return await idb.obtenerRegistro(contexto.getNombreUsuario(), idEleccion);
-  //   } catch (error) {
-  //     throw new Error('Error al cargar los datos del registro: ' + error.message);
-  //   }
-  // },
+      if (registro.papeDate) {
+        throw new Error('Ya ha recibido la papeleta para la elección: ' + idEleccion);
+      }
 
-  // async cargarDatosVotacion(idEleccion, idxCompromiso) {
-  //   try {
-  //     const nombreUsuario = contexto.getNombreUsuario();
-  //     // const eleccion = await idb.obtenerEleccion(nombreUsuario, idEleccion);
-  //     // if (!eleccion) {
-  //     //   console.log('No se encontró el registro de la elección en IDB');
-  //     //   return null;
-  //     // }
-  //     const contrato = await api.get(`/api/eleccion/${idEleccion}/contrato`);
-  //     if (contrato) {
-  //       await idb.actualizarRegistro(nombreUsuario, idEleccion, contrato);
-  //     }
-  //     const prueba = await api.get(`/api/eleccion/${idEleccion}/pruebaZK`);
-  //     if (prueba) {
-  //       await idb.actualizarRegistro(nombreUsuario, idEleccion, prueba);
-  //       const { bloque, bloqueIdx } = calcularBloqueIndice(prueba.tamBloque, prueba.tamResto, idxCompromiso);
-  //       const raiz = await api.get(`/api/eleccion/${idEleccion}/raizZK/${bloque}`);
-  //       if (raiz) await idb.actualizarRegistro(nombreUsuario, idEleccion, raiz);
-  //     }
-  //   } catch (error) {
-  //     throw new Error('Error al cargar los datos de votación: ' + error.message);
-  //   }
-  // },
+      const datosCompromiso = await desencriptarDatosCompromiso(registro.compromisoPrivado);
+      if (!datosCompromiso) {
+        throw new Error('No se pudieron desencriptar los datos del compromiso');
+      }
 
-  // async cargarVotoEleccion(idEleccion) {
-  //   try {
-  //     console.log('Cargando voto de Algorand para la elección:', idEleccion);
-  //     const eleccion = await this.cargarCompromiso(idEleccion);
-  //     if (!eleccion || !eleccion.datosPrivados) {
-  //       console.log('No se encontró el registro de la elección');
-  //       return null;
-  //     }
-  //     console.log('Datos privados de la elección:', eleccion.datosPrivados);
-  //     console.log('Clave derivada del usuario:', servicioLogin.getClaveDerivada());
-  //     // TODO: cambiar a desencriptarJSON
-  //     // const datosPrivados = await desencriptarJSON(eleccion.datosPrivados, servicioLogin.getClaveDerivada());
-  //     const datosPrivados = await desencriptarNodeJSON(eleccion.datosPrivados, CLAVE_PRUEBAS);
-  //     if (!datosPrivados) {
-  //       console.log('No se obtuvieron los datos privados del usuario');
-  //       return null;
-  //     }
-  //     console.log('Datos privados del usuario:', datosPrivados);
+      //--------------
 
-  //     const { txId, nota } = await servicioAlgorand.consultarPapeletaEnviada(datosPrivados.cuentaAddr, eleccion.tokenId);
+      const respCircuito = await fetch(registro.urlCircuito);
+      if (!respCircuito.ok) {
+        throw new Error('No se pudo cargar el archivo: ' + registro.urlCircuito);
+      }
+      const merkle11Texto = await respCircuito.text();
+      const merkle11Json = JSON.parse(merkle11Texto);
+      if (!merkle11Json || typeof merkle11Json !== 'object') {
+        throw new Error('El archivo de circuito no es un JSON válido o la URL es incorrecta');
+      }
 
-  //     console.log('Voto cargado:', { txId, nota });
-  //     return { txId, nota };
+      //--------------
 
-  //   } catch (error) {
-  //     throw new Error('Error al cargar el voto de Algorand: ' + error.message);
-  //   }
-  // },
+      const respCompromisos = await fetch(registro.urlCompromisos);
+      if (!respCompromisos.ok) {
+        throw new Error('No se pudo cargar el archivo: ' + registro.urlCompromisos);
+      }
+      const compromisosTexto = await respCompromisos.text();
+      const compromisosJson = JSON.parse(compromisosTexto);
+      if (!compromisosJson || !Array.isArray(compromisosJson)) {
+        throw new Error('El archivo de compromisos no es un JSON válido o la URL es incorrecta');
+      }
 
-};
+      //--------------
 
+      const { proof, publicInputs } = await calcularPruebaDatosPublicos(
+        datosCompromiso.secreto,
+        datosCompromiso.anulador,
+        registro.compromisoBloqueIdx,
+        registro.urlCircuito,
+        registro.urlCompromisos);
+
+      //--------------
+
+      const votoEleccion = await this.cargarVotoEleccion(registro.compromisoAddr, registro.contratoAssetId);
+      if (votoEleccion) {
+        registro.papeDate = votoEleccion.datePape ? formatearFechaWeb(votoEleccion.datePape) : null;
+        registro.papeTxId = votoEleccion.txIdPape;
+        registro.votoDate = votoEleccion.dateVoto ? formatearFechaWeb(votoEleccion.dateVoto) : null;
+        registro.votoTxId = votoEleccion.txIdVoto;
+        registro.votoNota = votoEleccion.notaVoto;
+      }
+
+      return registro;
+
+    } catch (error) {
+      throw new Error('Error creado datos de registro: ' + error.message);
+
+    } finally {
+      ocultarSpinnerOverlay();
+    }
+  },
+}
+
+//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
 async function generarDatosCompromiso() {
@@ -471,8 +425,35 @@ async function generarDatosCompromiso() {
 
   const datosPrivados = await encriptarJSON(datosPublicos, servicioLogin.getClaveDerivada());
 
-  console.log('Datos privados encriptados:', datosPrivados);
-  console.log('Datos privados desencriptados:', await desencriptarJSON(datosPrivados, servicioLogin.getClaveDerivada()));
+  // console.log('Datos privados encriptados:', datosPrivados);
+  // console.log('Datos privados desencriptados:', await desencriptarJSON(datosPrivados, servicioLogin.getClaveDerivada()));
 
   return { compromiso, datosPrivados };
+}
+
+async function desencriptarDatosCompromiso(datosPrivados) {
+
+  let datosCompromiso = null;
+
+  // TODO: sólo a desencriptarJSON con claveDerivada cuando se acaben las pruebas
+
+  try {
+    if (!datosCompromiso) {
+      datosCompromiso = await desencriptarNodeJSON(datosPrivados, CLAVE_PRUEBAS);
+    }
+  } catch (error) {
+    // console.error('Error desencriptando los datos del compromiso con Node:', error);
+    datosCompromiso = null;
+  }
+
+  try {
+    if (!datosCompromiso) {
+      datosCompromiso = await desencriptarJSON(compromisoPrivado, servicioLogin.getClaveDerivada());
+    }
+  } catch (error) {
+    console.error('Error desencriptando los datos del compromiso:', error);
+    datosCompromiso = null;
+  }
+
+  return datosCompromiso;
 }

@@ -105,8 +105,8 @@ try {
 
   console.log(eleccion.nombre);
 
-  const clavePrivada = await desencriptar(eleccion.claveVotoPrivadaEncriptada, CLAVE_MAESTRA);
-  // console.log(`Clave privada desencriptada: ${clavePrivada}`);
+  const claveVotoPrivada = await desencriptar(eleccion.claveVotoPrivadaEncriptada, CLAVE_MAESTRA);
+  // console.log(`Clave privada desencriptada: ${claveVotoPrivada}`);
 
   const contrato = contratoBlockchainDAO.obtenerPorId(bd, { contratoId: eleccionId });
   if (!contrato) {
@@ -138,7 +138,7 @@ try {
       const nota = fromNote(txn.note);
       // console.log(nota);
 
-      const votoDesencriptado = await desencriptarConClavePrivada(nota.voto, clavePrivada);
+      const votoDesencriptado = await desencriptarConClavePrivada(nota.voto, claveVotoPrivada);
       // console.log(`Voto desencriptado: (${votoDesencriptado})`);
 
       let voto;
@@ -150,6 +150,8 @@ try {
         resultadosEleccion.votosNulos++;
         continue;
       } 
+
+      // let voto = { siglas: votoDesencriptado };
 
       if (!voto.siglas) {
         // console.error(`Voto en blanco: ${votoDesencriptado}`);
@@ -194,13 +196,13 @@ try {
 
   eleccionDAO.actualizar(bd, { id: eleccionId }, 
     { 
-      fechaInicioRegistro: Date.now().toLocaleString(),
-      clavePrivada,
+      fechaEscrutinio: Date.now().toLocaleString(),
+      claveVotoPrivada,
     });
 
 
 } catch (err) {
-  console.error('Error cerrando el registro de raíces:', err);
+  console.error('Error realizando el escrutinio de la elección:', err);
   process.exit(1);
 
 } finally {

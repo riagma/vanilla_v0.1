@@ -27,15 +27,15 @@ export function configurarAlgorand(token, server, port) {
 export function configurarExplorador(server, account, asset, application, transaction) {
   explorer = server.endsWith('/') ? server : server + '/';
   explorerAccount = account.endsWith('/') ? account : account + '/';
-  explorerAsset = asset.endsWith('/') ? asset : asset + '/';  
+  explorerAsset = asset.endsWith('/') ? asset : asset + '/';
   explorerApplication = application.endsWith('/') ? application : application + '/';
   explorerTransaction = transaction.endsWith('/') ? transaction : transaction + '/';
 
-  console.log("Configurado explorador:", 
-    explorer, 
-    explorerAccount, 
-    explorerAsset, 
-    explorerApplication, 
+  console.log("Configurado explorador:",
+    explorer,
+    explorerAccount,
+    explorerAsset,
+    explorerApplication,
     explorerTransaction);
 }
 
@@ -89,8 +89,10 @@ export const servicioAlgorand = {
       console.log("No se ha recibido la papeleta.");
       return null;
     } else {
-      console.log("Se ha recibido la papeleta.", txns.transactions[0]);
-      return txns.transactions[0].id;
+      const roundTime = txns.transactions[0].roundTime;
+      const date = new Date(roundTime * 1000);
+      console.log("Se ha recibido la papeleta.", date.toISOString(), txns.transactions[0]);
+      return { date, txId: txns.transactions[0].id };
     }
   },
 
@@ -107,7 +109,7 @@ export const servicioAlgorand = {
 
     const signedTxn = txn.signTxn(cuenta.sk);
     const { txId } = await algod.sendRawTransaction(signedTxn).do();
-    console.log("📤 Envío asset txID:", txId);
+    console.log("Envío asset txID:", txId);
 
     await algosdk.waitForConfirmation(algod, txId, 4);
     return txId;
@@ -129,8 +131,10 @@ export const servicioAlgorand = {
       console.log("Se ha recibido la papeleta.", txns.transactions[0]);
       const txId = txns.transactions[0].id;
       const nota = txns.transactions[0].note ? this.fromNote(txns.transactions[0].note) : {};
-      console.log("Nota de la transacción:", txId, nota);
-      return { txId: txns.transactions[0].id, nota };
+      const roundTime = txns.transactions[0].roundTime;
+      const date = new Date(roundTime * 1000);
+      console.log("Nota de la transacción:", date.toISOString(), txId, nota);
+      return { date, txId: txns.transactions[0].id, nota };
     }
   },
 

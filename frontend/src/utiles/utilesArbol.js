@@ -7,19 +7,18 @@
 // import { compile, createFileManager } from "@noir-lang/noir_wasm";
 // import { UltraHonkBackend } from "@aztec/bb.js";
 // import { Noir } from "@noir-lang/noir_js";
-import initNoirC from "@noir-lang/noirc_abi";
-import initACVM from "@noir-lang/acvm_js";
-import acvm from "@noir-lang/acvm_js/web/acvm_js_bg.wasm?url";
-import noirc from "@noir-lang/noirc_abi/web/noirc_abi_wasm_bg.wasm?url";
+
+// import initNoirC from "@noir-lang/noirc_abi";
+// import initACVM from "@noir-lang/acvm_js";
+// import acvm from "@noir-lang/acvm_js/web/acvm_js_bg.wasm?url";
+// import noirc from "@noir-lang/noirc_abi/web/noirc_abi_wasm_bg.wasm?url";
 
 // Initialize WASM modules
-await Promise.all([initACVM(fetch(acvm)), initNoirC(fetch(noirc))]);
-
+// await Promise.all([initACVM(fetch(acvm)), initNoirC(fetch(noirc))]);
 
 import { ArbolMerkle } from './ArbolMerkle.js'
-import { calcularPoseidon2, calcularSha256 } from './utilesCrypto.js';
-
-// const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { calcularPoseidon2 } from './utilesCrypto.js';
+import { diagnosticarCircuito, generarPrueba } from './utilesZK.js';
 
 const PROFUNDIDAD = 11;
 
@@ -28,88 +27,77 @@ const MIN_NUM_HOJAS = 2 ** (PROFUNDIDAD - 1) + 1;
 
 const HOJA_POR_DEFECTO = 666n;
 
-let ficheroMerkle11Cargado = '';
-let ficheroCompromisosCargado = '';
-
-let noirGlobal = null;
-let honkGlobal = null;
-
-let compromisosCargados = null;
 
 //----------------------------------------------------------------------------
 
-// export async function cargarFicheroMerkle11(ficheroMerkle11) {
-//   if (ficheroMerkle11Cargado !== ficheroMerkle11) {
-//     const merkle11Texto = await fsp.readFile(path.join(__dirname, "../../", ficheroMerkle11), 'utf8');
-//     const merkle11Json = JSON.parse(merkle11Texto);
-//     noirGlobal = new Noir(merkle11Json);
-//     honkGlobal = new UltraHonkBackend(merkle11Json.bytecode);
-//     ficheroMerkle11Cargado = ficheroMerkle11;
-//     console.log(`Fichero Merkle11 cargado: ${ficheroMerkle11}`);
-//   } else {
-//     console.log(`Fichero Merkle11 ya cargado: ${ficheroMerkle11}`);
-//   }
-//   return { noir: noirGlobal, honk: honkGlobal };
-// }
+export async function cargarFicheroMerkle11(urlCircuito) {
+
+  const respCircuito = await fetch(urlCircuito);
+  if (!respCircuito.ok) {
+    throw new Error('No se pudo cargar el archivo: ' + urlCircuito);
+  }
+  const merkle11Texto = await respCircuito.text();
+  const merkle11Json = JSON.parse(merkle11Texto);
+  if (!merkle11Json || typeof merkle11Json !== 'object') {
+    throw new Error('El archivo de circuito no es un JSON válido o la URL es incorrecta');
+  }
+
+  return merkle11Json;
+}
 
 //----------------------------------------------------------------------------
 
-// export async function cargarFicheroCompromisos(ficheroCompromisos) {
-//   if (ficheroCompromisosCargado !== ficheroCompromisos) {
-//     const rutaFichero = path.join(__dirname, "../../", ficheroCompromisos);
-//     if (esArchivoGzip(rutaFichero)) {
-//       const compromisosTexto = await descomprimirArchivoMemo(rutaFichero);
-//       compromisosCargados = JSON.parse(compromisosTexto);
+export async function cargarFicheroCompromisos(urlCompromisos) {
+  const respCompromisos = await fetch(urlCompromisos);
+  if (!respCompromisos.ok) {
+    throw new Error('No se pudo cargar el archivo: ' + urlCompromisos);
+  }
+  const compromisosTexto = await respCompromisos.text();
+  const compromisosJson = JSON.parse(compromisosTexto);
+  if (!compromisosJson || !Array.isArray(compromisosJson)) {
+    throw new Error('El archivo de compromisos no es un JSON válido o la URL es incorrecta');
+  }
 
-//     } else {
-//       const compromisosTexto = await fsp.readFile(rutaFichero);
-//       compromisosCargados = JSON.parse(compromisosTexto);
-//     }
-//     ficheroCompromisosCargado = ficheroCompromisos;
-//     console.log(`Fichero de compromisos cargado: ${ficheroCompromisos}`);
-//   } else {
-//     console.log(`Fichero de compromisos ya cargado: ${ficheroCompromisos}`);
-//   }
-//   return compromisosCargados;
-// }
+  return compromisosJson;
+}
 
 //----------------------------------------------------------------------------
 
-// export async function calcularPruebaDatosPublicos({ 
-//   clave, 
-//   anulador, 
-//   bloqueIdx, 
-//   ficheroMerkle11, 
-//   ficheroCompromisos }) {
+export async function calcularPruebaDatosPublicos(
+  clave,
+  anulador,
+  bloqueIdx,
+  urlCircuito,
+  urlCompromisos) {
 
-//   const { noir, honk } = await cargarFicheroMerkle11(ficheroMerkle11);
-//   const compromisos = await cargarFicheroCompromisos(ficheroCompromisos);
+  // const circuito = await cargarFicheroMerkle11(urlCircuito);
+  const compromisos = await cargarFicheroCompromisos(urlCompromisos);
 
-//   const arbolMerkle = construirArbolMerkle(compromisos);
+  const arbolMerkle = construirArbolMerkle(compromisos);
 
-//   const { path, idxs } = arbolMerkle.generarPrueba(bloqueIdx);
-//   const anulador_hash = calcularPoseidon2([BigInt(anulador)]).toString();
+  const { path, idxs } = arbolMerkle.generarPrueba(bloqueIdx);
+  const anulador_hash = calcularPoseidon2([BigInt(anulador)]).toString();
 
-//   const inputs = {
-//     clave, anulador,
-//     path: path.map(x => x.toString()),
-//     idxs: idxs.map(x => x.toString()),
-//     raiz: arbolMerkle.raiz.toString(),
-//     anulador_hash,
-//   };
+  const inputs = {
+    clave, anulador,
+    path: path.map(x => x.toString()),
+    idxs: idxs.map(x => x.toString()),
+    raiz: arbolMerkle.raiz.toString(),
+    anulador_hash,
+  };
 
-//   // console.log('Inputs:', inputs);
+  // console.log('Inputs:', inputs);
 
-//   const { witness } = await noir.execute(inputs);
+  const circuito = await diagnosticarCircuito(urlCircuito);
 
-//   const { proof, publicInputs } = await honk.generateProof(witness);
+  const { proof, publicInputs } = await generarPrueba(circuito, inputs);
 
-//   // const proofHash = calcularSha256(proof);
+  // const proofHash = calcularSha256(proof);
 
-//   // console.log('Prueba generada:', proofHash, publicInputs);
+  // console.log('Prueba generada:', proofHash, publicInputs);
 
-//   return { proof, publicInputs };
-// }
+  return { proof, publicInputs };
+}
 
 //----------------------------------------------------------------------------
 
@@ -157,28 +145,28 @@ export function calcularBloqueIndice(tamBloque, tamResto, indice) {
 
 //----------------------------------------------------------------------------
 
-// export function construirArbolMerkle(compromisos) {
+export function construirArbolMerkle(compromisos) {
 
-//   if (!Array.isArray(compromisos) || compromisos.length === 0 || compromisos.length > MAX_NUM_HOJAS) {
-//     throw new Error(`El número de compromisos debe ser un array no vacío y con un máximo de ${MAX_NUM_HOJAS} elementos.`);
-//   }
+  if (!Array.isArray(compromisos) || compromisos.length === 0 || compromisos.length > MAX_NUM_HOJAS) {
+    throw new Error(`El número de compromisos debe ser un array no vacío y con un máximo de ${MAX_NUM_HOJAS} elementos.`);
+  }
 
-//   const hojas = compromisos.map(c => BigInt(c));
+  const hojas = compromisos.map(c => BigInt(c));
 
-//   if (hojas.length < MIN_NUM_HOJAS) {
-//     while (hojas.length < MIN_NUM_HOJAS) {
-//       hojas.push(HOJA_POR_DEFECTO);
-//     }
-//     console.log(`Se añaden ${MIN_NUM_HOJAS - hojas.length} hojas extras`);
-//   }
+  if (hojas.length < MIN_NUM_HOJAS) {
+    while (hojas.length < MIN_NUM_HOJAS) {
+      hojas.push(HOJA_POR_DEFECTO);
+    }
+    console.log(`Se añaden ${MIN_NUM_HOJAS - hojas.length} hojas extras`);
+  }
 
-//   const arbolMerkle = new ArbolMerkle(hojas);
+  const arbolMerkle = new ArbolMerkle(hojas);
 
-//   console.log(`Raíz del árbol Poseidon: ${arbolMerkle.raiz.toString()}`);
-//   console.log(`Número de hojas: ${arbolMerkle.numHojas}`);
+  console.log(`Raíz del árbol Poseidon: ${arbolMerkle.raiz.toString()}`);
+  console.log(`Número de hojas: ${arbolMerkle.numHojas}`);
 
-//   return arbolMerkle;
-// }
+  return arbolMerkle;
+}
 
 //----------------------------------------------------------------------------
 

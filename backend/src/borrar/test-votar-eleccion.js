@@ -179,7 +179,7 @@ try {
         // console.log(`Voto cifrado: ${voto.voto}`);
 
         await votar(
-          datosPrivados.cuentaMnemonic, 
+          datosPrivados.mnemonico, 
           contrato.appAddr, 
           contrato.tokenId, voto);
 

@@ -1,17 +1,21 @@
 import { Router } from 'express';
 import { mwBaseDatos } from '../middlewares/mwBaseDatos.js';
 import { mwExcepcion } from '../middlewares/mwExcepcion.js';
+
 import { rutasVotante } from './rutasVotante.js';
 import { rutasEleccion } from './rutasEleccion.js';
 import { rutasRegistro } from './rutasRegistro.js';
+import { rutasPapeleta } from './rutasPapeleta.js';
 
 const router = Router();
 
 router.use(mwBaseDatos);
 
 router.use('/votante', rutasVotante); 
+
 router.use('/eleccion', rutasEleccion);
 router.use('/registro', rutasRegistro);
+router.use('/papeleta', rutasPapeleta); 
 
 router.use((peticion, respuesta, siguiente) => {
   respuesta.status(404).json({

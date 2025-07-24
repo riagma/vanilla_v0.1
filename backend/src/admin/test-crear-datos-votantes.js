@@ -2,7 +2,7 @@
 import { randomBytes } from 'node:crypto';
 import { abrirConexionBD, cerrarConexionBD } from '../modelo/BD.js';
 
-import { 
+import {
   registroVotanteEleccionDAO,
   votanteDatosEleccionDAO,
   eleccionDAO,
@@ -12,15 +12,16 @@ import {
   pruebaZKDAO,
   raizZKDAO,
 
- } from '../modelo/DAOs.js';
+} from '../modelo/DAOs.js';
 
 import {
   calcularPoseidon2,
-  desencriptarJSON, 
+  desencriptarJSON,
+  encriptarConClavePublica } from '../utiles/utilesCrypto.js';
 
-} from '../utiles/utilesCrypto.js';
-
-import { calcularBloqueIndice, calcularPruebaDatosPublicos } from '../utiles/utilesArbol.js';  
+import { 
+  calcularBloqueIndice, 
+  calcularPruebaDatosPublicos } from '../utiles/utilesArbol.js';
 
 import { CLAVE_PRUEBAS } from '../utiles/constantes.js';
 
@@ -30,7 +31,7 @@ function crearVotanteDatosEleccion(votanteId, eleccionId) {
   return {
     votanteId: votanteId,
     eleccionId: eleccionId,
-    cuenta: '-',
+    cuentaAddr: '-',
     mnemonico: '-',
     secreto: '-',
     anulador: '-',
@@ -67,19 +68,19 @@ let pesos = []
 
 function elegirPartido(bd, eleccionId) {
 
-  if(!partidos) {
-    partidos = partidoDAO.obtenerPorEleccion(bd, eleccionId );
+  if (!partidos) {
+    partidos = partidoDAO.obtenerPorEleccion(bd, eleccionId);
     let sumaPesos = 0;
     for (const partido of partidos) {
       const peso = Math.random();
       pesos.push(peso);
-      sumaPesos += peso; 
+      sumaPesos += peso;
     }
     pesos = pesos.map(peso => peso / sumaPesos);
-  } 
+  }
 
   const r = Math.random();
-  
+
   let acumulado = 0;
   for (let i = 0; i < partidos.length; i++) {
     acumulado += pesos[i];
@@ -123,6 +124,8 @@ try {
         max: 1000
       });
 
+    // console.log(`Procesando ${registrosVotantes.length} registros de votantes para la elección ${eleccionId}.`);
+
     if (!registrosVotantes || registrosVotantes.length === 0) {
       console.log(`No hay más votantes registrados para la elección ${eleccionId} con compromisoIdx ${compromisoIdx}.`);
       break;
@@ -131,6 +134,8 @@ try {
     compromisoIdx += registrosVotantes.length;
 
     for (const registro of registrosVotantes) {
+
+      // console.log(`Procesando registro de votante: ${registro.votanteId}, compromisoIdx: ${registro.compromisoIdx}`);
 
       let datosVotante = votanteDatosEleccionDAO.obtenerPorId(bd, {
         votanteId: registro.votanteId,
@@ -152,12 +157,8 @@ try {
 
       const datosPrivados = await desencriptarJSON(registro.datosPrivados, CLAVE_PRUEBAS);
 
-      // TODO, el último con estos nombres, después cuenta y mnemonico
-      // cuentaAddr: cuenta.addr.toString(),
-      // cuentaMnemonic: algosdk.secretKeyToMnemonic(cuenta.sk),
-
-      datosVotante.cuenta = datosPrivados.cuentaAddr;
-      datosVotante.mnemonico = datosPrivados.cuentaMnemonic;
+      datosVotante.cuentaAddr = datosPrivados.cuentaAddr;
+      datosVotante.mnemonico = datosPrivados.mnemonico;
       datosVotante.secreto = datosPrivados.secreto;
       datosVotante.anulador = datosPrivados.anulador;
 
@@ -171,10 +172,12 @@ try {
         console.error(`No se encontró el contrato para la elección ${datosVotante.eleccionId}.`);
         continue;
       }
-      
+
       datosVotante.appId = contrato.appId;
       datosVotante.appAddr = contrato.appAddr;
       datosVotante.tokenId = contrato.tokenId;
+
+      // console.log(`Datos del contrato: appId=${datosVotante.appId}, appAddr=${datosVotante.appAddr}, tokenId=${datosVotante.tokenId}`);
 
       //--------------
 
@@ -184,33 +187,39 @@ try {
         console.error(`No se encontró la prueba ZK para la elección ${datosVotante.eleccionId}.`);
         continue;
       }
-      
+
       datosVotante.numBloques = pruebaZK.numBloques;
       datosVotante.tamBloque = pruebaZK.tamBloque;
       datosVotante.tamResto = pruebaZK.tamResto;
       datosVotante.txIdRaizInicial = pruebaZK.txIdRaizInicial;
       datosVotante.urlCircuito = pruebaZK.urlCircuito;
 
+      // console.log(`Datos de la prueba ZK: numBloques=${datosVotante.numBloques}, tamBloque=${datosVotante.tamBloque}, tamResto=${datosVotante.tamResto}, txIdRaizInicial=${datosVotante.txIdRaizInicial}, urlCircuito=${datosVotante.urlCircuito}`);
+
       //--------------
 
       const { bloque, bloqueIdx } = calcularBloqueIndice(
-        datosVotante.tamBloque, 
-        datosVotante.tamResto, 
+        datosVotante.tamBloque,
+        datosVotante.tamResto,
         datosVotante.compromisoIdx);
 
       datosVotante.bloque = bloque;
       datosVotante.bloqueIdx = bloqueIdx;
 
+      // console.log(`Índice del bloque: bloque=${datosVotante.bloque}, bloqueIdx=${datosVotante.bloqueIdx}`);
+
       //--------------
 
-      const raizZK = raizZKDAO.obtenerPorId(bd, { 
-        pruebaId: datosVotante.eleccionId, 
-        bloqueIdx: datosVotante.bloque 
+      const raizZK = raizZKDAO.obtenerPorId(bd, {
+        pruebaId: datosVotante.eleccionId,
+        bloqueIdx: datosVotante.bloque
       });
 
       datosVotante.raiz = raizZK.raiz;
       datosVotante.txIdRaiz = raizZK.txIdRaiz;
       datosVotante.urlCompromisos = raizZK.urlCompromisos;
+
+      // console.log(`Raíz del bloque: ${datosVotante.raiz}, txIdRaiz=${datosVotante.txIdRaiz}, urlCompromisos=${datosVotante.urlCompromisos}`);
 
       //--------------
 
@@ -225,6 +234,8 @@ try {
       datosVotante.proof = proof.toString('base64'); // Guardar como Base64
       datosVotante.publicInputs = JSON.stringify(publicInputs);
 
+      // console.log(`Prueba generada: proof=${datosVotante.proof.length}, publicInputs=${datosVotante.publicInputs}`);
+
       //--------------
 
       datosVotante.claveVotoPublica = eleccion.claveVotoPublica;
@@ -233,16 +244,16 @@ try {
       datosVotante.votoEnc = await encriptarConClavePublica(JSON.stringify({
         siglas: datosVotante.voto,
         nonce: randomBytes(16).toString('hex')
-      }));
+      }), datosVotante.claveVotoPublica);
 
-      //--------------
-      votanteDatosEleccionDAO.crear(bd, datosVotante);
       //--------------
 
       const { proof: prueba, ...datosVotantePintar } = datosVotante;
       console.log(datosVotantePintar);
       console.log('proof = ', prueba.length);
-      
+
+      votanteDatosEleccionDAO.crear(bd, datosVotante);
+
       if (++contadorVotantes >= numeroVotantes) {
         break;
       }

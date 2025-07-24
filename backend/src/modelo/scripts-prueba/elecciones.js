@@ -1,9 +1,7 @@
 import { addDays, subDays } from 'date-fns';
 import { encriptar, generarParClavesRSA } from '../../utiles/utilesCrypto.js';
 import { CLAVE_MAESTRA } from '../../utiles/constantes.js'; 
-import { calcularFechaHora } from '../../utiles/utilesFechas.js';
-
-// const ESTADOS = ['PENDIENTE', 'REGISTRO', 'VOTACION', 'CERRADA'];
+import { formatearFechaHora, calcularFechaHora } from '../../utiles/utilesFechas.js';
 
 const ahora = new Date();
 const fechaHora = formatearFechaHora(new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 0, 0, 0, 0));

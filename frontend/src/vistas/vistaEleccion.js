@@ -7,7 +7,7 @@ import { limpiarComponentes, limpiarManejadores } from '../utiles/utilesVistas.j
 import { fichaPartido } from '../componentes/fichaPartido.js';
 import { componentePresentarse } from '../componentes/componentePresentarse.js';
 import { fichaRegistro } from '../componentes/fichaRegistro.js';
-import { componenteVotacionUsuario } from '../componentes/componenteVotacionUsuario.js';
+import { fichaVotacion } from '../componentes/fichaVotacion.js';
 import { fichaResultados } from '../componentes/fichaResultados.js';
 import { navegarA } from '../rutas/enrutado.js';
 
@@ -123,14 +123,14 @@ export function vistaEleccion(container, idEleccion) {
     }
     // En curso → Registro y/o Votación
     if (eleccion.estado === ESTADO_ELECCION.ACTUAL) {
-      if (ahora < parsearFechaHora(eleccion.fechaFinRegistro)) {
+      // if (ahora < parsearFechaHora(eleccion.fechaFinRegistro)) {
         tabs.push({ id: 'registro', label: 'Registro' });
         panes.push({ id: 'registro', contenedor: document.createElement('div') });
-      }
-      if (ahora < parsearFechaHora(eleccion.fechaEscrutinio)) {
+      // }
+      // if (ahora < parsearFechaHora(eleccion.fechaEscrutinio)) {
         tabs.push({ id: 'votacion', label: 'Votación' });
         panes.push({ id: 'votacion', contenedor: document.createElement('div') });
-      }
+      // }
     }
     // Pasadas → siempre Resultados (y mostrar registro/voto históricos)
     if (eleccion.estado === ESTADO_ELECCION.PASADA) {
@@ -175,11 +175,11 @@ export function vistaEleccion(container, idEleccion) {
     });
 
     // — Presentarse
-    if (eleccion.estado === ESTADO_ELECCION.FUTURA && contexto.estaIdentificado()) {
-      const paneP = panes.find(p => p.id === 'presentarse').contenedor;
-      const cleanup = componentePresentarse(paneP, idEleccion, votante);
-      componentes.add(cleanup);
-    }
+    // if (eleccion.estado === ESTADO_ELECCION.FUTURA && contexto.estaIdentificado()) {
+    //   const paneP = panes.find(p => p.id === 'presentarse').contenedor;
+    //   const cleanup = componentePresentarse(paneP, idEleccion, votante);
+    //   componentes.add(cleanup);
+    // }
 
     // — Registro
     if (panes.some(p => p.id === 'registro')) {
@@ -191,23 +191,8 @@ export function vistaEleccion(container, idEleccion) {
     // — Votación
     if (panes.some(p => p.id === 'votacion')) {
       const paneV = panes.find(p => p.id === 'votacion').contenedor;
-      const ahora = new Date();
-      const dentroVoto =
-        ahora >= parsearFechaHora(eleccion.fechaInicioVotacion) &&
-        ahora < parsearFechaHora(eleccion.fechaFinVotacion);
-      const despuesVoto =
-        ahora >= parsearFechaHora(eleccion.fechaFinVotacion) &&
-        ahora < parsearFechaHora(eleccion.fechaEscrutinio);
-      // const cleanup = componenteVotacionUsuario(
-      //   paneV,
-      //   idEleccion,
-      //   partidos,
-      //   votoUsuario,
-      //   dentroVoto,
-      //   despuesVoto,
-      //   votante
-      // );
-      // componentes.add(cleanup);
+      const cleanup = fichaVotacion(paneV, eleccion, registro, actualizarRegistro);
+      componentes.add(cleanup);
     }
 
     // — Resultados

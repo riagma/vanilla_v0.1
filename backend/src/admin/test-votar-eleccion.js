@@ -114,11 +114,12 @@ try {
     
     for (const votante of votantes) {
 
-      if(await tienePapeleta(votante.tokenId, votante.cuenta)) {
+      if(await tienePapeleta(votante.tokenId, votante.cuentaAddr)) {
 
         console.log(`Votando ${votante.votanteId} en la elección ${eleccionId}.`);
 
-        const voto = { voto: await encriptarConClavePublica(votante.voto, eleccion.claveVotoPublica) };
+        // const voto = { voto: await encriptarConClavePublica(votante.voto, eleccion.claveVotoPublica) };
+        const voto = { voto: votante.votoEnc };
 
         const resultadoVotar = await votar(
           votante.mnemonico, 

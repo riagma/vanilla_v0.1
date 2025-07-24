@@ -169,7 +169,7 @@ CREATE TABLE AnuladorZK (
 -- votanteId
 -- eleccionId
 
--- cuenta
+-- cuentaAddr
 -- mnemonico
 -- clave
 -- anulador
@@ -201,7 +201,7 @@ CREATE TABLE VotanteDatosEleccion (
   votanteId TEXT NOT NULL,
   eleccionId INTEGER NOT NULL,
 
-  cuenta TEXT NOT NULL,
+  cuentaAddr TEXT NOT NULL,
   mnemonico TEXT NOT NULL,
   secreto TEXT NOT NULL,
   anulador TEXT NOT NULL,

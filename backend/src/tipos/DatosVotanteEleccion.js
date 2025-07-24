@@ -32,7 +32,7 @@ export class DatosVotanteEleccion {
   } = {}) {
     this.votanteId = votanteId;
     this.eleccionId = eleccionId;
-    // this.cuenta = cuenta;
+    // this.cuentaAddr = cuentaAddr;
     // this.mnemonico = mnemonico;
     // this.secreto = secreto;
     // this.anulador = anulador;

@@ -59,7 +59,7 @@ async function generarDatosPrivadoPruebas() {
   const anulador = randomBigInt();
 
   const datosPublicos = {
-    cuenta: cuenta.addr.toString(),
+    cuentaAddr: cuenta.addr.toString(),
     mnemonico: algosdk.secretKeyToMnemonic(cuenta.sk),
     secreto: secreto.toString(),
     anulador: anulador.toString(),
