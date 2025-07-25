@@ -290,7 +290,6 @@ export async function abrirRegistroAnuladores(bd, { contratoId }) {
 //----------------------------------------------------------------------------
 
 export async function registrarAnulador(bd, { contratoId, destinatario, anuladorNote }) {
-
   const { sender, appId } = await establecerClienteVoto3(bd, { contratoId });
 
   const txGroup = algorand

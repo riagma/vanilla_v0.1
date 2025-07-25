@@ -7,7 +7,7 @@ import {
   cerrarRegistroCompromisos,
   registrarCompromiso
 
-} from './serviciosVoto3.js';
+} from '../algorand/serviciosVoto3.js';
 
 import { calcularSha256 } from '../utiles/utilesCrypto.js';
 

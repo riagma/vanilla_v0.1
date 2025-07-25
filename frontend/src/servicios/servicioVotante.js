@@ -11,6 +11,7 @@ import { CLAVE_PRUEBAS } from '../utiles/constantes.js';
 import { formatearFechaWeb } from '../utiles/utilesFechas.js';
 import { calcularPruebaDatosPublicos } from '../utiles/utilesArbol.js';
 import { mostrarSpinnerOverlay, ocultarSpinnerOverlay } from '../componentes/SpinnerOverlay.js';
+import { encriptarConClavePublica, generarNonceHex } from '../utiles/utilesCrypto.js';
 
 
 import {
@@ -127,7 +128,7 @@ export const servicioVotante = {
   async cargarVotoEleccion(cuentaAddr, assetId) {
     try {
       const respRecibida = await servicioAlgorand.consultarPapeletaRecibida(cuentaAddr, assetId);
-      const respEnviada = await servicioAlgorand.consultarPapeletaRecibida(cuentaAddr, assetId);
+      const respEnviada = await servicioAlgorand.consultarPapeletaEnviada(cuentaAddr, assetId);
 
       return {
         datePape: respRecibida ? respRecibida.date : null,
@@ -194,10 +195,12 @@ export const servicioVotante = {
           registro.compromisoPrivado = null;
         }
 
+        let mnemonico = null;
         if (registro.compromisoPrivado) {
           const datosCompromiso = await desencriptarDatosCompromiso(registro.compromisoPrivado, idEleccion);
           if (datosCompromiso) {
             registro.compromisoAddr = datosCompromiso.cuentaAddr;
+            mnemonico = datosCompromiso.mnemonico;
           }
         }
 
@@ -349,56 +352,62 @@ export const servicioVotante = {
         throw new Error('No se pudieron desencriptar los datos del compromiso');
       }
 
-      //--------------
+      const { balance, acepta, papeleta } =
+        await servicioAlgorand.revisarCuenta(datosCompromiso.cuentaAddr, registro.contratoAssetId);
 
-      const { proof, publicInputs } = await calcularPruebaDatosPublicos(
-        datosCompromiso.secreto,
-        datosCompromiso.anulador,
-        registro.compromisoBloqueIdx,
-        registro.urlCircuito,
-        registro.urlCompromisos);
+      console.log(`Balance: ${balance}, Acepta: ${acepta}, Papeleta: ${papeleta}`);
 
       //--------------
 
-      const bodyRegistrar = { 
-        cuentaAddr: datosCompromiso.cuentaAddr, 
-        proofBase64: btoa(String.fromCharCode(...proof)), 
-        publicInputs 
-      };
+      if (!balance) {
+        const { proof, publicInputs } = await calcularPruebaDatosPublicos(
+          datosCompromiso.secreto,
+          datosCompromiso.anulador,
+          registro.compromisoBloqueIdx,
+          registro.urlCircuito,
+          registro.urlCompromisos);
 
-      const respRegistrar = await api.put(`/api/papeleta/${idEleccion}/registrar`, bodyRegistrar);
-      if (!respRegistrar) {
-        throw new Error('Error al registrar la papeleta en el servidor');
-      } 
-      console.log('Papeleta registrada:', respRegistrar);
+        const bodyRegistrar = {
+          cuentaAddr: datosCompromiso.cuentaAddr,
+          proofBase64: btoa(String.fromCharCode(...proof)),
+          publicInputs
+        };
+        const respRegistrar = await api.put(`/api/papeleta/${idEleccion}/registrar`, bodyRegistrar);
+        if (!respRegistrar) {
+          throw new Error('Error al registrar la papeleta en el servidor');
+        }
+        console.log('Papeleta registrada:', respRegistrar);
+      } else {
+        console.log('Ya se había registrado la papeleta para esta elección.');
+      }
 
       //--------------
 
-      const balance = await servicioAlgorand.revisarBalance(datosCompromiso.cuentaAddr, registro.contratoAssetId);
-      const tieneOptIn = await servicioAlgorand.revisarOptIn(datosCompromiso.cuentaAddr, registro.contratoAssetId);
-
-      // console.log(`Balance: ${balance} microALGOs`);
-      // console.log(tieneOptIn ? "Ya está opt-in" : "No ha hecho opt-in");
-
-      if (balance > 100000 && !tieneOptIn) {
+      if (!acepta) {
         console.log("Haciendo opt-in...");
         const txIdOptIn = await servicioAlgorand.hacerOptIn(datosCompromiso.mnemonico, registro.contratoAssetId);
         console.log("Opt-in realizado con txID:", txIdOptIn);
       } else {
-        console.log("No es necesario hacer opt-in o ya se ha hecho.");
+        console.log("Ya se había hecho el opt-in para esta elección.");
       }
- 
+
       //--------------
 
-      const bodySolicitar = { 
-        anulador: datosCompromiso.anulador
-      };
+      if (!papeleta) {
 
-      const respSolicitar = await api.put(`/api/papeleta/${idEleccion}/solicitar`, bodySolicitar);
-      if (!respSolicitar) {
-        throw new Error('Error al solicitar la papeleta en el servidor');
-      } 
-      console.log('Papeleta solicitada:', respSolicitar);
+        const anuladorHash = calcularPoseidon2([BigInt(datosCompromiso.anulador)]).toString();
+
+        const bodySolicitar = {
+          anulador: anuladorHash
+        };
+        const respSolicitar = await api.put(`/api/papeleta/${idEleccion}/solicitar`, bodySolicitar);
+        if (!respSolicitar) {
+          throw new Error('Error al solicitar la papeleta en el servidor');
+        }
+        console.log('Papeleta solicitada:', respSolicitar);
+      } else {
+        console.log('Ya se había solicitado la papeleta para esta elección.');
+      }
 
       //--------------
 
@@ -415,6 +424,81 @@ export const servicioVotante = {
 
     } catch (error) {
       throw new Error('Error creado datos de registro: ' + error.message);
+
+    } finally {
+      ocultarSpinnerOverlay();
+    }
+  },
+
+  //------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+
+  async emitirPapeletaEleccion(idEleccion, siglas) {
+    try {
+      mostrarSpinnerOverlay('Emitiendo papeleta votación, por favor espere...');
+
+      let registro = await this.cargarRegistroEleccion(idEleccion);
+      if (!registro) {
+        throw new Error('Registro no encontrado para la elección: ' + idEleccion);
+      }
+
+      if (!registro.compromiso || !registro.compromisoPrivado) {
+        throw new Error('No se ha registrado el compromiso para la elección: ' + idEleccion);
+      }
+
+      if (!registro.papeDate) {
+        throw new Error('No ha solicitado la papeleta para la elección: ' + idEleccion);
+      }
+
+      if (registro.votoDate) {
+        throw new Error('Ya ha emitido el voto para la elección: ' + idEleccion);
+      }
+
+      const datosCompromiso = await desencriptarDatosCompromiso(registro.compromisoPrivado);
+      if (!datosCompromiso) {
+        throw new Error('No se pudieron desencriptar los datos del compromiso');
+      }
+
+      const tieneAssetId = await servicioAlgorand.revisarAssetId(datosCompromiso.cuentaAddr, registro.contratoAssetId);
+
+      if (!tieneAssetId) {
+        throw new Error('No tiene la papeleta necesaria para votar en esta elección: ' + registro.contratoAssetId);
+      }
+
+      const nonce = generarNonceHex();
+
+      const votoEnc = await encriptarConClavePublica(JSON.stringify({
+        siglas: siglas,
+        nonce: nonce
+      }), registro.claveVotoPublica);
+
+      const voto = { voto: votoEnc };
+
+      const txIdVoto = await servicioAlgorand.votar(
+        datosCompromiso.mnemonico,
+        registro.contratoAppAddr,
+        registro.contratoAssetId,
+        voto
+      );
+
+      console.log("Voto emitido con txID:", txIdVoto);
+
+      //--------------
+      //--------------
+
+      const votoEleccion = await this.cargarVotoEleccion(registro.compromisoAddr, registro.contratoAssetId);
+      if (votoEleccion) {
+        registro.papeDate = votoEleccion.datePape ? formatearFechaWeb(votoEleccion.datePape) : null;
+        registro.papeTxId = votoEleccion.txIdPape;
+        registro.votoDate = votoEleccion.dateVoto ? formatearFechaWeb(votoEleccion.dateVoto) : null;
+        registro.votoTxId = votoEleccion.txIdVoto;
+        registro.votoNota = votoEleccion.notaVoto;
+      }
+
+      return registro;
+
+    } catch (error) {
+      throw new Error('Error emitiendo la papeleta de voto: ' + error.message);
 
     } finally {
       ocultarSpinnerOverlay();
@@ -449,6 +533,8 @@ async function generarDatosCompromiso() {
   return { compromiso, datosPrivados };
 }
 
+//------------------------------------------------------------------------------
+
 async function desencriptarDatosCompromiso(datosPrivados) {
 
   let datosCompromiso = null;
@@ -475,3 +561,6 @@ async function desencriptarDatosCompromiso(datosPrivados) {
 
   return datosCompromiso;
 }
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------

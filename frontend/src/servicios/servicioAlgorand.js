@@ -55,105 +55,184 @@ export const servicioAlgorand = {
     return { cuentaAddr: cuenta.addr.toString(), mnemonico: algosdk.secretKeyToMnemonic(cuenta.sk) };
   },
 
-  async hacerOptIn(mnemonico, assetId) {
-    const cuenta = algosdk.mnemonicToSecretKey(mnemonico);
-    if (!algod) {
-      throw new Error("El cliente Algorand no está configurado.");  
-    }
-    console.log("Haciendo opt-in para la cuenta:", cuenta.addr);
-
-    const params = await algod.getTransactionParams().do();
-
-    const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      from: cuenta.addr,
-      to: cuenta.addr,
-      amount: 0,
-      assetIndex: assetId,
-      suggestedParams: params,
-    });
-
-    const signedTxn = txn.signTxn(cuenta.sk);
-    const { txId } = await algod.sendRawTransaction(signedTxn).do();
-    console.log("Opt-in txID:", txId);
-
-    await algosdk.waitForConfirmation(algod, txId, 4);
-    return txId;
-  },
-
-  async revisarOptIn(addr, assetId) {
-    const cuentaInfo = await algod.accountInformation(addr).do();
-    const tiene = cuentaInfo.assets.find(a => a['asset-id'] === assetId);
-    console.log(tiene ? "Ya está opt-in" : "No ha hecho opt-in");
-    return tiene ? true : false;
-  },
-
   async revisarBalance(addr) {
     const cuentaInfo = await algod.accountInformation(addr).do();
     console.log(`Balance: ${cuentaInfo.amount} microALGOs`);
     return Number(cuentaInfo.amount);
   },
 
-  async consultarPapeletaRecibida(addr, assetId) {
-    const txns = await indexer.searchForTransactions()
-      .address(addr)
-      .addressRole('receiver')
-      .assetID(assetId)
-      .txType('axfer')
-      .limit(1)
-      .do();
+  async revisarOptIn(addr, assetId) {
+    const cuentaInfo = await algod.accountInformation(addr).do();
+    const assetIdBigInt = BigInt(assetId);
+    const tiene = cuentaInfo.assets.find(a => a.assetId === assetIdBigInt);
+    console.log(tiene ? "Ya está opt-in" : "No ha hecho opt-in");
+    return !!tiene;
+  },
 
-    if (txns.transactions.length === 0) {
-      console.log("No se ha recibido la papeleta.");
-      return null;
+  async revisarAssetId(addr, assetId) {
+    const cuentaInfo = await algod.accountInformation(addr).do();
+    const assetIdBigInt = BigInt(assetId);
+    const asset = cuentaInfo.assets.find(a => a.assetId === assetIdBigInt);
+
+    if (asset) {
+      console.log(`La cuenta tiene ${asset.amount} del asset ${assetId}.`);
+      return asset.amount;
     } else {
-      const roundTime = txns.transactions[0].roundTime;
-      const date = new Date(roundTime * 1000);
-      console.log("Se ha recibido la papeleta.", date.toISOString(), txns.transactions[0]);
-      return { date, txId: txns.transactions[0].id };
+      console.log(`La cuenta no tiene el asset ${assetId}.`);
+      return 0;
     }
   },
 
-  async votar(cuenta, receptor) {
-    const params = await algod.getTransactionParams().do();
+  async revisarCuenta(addr, assetId) {
+    let balance = 0;
+    let acepta = false;
+    let papeleta = false;
 
+    try {
+      const cuentaInfo = await algod.accountInformation(addr).do();
+      // Convertimos el assetId de entrada a BigInt para una comparación segura
+      const assetIdBigInt = BigInt(assetId);
+
+      balance = cuentaInfo.amount;
+
+      // --- Logs para depuración ---
+      const assetsEnCuenta = cuentaInfo.assets.map(a => a.assetId);
+      console.log(`Buscando el asset ID: ${assetIdBigInt}`);
+      console.log('Assets que la cuenta posee:', assetsEnCuenta);
+      // --- FIN: Logs para depuración ---
+
+      const assetEncontrado = cuentaInfo.assets.find(a => a.assetId === assetIdBigInt);
+
+      if (assetEncontrado) {
+        acepta = true; // Si se encuentra el asset, ha hecho opt-in
+        papeleta = assetEncontrado.amount > 0; // Si la cantidad es > 0, tiene la papeleta
+      }
+
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        console.warn(`La cuenta ${addr} no se encontró en la red.`);
+      } else {
+        console.error(`Error al revisar la cuenta ${addr}:`, error);
+      }
+    }
+
+    console.log(`Resultado para ${addr} con asset ${assetId}: Acepta(Opt-In)=${acepta}, Papeleta(Amount>0)=${papeleta}`);
+    return { balance, acepta, papeleta };
+  },
+
+  //----------------------------------------------------------------------------
+
+  async hacerOptIn(mnemonico, assetId) {
+    const cuenta = algosdk.mnemonicToSecretKey(mnemonico);
+    if (!cuenta || !cuenta.addr || !cuenta.sk) {
+      throw new Error("Cuenta inválida o mnemonico incorrecto.");
+    }
+
+    console.log("Haciendo opt-in para la cuenta:", cuenta.addr.toString(), "con assetId:", assetId);
+
+    const params = await algod.getTransactionParams().do();
     const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      from: cuenta.addr,
-      to: receptor,
-      amount: 1,
-      assetIndex: assetId,
+      sender: cuenta.addr,
+      receiver: cuenta.addr,
+      amount: 0,
+      assetIndex: Number(assetId),
       suggestedParams: params,
     });
 
     const signedTxn = txn.signTxn(cuenta.sk);
-    const { txId } = await algod.sendRawTransaction(signedTxn).do();
+    const respSRT = await algod.sendRawTransaction(signedTxn).do();
+    const txId = respSRT.txId ? respSRT.txId : respSRT.txid ? respSRT.txid : "null";
+    console.log("Opt-in txId:", txId);
+
+    await algosdk.waitForConfirmation(algod, txId, 4);
+    return txId;
+  },
+
+  //----------------------------------------------------------------------------
+
+  async _consultarTransaccionAsset(addr, assetId, role) {
+    const respSearch = await indexer.searchForTransactions()
+      .address(addr)
+      .addressRole(role)
+      .assetID(assetId)
+      .txType('axfer')
+      .do();
+
+    const txns = Array.isArray(respSearch.transactions) ? respSearch.transactions : [];
+
+    const buscarAssetTransfer = (t) => {
+      if (t.txType === 'appl' && t.innerTxns && t.innerTxns.length > 0) {
+        return t.innerTxns.find(i => i.assetTransferTransaction && i.assetTransferTransaction.amount > 0);
+      } else if (t.txType === 'axfer') {
+        return t.assetTransferTransaction && t.assetTransferTransaction.amount > 0;
+      }
+    };
+
+    let txnAxfer = txns.find(buscarAssetTransfer);
+
+    return txnAxfer || null;
+  },
+
+  async consultarPapeletaRecibida(addr, assetId) {
+    const papeletaRx = await this._consultarTransaccionAsset(addr, assetId, 'receiver');
+
+    if (!papeletaRx) {
+      console.log("No se ha recibido la papeleta (transferencia con cantidad > 0).");
+      return null;
+    }
+
+    const roundTime = papeletaRx.roundTime;
+    const date = new Date(roundTime * 1000);
+    console.log("Se ha recibido la papeleta.", date.toISOString(), papeletaRx);
+    return { date, txId: papeletaRx.id };
+  },
+
+  async consultarPapeletaEnviada(addr, assetId) {
+    const papeletaTx = await this._consultarTransaccionAsset(addr, assetId, 'sender');
+
+    if (!papeletaTx) {
+      console.log("Todavía no se ha emitido el voto.");
+      return null;
+    }
+
+    console.log("Ya se ha emitido el voto.", papeletaTx);
+    const txId = papeletaTx.id;
+    const nota = papeletaTx.note ? this.fromNote(papeletaTx.note) : {};
+    const roundTime = papeletaTx.roundTime;
+    const date = new Date(roundTime * 1000);
+    console.log("Nota de la transacción:", date.toISOString(), txId, nota);
+    return { date, txId, nota };
+  },
+
+  //----------------------------------------------------------------------------
+
+  async votar(mnemonico, appAddr, assetId, voto) {
+    const cuenta = algosdk.mnemonicToSecretKey(mnemonico);
+    if (!cuenta || !cuenta.addr || !cuenta.sk) {
+      throw new Error("Cuenta inválida o mnemonico incorrecto.");
+    }
+
+    const params = await algod.getTransactionParams().do();
+
+    const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+      sender: cuenta.addr,
+      receiver: appAddr,
+      amount: 1n,
+      assetIndex: Number(assetId),
+      suggestedParams: params,
+      note: this.toNote(voto),
+    });
+
+    const signedTxn = txn.signTxn(cuenta.sk);
+    const respSRT = await algod.sendRawTransaction(signedTxn).do();
+    const txId = respSRT.txId ? respSRT.txId : respSRT.txid ? respSRT.txid : "null";
     console.log("Envío asset txID:", txId);
 
     await algosdk.waitForConfirmation(algod, txId, 4);
     return txId;
   },
 
-  async consultarPapeletaEnviada(addr, assetId) {
-    const txns = await indexer.searchForTransactions()
-      .address(addr)
-      .addressRole('sender')
-      .assetID(assetId)
-      .txType('axfer')
-      .limit(1)
-      .do();
-
-    if (txns.transactions.length === 0) {
-      console.log("No se ha recibido la papeleta.");
-      return null;
-    } else {
-      console.log("Se ha recibido la papeleta.", txns.transactions[0]);
-      const txId = txns.transactions[0].id;
-      const nota = txns.transactions[0].note ? this.fromNote(txns.transactions[0].note) : {};
-      const roundTime = txns.transactions[0].roundTime;
-      const date = new Date(roundTime * 1000);
-      console.log("Nota de la transacción:", date.toISOString(), txId, nota);
-      return { date, txId: txns.transactions[0].id, nota };
-    }
-  },
+  //----------------------------------------------------------------------------
 
   toNote(json) {
     return codificador.encode(JSON.stringify(json));
@@ -163,11 +242,7 @@ export const servicioAlgorand = {
     return JSON.parse(decodificador.decode(bytes));
   },
 
-  async consultarSaldo(cuentaAddr) {
-    const cuentaInfo = await algodClient.accountInformation(address).do();
-    console.log("Saldo:", cuentaInfo.amount); // El saldo está en microAlgos
-    return cuentaInfo.amount;
-  },
+  //----------------------------------------------------------------------------
 
   urlApplication(appId) {
     return appId ? `${explorer}${explorerApplication}${appId}` : explorer;

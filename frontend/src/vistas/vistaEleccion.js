@@ -191,7 +191,7 @@ export function vistaEleccion(container, idEleccion) {
     // — Votación
     if (panes.some(p => p.id === 'votacion')) {
       const paneV = panes.find(p => p.id === 'votacion').contenedor;
-      const cleanup = fichaVotacion(paneV, eleccion, registro, actualizarRegistro);
+      const cleanup = fichaVotacion(paneV, eleccion, partidos, registro, actualizarRegistro);
       componentes.add(cleanup);
     }
 

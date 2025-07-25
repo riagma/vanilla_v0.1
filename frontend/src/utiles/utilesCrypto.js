@@ -77,7 +77,6 @@ export function bigInt2HexStr(bigIntValue) {
   return hex.length % 2 ? "0x0" + hex : "0x" + hex;
 }
 
-
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 
@@ -190,6 +189,108 @@ export async function desencriptarNodeJSON(cifradoBase64, claveDerivada) {
   } catch (e) {
     throw e; // Reenvía la excepción
   }
+}
+
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
+function pemToUint8Array(pem) {
+  // Quita encabezados y saltos de línea, igual que antes
+  const pemBody = pem.replace(/-----.*?-----|\s/g, '');
+  // Decodifica base64 → string binario
+  const binary = atob(pemBody);
+  // Convierte string binario a Uint8Array
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+// Convertir el ArrayBuffer a base64 (sin Buffer, solo JS puro)
+function arrayBufferToBase64(buffer) {
+  let binary = '';
+  const bytes = new Uint8Array(buffer);
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+// Función auxiliar para convertir de base64 a ArrayBuffer
+function base64ToArrayBuffer(base64) {
+  const binaryString = atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+export function generarNonceHex(numBytes = 16) {
+  const buffer = new Uint8Array(numBytes);
+  window.crypto.getRandomValues(buffer);
+  const nonceHex = Array.from(buffer, byte => byte.toString(16).padStart(2, '0')).join('');
+  return nonceHex;
+}
+
+//----------------------------------------------------------------------------
+
+export async function encriptarConClavePublica(texto, clavePublicaPem) {
+
+  // Convertir la clave PEM a Uint8Array DER
+  const pubKeyDer = pemToUint8Array(clavePublicaPem);
+
+  // Importar la clave pública
+  const pubKey = await window.crypto.subtle.importKey(
+    "spki",
+    pubKeyDer,
+    { name: "RSA-OAEP", hash: "SHA-256" },
+    false,
+    ["encrypt"]
+  );
+
+  // Codificar el texto
+  const datos = codificador.encode(texto);
+
+  // Cifrar los datos
+  const cifrado = await window.crypto.subtle.encrypt(
+    { name: "RSA-OAEP" },
+    pubKey,
+    datos
+  );
+
+  return arrayBufferToBase64(cifrado);
+}
+
+//----------------------------------------------------------------------------
+
+export async function desencriptarConClavePrivada(cifradoBase64, clavePrivadaPem) {
+  // Convertir la clave PEM a Uint8Array (formato DER)
+  const privKeyDer = pemToUint8Array(clavePrivadaPem);
+
+  // Importar la clave privada
+  const privKey = await window.crypto.subtle.importKey(
+    "pkcs8", // Formato estándar para claves privadas
+    privKeyDer,
+    { name: "RSA-OAEP", hash: "SHA-256" },
+    false,
+    ["decrypt"]
+  );
+
+  // Convertir el texto cifrado de base64 a ArrayBuffer
+  const cifrado = base64ToArrayBuffer(cifradoBase64);
+
+  // Descifrar los datos
+  const datosPlano = await window.crypto.subtle.decrypt(
+    { name: "RSA-OAEP" },
+    privKey,
+    cifrado
+  );
+
+  // Decodificar el resultado a texto
+  return decodificador.decode(datosPlano);
 }
 
 //----------------------------------------------------------------------------

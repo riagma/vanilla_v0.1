@@ -1,7 +1,6 @@
-import { serviciosRegistros } from '../servicios/serviciosRegistros.js';
-import { registrarVotanteEleccion } from '../algorand/registrarCompromisos.js';
 import { calcularSha256 } from '../utiles/utilesCrypto.js';
 import { registrarAnuladorEleccion } from '../algorand/registrarAnuladores.js';
+import { solicitarPapeletaEleccion } from '../algorand/registrarAnuladores.js';
 
 export const controladorPapeleta = {
 
@@ -9,7 +8,7 @@ export const controladorPapeleta = {
 
   async registrarSolicitudPapeleta(peticion, respuesta) {
     try {
-      console.log(`Registrando solicitud de papeleta para la elección ${peticion.params.idEleccion}`);
+      console.log(`Registrando solicitud para la elección ${peticion.params.idEleccion}`);
 
       const { cuentaAddr, proofBase64, publicInputs } = peticion.body;
       if (!cuentaAddr || !proofBase64 || !publicInputs) {
@@ -44,7 +43,7 @@ export const controladorPapeleta = {
 
   async completarSolicitudPapeleta(peticion, respuesta) {
     try {
-      console.log(`Registrando solicitud de papeleta para la elección ${peticion.params.idEleccion}`);
+      console.log(`Solicitando papeleta para la elección ${peticion.params.idEleccion}`);
 
       const { anulador } = peticion.body;
       if (!anulador) {
@@ -66,41 +65,5 @@ export const controladorPapeleta = {
     }
   },
 
-  //----------------------------------------------------------------------------
-  //----------------------------------------------------------------------------
-
-  // async obtenerDetalleEleccion(peticion, respuesta) {
-  //   try {
-  //     const detalleEleccion = serviciosElecciones.obtenerDetalle(
-  //       peticion.bd,
-  //       peticion.params.idEleccion,
-  //       peticion.votante.dni
-  //     );
-  //     if (!detalleEleccion) {
-  //       return respuesta.status(404).json({ error: 'Elección no encontrada' });
-  //     }
-  //     console.log('Detalle de elección:', detalleEleccion);
-  //     respuesta.json(detalleEleccion);
-  //   } catch (error) {
-  //     respuesta.status(500).json({ error: error.message });
-  //   }
-  // },
-
-  //----------------------------------------------------------------------------
-
-  // async anularRegistroEnEleccion(peticion, respuesta) {
-  //   try {
-  //     await serviciosRegistros.eliminar(
-  //       peticion.bd,
-  //       peticion.votante.dni,
-  //       peticion.params.idEleccion
-  //     );
-  //     respuesta.sendStatus(204);
-  //   } catch (error) {
-  //     respuesta.status(400).json({ error: error.message });
-  //   }
-  // },
-
-  //----------------------------------------------------------------------------
   //----------------------------------------------------------------------------
 };
