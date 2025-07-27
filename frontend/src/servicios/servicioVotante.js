@@ -552,7 +552,7 @@ async function desencriptarDatosCompromiso(datosPrivados) {
 
   try {
     if (!datosCompromiso) {
-      datosCompromiso = await desencriptarJSON(compromisoPrivado, servicioLogin.getClaveDerivada());
+      datosCompromiso = await desencriptarJSON(datosPrivados, servicioLogin.getClaveDerivada());
     }
   } catch (error) {
     console.error('Error desencriptando los datos del compromiso:', error);

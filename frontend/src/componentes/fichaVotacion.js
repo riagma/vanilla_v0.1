@@ -2,6 +2,7 @@
 import { servicioVotante } from '../servicios/servicioVotante.js';
 import { limpiarManejadores } from '../utiles/utilesVistas.js';
 import { ESTADO_ELECCION, ELECCION_ACTUAL } from '../utiles/constantes.js';
+import { parsearFechaHora } from '../utiles/utilesFechas.js';
 
 
 export function fichaVotacion(contenedor, eleccion, partidos, registro, actualizarRegistro) {
@@ -34,6 +35,12 @@ export function fichaVotacion(contenedor, eleccion, partidos, registro, actualiz
       } else {
         innerHTML += `<div class="alert alert-success">Su voto ha sido registrado el ${regFicha.votoDate}.</div>`;
       }
+    } else if (eleccion.estado === ESTADO_ELECCION.ACTUAL) {
+      const inicioVoto = eleccion.fechaInicioVotacion;
+      innerHTML += `<div class="alert alert-info">Todavía no se ha abierto el periodo de votación.</div>`;
+      if(!regFicha.compromiso) {
+        innerHTML += `<div class="alert alert-secondary">Es necesario registrarse para votar en esta elección.</div>`;
+      } 
     }
 
     contenedor.innerHTML = innerHTML;
