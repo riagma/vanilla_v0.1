@@ -10,10 +10,7 @@ import { voto3IDB } from './modelo/voto3IDB.js';
 import { crearMarco } from './componentes/marco.js';
 import { obtenerVista } from './rutas/enrutado.js';
 
-import { 
-  configurarAlgorandClient,
-  configurarAlgorandIndexer, 
-  configurarExplorador } from './servicios/servicioAlgorand.js';
+import { configurarAlgorand } from './servicios/servicioAlgorand.js';
 
 // import { testCircuito } from './utiles/utilesZK.js';
 
@@ -108,18 +105,20 @@ async function inicializarAplicacion() {
 
   // await testCircuito();
 
-  configurarAlgorandClient('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'http://localhost', 4001);
-  configurarAlgorandIndexer('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'http://localhost', 8980);
+  await configurarAlgorand();
 
-  const configuracionExplorador = obtenerConfiguracionExplorador('https://lora.algokit.io/localnet/');
+  // configurarAlgorandClient('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'http://localhost', 4001);
+  // configurarAlgorandIndexer('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'http://localhost', 8980);
 
-  configurarExplorador(
-    configuracionExplorador.server,
-    configuracionExplorador.account,
-    configuracionExplorador.asset,
-    configuracionExplorador.application,
-    configuracionExplorador.transaction
-  );
+  // const configuracionExplorador = obtenerConfiguracionExplorador('https://lora.algokit.io/localnet/');
+
+  // configurarExplorador(
+  //   configuracionExplorador.server,
+  //   configuracionExplorador.account,
+  //   configuracionExplorador.asset,
+  //   configuracionExplorador.application,
+  //   configuracionExplorador.transaction
+  // );
   
   renderizar();
 }

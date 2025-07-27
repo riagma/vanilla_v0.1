@@ -4,6 +4,11 @@
 
 ##------------------------------------------------------------------------------
 
+### Listar elecciones disponibles
+GET {{baseUrl}}/api/algorand/config
+
+##------------------------------------------------------------------------------
+
 ### Obtener datos votante (Votante)
 GET {{baseUrl}}/api/votante
 Authorization: Basic OTAwMDAwMDBaOlBhc3N3b3JkMTIzIQ==

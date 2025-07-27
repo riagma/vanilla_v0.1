@@ -4,6 +4,16 @@ node_modules/
 package-lock.json
 yarn.lock
 
+# Environment
+.env
+.env.production
+!.env.* # Permite subir todos los .env.* excepto el de producción
+
+# Build & Distribution
+# dist/
+# build/
+# frontend/dist/
+
 # Logs
 logs/
 *.log
@@ -29,6 +39,12 @@ Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
 # Testing
 coverage/
 .nyc_output/
@@ -40,3 +56,16 @@ coverage/
 .temp/
 .tmp/
 
+# Base de datos
+/data
+
+# Circuits (no subir)
+circuits/
+
+# Public (ignorar index.html, assets y circuits)
+public/index.html
+public/assets/
+public/circuits/
+
+# Misc
+.DS_Store

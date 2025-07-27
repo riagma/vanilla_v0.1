@@ -34,11 +34,17 @@ export const INDEXER_TOKEN = process.env.INDEXER_TOKEN;
 export const INDEXER_SERVER = process.env.INDEXER_SERVER;
 export const INDEXER_PORT = process.env.INDEXER_PORT;
 
-export const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR ?? '../algorand/smart_contracts/artifacts/voto3/';
-export const MERKLE11_JSON = process.env.MERKLE11_JSON ?? './noir/merkle11/target/merkle11.json';
+export const EXPLORER_SERVER = process.env.EXPLORER_SERVER;
+export const EXPLORER_ACCOUNT = process.env.EXPLORER_ACCOUNT;
+export const EXPLORER_ASSET = process.env.EXPLORER_ASSET;
+export const EXPLORER_APPLICATION = process.env.EXPLORER_APPLICATION;
+export const EXPLORER_TRANSACTION = process.env.EXPLORER_TRANSACTION;
+
+export const ARTIFACTS_DIR = '../algorand/smart_contracts/artifacts/voto3/';
+export const MERKLE11_JSON = './src/noir/merkle11/target/merkle11.json';
 
 export const PUBLIC_DIR = process.env.PUBLIC_DIR ?? './public/';
-export const CIRCUIT_DIR = process.env.CIRCUIT_DIR ?? './public/circuits/';
+export const CIRCUIT_DIR = process.env.CIRCUIT_DIR ?? './circuits/';
 
 // Rutas y configuración de BD
 export const RUTA_BD = process.env.NODE_ENV === 'production'
@@ -52,14 +58,6 @@ export const SECRETO = process.env.JWT_SECRET || 'clave-secreta-desarrollo';
 // Tiempos de expiración de tokens
 export const EXPIRACION_TOKEN_ADMIN = '8h';
 export const EXPIRACION_TOKEN_VOTANTE = '2h';
-
-// Estados de elección
-export const ESTADOS_ELECCION = {
-  PENDIENTE: 'PENDIENTE',
-  REGISTRO: 'REGISTRO',
-  VOTACION: 'VOTACION',
-  CERRADA: 'CERRADA'
-};
 
 // Mensajes de error comunes
 export const ERRORES = {
@@ -90,6 +88,11 @@ export const CONFIG = {
   INDEXER_TOKEN,
   INDEXER_SERVER,
   INDEXER_PORT,
+  EXPLORER_SERVER,
+  EXPLORER_ACCOUNT,
+  EXPLORER_ASSET,
+  EXPLORER_APPLICATION,
+  EXPLORER_TRANSACTION,
   ARTIFACTS_DIR,
   MERKLE11_JSON,
   PUBLIC_DIR,
@@ -97,7 +100,6 @@ export const CONFIG = {
   CLAVE_PRUEBAS,
   EXPIRACION_TOKEN_ADMIN,
   EXPIRACION_TOKEN_VOTANTE,
-  ESTADOS_ELECCION,
   ERRORES,
   API_BASE,
   API_AUTH,

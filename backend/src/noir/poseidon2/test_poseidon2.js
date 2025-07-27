@@ -5,7 +5,7 @@ import {
   calcularPoseidon2ZkPassport,
   calcularPoseidon2Noir, 
   hexStr2BigInt, 
-  bigInt2HexStr } from '../../src/utiles/utilesCrypto.js';
+  bigInt2HexStr } from '../../utiles/utilesCrypto.js';
 
 const val1 = hexStr2BigInt('0x0ef169460624f186851b601b03af1e51af7e1c4727af87e1a08c8f869af90df8'); 
 const val2 = hexStr2BigInt('0x00');

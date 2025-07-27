@@ -1,22 +1,64 @@
 import algosdk from 'algosdk';
+import { api } from './api.js';
 
-// const localNetAlgod = new algosdk.Algodv2('', 'http://localhost', '4001');
-// const localNetIndexer = new algosdk.Indexer('', 'http://localhost', 8980);
 
-// const testNetAlgod = new algosdk.Algodv2('', 'http://localhost', '4001');
-// const testNetIndexer = new algosdk.Indexer('', 'http://localhost', 8980);
-
-// const mainNetAlgod = new algosdk.Algodv2('', 'http://localhost', '4001');
-// const mainNetIndexer = new algosdk.Indexer('', 'http://localhost', 8980);
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 let algod = null;
 let indexer = null;
-
 let explorer = null;
 let explorerAccount = null;
 let explorerAsset = null;
 let explorerApplication = null;
 let explorerTransaction = null;
+
+export async function configurarAlgorand() {
+  if (!algod || !indexer || !explorer) {
+    const config = await api.get(`/api/algorand/config`);
+
+    if (
+      !config ||
+      !config.algodToken ||
+      !config.algodServer ||
+      !config.algodPort ||
+      !config.indexerToken ||
+      !config.indexerServer ||
+      !config.indexerPort ||
+      !config.explorerServer ||
+      !config.explorerAccount ||
+      !config.explorerAsset ||
+      !config.explorerApplication ||
+      !config.explorerTransaction) {
+      throw new Error("Configuración de Algorand incompleta o inválida.");
+    }
+
+    try {
+      configurarAlgorandClient(
+        config.algodToken,
+        config.algodServer,
+        config.algodPort);
+
+      configurarAlgorandIndexer(
+        config.indexerToken,
+        config.indexerServer,
+        config.indexerPort);
+
+      configurarExplorador(
+        config.explorerServer,
+        config.explorerAccount,
+        config.explorerAsset,
+        config.explorerApplication,
+        config.explorerTransaction);
+
+    } catch (error) {
+      throw new Error("Error al configurar Algorand: " + error.message);
+    }
+
+    console.log("Algorand configurado correctamente.");
+  }
+  console.log("Algorand ya estaba configurado.");
+}
 
 export function configurarAlgorandClient(token, server, port) {
   algod = new algosdk.Algodv2(token, server, port);
@@ -42,6 +84,9 @@ export function configurarExplorador(server, account, asset, application, transa
     explorerApplication,
     explorerTransaction);
 }
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 const codificador = new TextEncoder();
 const decodificador = new TextDecoder();

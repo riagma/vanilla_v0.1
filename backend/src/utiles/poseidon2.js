@@ -7,7 +7,7 @@ import fs from 'node:fs/promises';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const rutaJson = path.join(__dirname, '../../noir/poseidon2/target', 'poseidon2.json');
+const rutaJson = path.join(__dirname, '../noir/poseidon2/target', 'poseidon2.json');
 const contenido = await fs.readFile(rutaJson, 'utf8');
 const circuito = JSON.parse(contenido);
 const noir = new Noir(circuito);

@@ -6,6 +6,7 @@ import { rutasVotante } from './rutasVotante.js';
 import { rutasEleccion } from './rutasEleccion.js';
 import { rutasRegistro } from './rutasRegistro.js';
 import { rutasPapeleta } from './rutasPapeleta.js';
+import { rutasAlgorand } from './rutasAlgorand.js';
 
 const router = Router();
 
@@ -15,7 +16,8 @@ router.use('/votante', rutasVotante);
 
 router.use('/eleccion', rutasEleccion);
 router.use('/registro', rutasRegistro);
-router.use('/papeleta', rutasPapeleta); 
+router.use('/papeleta', rutasPapeleta);
+router.use('/algorand', rutasAlgorand);
 
 router.use((peticion, respuesta, siguiente) => {
   respuesta.status(404).json({

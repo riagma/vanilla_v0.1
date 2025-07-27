@@ -2,13 +2,13 @@ import { UltraHonkBackend } from '@aztec/bb.js';
 import { Noir } from '@noir-lang/noir_js';
 import fs from 'node:fs/promises';
 
-import { ArbolMerkle } from '../../src/utiles/ArbolMerkle.js';
+import { ArbolMerkle } from '../../utiles/ArbolMerkle.js';
 
 import { 
   calcularPoseidon2, 
   randomBigInt,
   bigInt2HexStr 
-} from '../../src/utiles/utilesCrypto.js';
+} from '../../utiles/utilesCrypto.js';
 
 const contenido = await fs.readFile('./target/merkle11.json', 'utf8');
 const merkle11 = JSON.parse(contenido);
