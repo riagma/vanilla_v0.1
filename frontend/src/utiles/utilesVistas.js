@@ -93,3 +93,14 @@ export function extraerParametrosRuta(ruta, rutasDefinidas) {
 }
 
 //------------------------------------------------------------------------------
+/**
+ * Une múltiples partes de una URL, eliminando barras iniciales y finales innecesarias.
+ * @param {...string} partes - Partes de la URL a unir
+ * @returns {string} URL unida
+ */
+export function unirUrl(...partes) {
+  return partes
+    .map(parte => parte.replace(/(^\/+|\/+$)/g, '')) // Elimina barras iniciales y finales
+    .join('/');
+}
+//------------------------------------------------------------------------------

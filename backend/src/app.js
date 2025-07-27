@@ -7,8 +7,8 @@ import { rutasApi } from './rutas/rutasApi.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const rutaFrontend = path.join(__dirname, './public');
-const rutaDescargas = path.join(__dirname, './circuits');
+const rutaFrontend = path.join(__dirname, '../public');
+const rutaDescargas = path.join(__dirname, '../circuits');
 
 export async function iniciarServidor() {
   const app = express();

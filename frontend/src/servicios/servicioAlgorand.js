@@ -1,5 +1,6 @@
 import algosdk from 'algosdk';
 import { api } from './api.js';
+import { unirUrl } from '../utiles/utilesVistas.js';
 
 
 //------------------------------------------------------------------------------
@@ -290,15 +291,15 @@ export const servicioAlgorand = {
   //----------------------------------------------------------------------------
 
   urlApplication(appId) {
-    return appId ? `${explorer}${explorerApplication}${appId}` : explorer;
+    return appId ? unirUrl(explorer, explorerApplication, appId) : explorer;
   },
   urlAccount(address) {
-    return address ? `${explorer}${explorerAccount}${address}` : explorer;
+    return address ? unirUrl(explorer, explorerAccount, address) : explorer;
   },
   urlAsset(assetId) {
-    return assetId ? `${explorer}${explorerAsset}${assetId}` : explorer;
+    return assetId ? unirUrl(explorer, explorerAsset, assetId) : explorer;
   },
   urlTransaction(txId) {
-    return txId ? `${explorer}${explorerTransaction}${txId}` : explorer;
+    return txId ? unirUrl(explorer, explorerTransaction, txId) : explorer;
   },
 }
