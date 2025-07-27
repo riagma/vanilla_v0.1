@@ -43,13 +43,21 @@ export default defineConfig({
   },
   build: {
     outDir: '../backend/public', // para que el backend sirva los estáticos directamente
+    emptyOutDir: true, // Vaciar el directorio de salida
     sourcemap: true,
     target: 'esnext',
     rollupOptions: {
       input: {
         main: './index.html'
-      }
-    }
+      },
+      output: {
+        manualChunks: {
+          // Divide las dependencias grandes en chunks separados
+          algosdk: ['algosdk'],
+          barretenberg: ['@aztec/bb.js'],
+        },
+      },
+    },
   },
   optimizeDeps: {
     esbuildOptions: { target: "esnext" },
@@ -64,18 +72,3 @@ export default defineConfig({
     }
   }
 });
-
-// export default {
-//   optimizeDeps: {
-//     esbuildOptions: { target: "esnext" },
-//     exclude: ['@noir-lang/noirc_abi', '@noir-lang/acvm_js']
-//   },  
-//   server: {
-//     proxy: {
-//       '/api': 'http://localhost:3000'
-//     }
-//   },
-//   build: {
-//     outDir: '../backend/public' // para que el backend sirva los estáticos directamente
-//   }
-// }
