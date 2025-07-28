@@ -61,6 +61,7 @@ coverage/
 
 # Circuits (no subir)
 circuits/
+proofs/
 
 # Public (ignorar index.html, assets y circuits)
 public/index.html

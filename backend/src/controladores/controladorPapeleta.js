@@ -2,6 +2,8 @@ import { calcularSha256 } from '../utiles/utilesCrypto.js';
 import { registrarAnuladorEleccion } from '../algorand/registrarAnuladores.js';
 import { solicitarPapeletaEleccion } from '../algorand/registrarAnuladores.js';
 
+import { guardarProofEnFichero } from '../utiles/utilesArbol.js';
+
 export const controladorPapeleta = {
 
   //----------------------------------------------------------------------------
@@ -19,9 +21,14 @@ export const controladorPapeleta = {
       const proofHash = calcularSha256(proof);
 
       // TODO: comentar después de pruebas
+      //-------------
       console.log(cuentaAddr);
       console.log(proofHash);
       console.log(publicInputs);
+      const anulador_hash = BigInt(publicInputs[1]).toString();
+      await guardarProofEnFichero(proof, `proof_${anulador_hash}_rem.bin`);
+      //-------------
+
 
       const resultadoRegistrar = await registrarAnuladorEleccion(peticion.bd, {
         eleccionId: parseInt(peticion.params.idEleccion),
@@ -32,7 +39,7 @@ export const controladorPapeleta = {
       });
 
       console.log('Resultado del registro:', resultadoRegistrar);
-      respuesta.json({ txId: resultadoRegistrar.txId, proofHash });
+      respuesta.json({ date: new Date(), txId: resultadoRegistrar.txId, proofHash });
 
     } catch (error) {
       respuesta.status(500).json({ error: error.message });
@@ -58,7 +65,7 @@ export const controladorPapeleta = {
       });
 
       console.log('Resultado de la solicitud:', resultadoSolicitar);
-      respuesta.json({ txId: resultadoSolicitar.txId, anulador });
+      respuesta.json({ date: new Date(), txId: resultadoSolicitar.txId, anulador });
 
     } catch (error) {
       respuesta.status(500).json({ error: error.message });

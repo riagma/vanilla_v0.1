@@ -85,7 +85,7 @@ export async function registrarAnuladorEleccion(bd, { eleccionId, destinatario, 
       return false;
     }
 
-    console.log(`Verificando ${proofHash}`, publicInputs);
+    console.log(`Verificando ${proofHash}\n`, publicInputs);
 
     const pruebaVerificada = await honk.verifyProof({ proof, publicInputs });
 

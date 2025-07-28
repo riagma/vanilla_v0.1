@@ -8,6 +8,9 @@ import {
 
 import { calcularBloqueIndice, calcularPruebaDatosPublicos } from "../src/utiles/utilesArbol.js";
 
+import { guardarProofEnFichero } from '../src/utiles/utilesArbol.js';
+import { gu } from 'date-fns/locale';
+
 const dni = process.argv[2];
 const eleccionId = parseInt(process.argv[3]);
 
@@ -63,6 +66,10 @@ try {
     ficheroMerkle11: pruebaZK.urlCircuito,
     ficheroCompromisos: raizZK.urlCompromisos,
   });
+
+  const anulador_hash = calcularPoseidon2([BigInt(datosCompromiso.anulador)]).toString();
+  await guardarProofEnFichero(proof, `proof_${anulador_hash}_loc.bin`);
+
 
 
 

@@ -98,25 +98,15 @@ export async function calcularPruebaDatosPublicos(
 
   const { proof, publicInputs } = await generarPrueba(circuito, inputs);
 
+  // guardarProofEnArchivo(proof, `proof_${anulador_hash}.bin`);
+  
   const proofHash = await calcularSha256(proof);
-
   const datosPublicos = publicInputs.map(pi => BigInt(pi).toString());
   console.log('Datos públicos:', datosPublicos);
   console.log('Proof Hash:', proofHash);
 
   return { proof, publicInputs };
 }
-
-//----------------------------------------------------------------------------
-
-// export function calcularDatosArbol(totalHojas) {
-
-//   const numBloques = Math.ceil(totalHojas / MAX_NUM_HOJAS);
-//   const tamBloque = Math.floor(totalHojas / numBloques);
-//   const tamResto = totalHojas % numBloques;
-
-//   return { numBloques, tamBloque, tamResto };
-// }
 
 //----------------------------------------------------------------------------
 
@@ -178,80 +168,29 @@ export function construirArbolMerkle(compromisos) {
 
 //----------------------------------------------------------------------------
 
-// export async function comprimirArchivo(origen, destinoGz) {
-//   return new Promise((resolve, reject) => {
-//     const input = fs.createReadStream(origen);
-//     const output = fs.createWriteStream(destinoGz);
-//     const gzip = zlib.createGzip();
-
-//     input.pipe(gzip).pipe(output);
-
-//     output.on('finish', () => {
-//       console.log(`Archivo comprimido: ${destinoGz}`);
-//       resolve();
-//     });
-//     output.on('error', reject);
-//     input.on('error', reject);
-//     gzip.on('error', reject);
-//   });
-// }
-
-//----------------------------------------------------------------------------
-
-// export function esArchivoGzip(rutaFichero) {
-//   const fd = fs.openSync(rutaFichero, 'r');
-//   const buffer = Buffer.alloc(2);
-//   fs.readSync(fd, buffer, 0, 2, 0);
-//   fs.closeSync(fd);
-//   // Gzip: 0x1f 0x8b
-//   return buffer[0] === 0x1f && buffer[1] === 0x8b;
-// }
+export function guardarProofEnArchivo(proof, nombreArchivo = 'proof.bin') {
+  // Convertir el proof a ArrayBuffer
+  const buffer = new Uint8Array(proof).buffer;
+  
+  // Crear un Blob con el buffer
+  const blob = new Blob([buffer], { type: 'application/octet-stream' });
+  
+  // Crear URL para el blob
+  const url = URL.createObjectURL(blob);
+  
+  // Crear un elemento <a> para la descarga
+  const enlaceDescarga = document.createElement('a');
+  enlaceDescarga.href = url;
+  enlaceDescarga.download = nombreArchivo;
+  
+  // Simular clic para iniciar descarga
+  document.body.appendChild(enlaceDescarga);
+  enlaceDescarga.click();
+  
+  // Limpiar
+  document.body.removeChild(enlaceDescarga);
+  URL.revokeObjectURL(url);
+}
 
 //----------------------------------------------------------------------------
 
-// export async function descomprimirArchivo(origenGz, destino) {
-//   return new Promise((resolve, reject) => {
-//     const input = fs.createReadStream(origenGz);
-//     const output = fs.createWriteStream(destino);
-//     const gunzip = zlib.createGunzip();
-
-//     input.pipe(gunzip).pipe(output);
-
-//     output.on('finish', () => {
-//       console.log(`Archivo descomprimido: ${destino}`);
-//       resolve();
-//     });
-//     output.on('error', reject);
-//     input.on('error', reject);
-//     gunzip.on('error', reject);
-//   });
-// }
-
-//----------------------------------------------------------------------------
-
-// export async function descomprimirArchivoMemo(archivoGz) {
-//   const bufferGz = await fsp.readFile(archivoGz);
-//   return new Promise((resolve, reject) => {
-//     zlib.gunzip(bufferGz, (err, bufferDescomprimido) => {
-//       if (err) return reject(err);
-//       const texto = bufferDescomprimido.toString('utf8');
-//       resolve(texto);
-//     });
-//   });
-// }
-
-//----------------------------------------------------------------------------
-
-// // Guarda el árbol Merkle (objeto) en un fichero JSON
-// export function guardarArbolEnFichero(arbol, rutaFichero) {
-//   fs.writeFileSync(rutaFichero, JSON.stringify(arbol, null, 2));
-//   console.log(`Árbol Merkle guardado en ${rutaFichero}`);
-// }
-
-// // Lee un árbol Merkle desde un fichero JSON y lo devuelve como objeto
-// export function cargarArbolDeFichero(rutaFichero) {
-//   const contenido = fs.readFileSync(rutaFichero, 'utf8');
-//   return JSON.parse(contenido);
-// }
-
-//----------------------------------------------------------------------------

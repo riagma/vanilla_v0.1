@@ -162,7 +162,7 @@ export const servicioAlgorand = {
       }
     }
 
-    console.log(`Resultado para ${addr} con asset ${assetId}: Acepta(Opt-In)=${acepta}, Papeleta(Amount>0)=${papeleta}`);
+    console.log(`Balance: ${balance}, Acepta: ${acepta}, Papeleta: ${papeleta}`);
     return { balance, acepta, papeleta };
   },
 
@@ -223,7 +223,7 @@ export const servicioAlgorand = {
     const papeletaRx = await this._consultarTransaccionAsset(addr, assetId, 'receiver');
 
     if (!papeletaRx) {
-      console.log("No se ha recibido la papeleta (transferencia con cantidad > 0).");
+      console.log("No se ha recibido la papeleta.");
       return null;
     }
 
@@ -237,16 +237,15 @@ export const servicioAlgorand = {
     const papeletaTx = await this._consultarTransaccionAsset(addr, assetId, 'sender');
 
     if (!papeletaTx) {
-      console.log("Todavía no se ha emitido el voto.");
+      console.log("No se ha emitido el voto.");
       return null;
     }
 
-    console.log("Ya se ha emitido el voto.", papeletaTx);
     const txId = papeletaTx.id;
     const nota = papeletaTx.note ? this.fromNote(papeletaTx.note) : {};
     const roundTime = papeletaTx.roundTime;
     const date = new Date(roundTime * 1000);
-    console.log("Nota de la transacción:", date.toISOString(), txId, nota);
+    console.log("Se ha emitido el voto:", date.toISOString(), txId, nota);
     return { date, txId, nota };
   },
 

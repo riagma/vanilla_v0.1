@@ -1,8 +1,6 @@
-// muestra botón de votar o datos de su voto
-import { servicioVotante } from '../servicios/servicioVotante.js';
 import { limpiarManejadores } from '../utiles/utilesVistas.js';
+import { servicioVotante } from '../servicios/servicioVotante.js';
 import { ESTADO_ELECCION, ELECCION_ACTUAL } from '../utiles/constantes.js';
-import { parsearFechaHora } from '../utiles/utilesFechas.js';
 
 
 export function fichaVotacion(contenedor, eleccion, partidos, registro, actualizarRegistro) {
@@ -38,9 +36,9 @@ export function fichaVotacion(contenedor, eleccion, partidos, registro, actualiz
     } else if (eleccion.estado === ESTADO_ELECCION.ACTUAL) {
       const inicioVoto = eleccion.fechaInicioVotacion;
       innerHTML += `<div class="alert alert-info">Todavía no se ha abierto el periodo de votación.</div>`;
-      if(!regFicha.compromiso) {
+      if (!regFicha.compromiso) {
         innerHTML += `<div class="alert alert-secondary">Es necesario registrarse para votar en esta elección.</div>`;
-      } 
+      }
     }
 
     contenedor.innerHTML = innerHTML;
@@ -54,7 +52,7 @@ export function fichaVotacion(contenedor, eleccion, partidos, registro, actualiz
             actualizarRegistro(regFicha);
             alert('Papeleta recibida.');
           } catch (error) {
-            alert('Error al registrar: ' + (error?.message || error));
+            alert('Error al solicitar la papeleta: ' + (error?.message || error));
           } finally {
             render();
           }
@@ -64,15 +62,21 @@ export function fichaVotacion(contenedor, eleccion, partidos, registro, actualiz
       } else if (!regFicha.votoDate) {
         contenedor.querySelectorAll('.btn-votar').forEach(btn => {
           const handler = async () => {
-            const partidoId = btn.dataset.id;
-            await servicioVotante.emitirPapeletaEleccion(eleccion.id, partidoId);
-            render();
+            try {
+              const partidoId = btn.dataset.id;
+              regFicha = await servicioVotante.emitirPapeletaEleccion(eleccion.id, partidoId);
+              actualizarRegistro(regFicha);
+              alert('Papeleta emitida.');
+            } catch (error) {
+              alert('Error al emitir la papeleta: ' + (error?.message || error));
+            } finally {
+              render();
+            }
           };
           btn.addEventListener('click', handler);
           manejadores.add([btn, 'click', handler]);
         });
       }
-
 
     // if (eleccion.actual === ELECCION_ACTUAL.VOTACION && regFicha.papeDate && !regFicha.votoDate) {
     //   // mostrar lista de partidos

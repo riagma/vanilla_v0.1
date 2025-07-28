@@ -45,6 +45,7 @@ export const MERKLE11_JSON = './src/noir/merkle11/target/merkle11.json';
 
 export const PUBLIC_DIR = process.env.PUBLIC_DIR ?? './public/';
 export const CIRCUIT_DIR = process.env.CIRCUIT_DIR ?? './circuits/';
+export const PROOFS_DIR = process.env.CIRCUIT_DIR ?? './proofs/';
 
 // Rutas y configuración de BD
 export const RUTA_BD = process.env.NODE_ENV === 'production'
@@ -97,6 +98,7 @@ export const CONFIG = {
   MERKLE11_JSON,
   PUBLIC_DIR,
   CIRCUIT_DIR,
+  PROOFS_DIR,
   CLAVE_PRUEBAS,
   EXPIRACION_TOKEN_ADMIN,
   EXPIRACION_TOKEN_VOTANTE,

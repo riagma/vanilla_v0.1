@@ -355,8 +355,6 @@ export const servicioVotante = {
       const { balance, acepta, papeleta } =
         await servicioAlgorand.revisarCuenta(datosCompromiso.cuentaAddr, registro.contratoAssetId);
 
-      console.log(`Balance: ${balance}, Acepta: ${acepta}, Papeleta: ${papeleta}`);
-
       //--------------
 
       if (!balance) {
@@ -384,9 +382,10 @@ export const servicioVotante = {
       //--------------
 
       if (!acepta) {
-        console.log("Haciendo opt-in...");
-        const txIdOptIn = await servicioAlgorand.hacerOptIn(datosCompromiso.mnemonico, registro.contratoAssetId);
-        console.log("Opt-in realizado con txID:", txIdOptIn);
+        // console.log("Haciendo opt-in...");
+        // const txIdOptIn = await servicioAlgorand.hacerOptIn(datosCompromiso.mnemonico, registro.contratoAssetId);
+        // console.log("Opt-in realizado con txID:", txIdOptIn);
+        await servicioAlgorand.hacerOptIn(datosCompromiso.mnemonico, registro.contratoAssetId);
       } else {
         console.log("Ya se había hecho el opt-in para esta elección.");
       }
@@ -405,20 +404,24 @@ export const servicioVotante = {
           throw new Error('Error al solicitar la papeleta en el servidor');
         }
         console.log('Papeleta solicitada:', respSolicitar);
+
+        registro.papeDate = respSolicitar.date ? formatearFechaWeb(respSolicitar.date) : null;
+        registro.papeTxId = respSolicitar.txId ? respSolicitar.txId : null;
+
       } else {
         console.log('Ya se había solicitado la papeleta para esta elección.');
       }
 
       //--------------
 
-      const votoEleccion = await this.cargarVotoEleccion(registro.compromisoAddr, registro.contratoAssetId);
-      if (votoEleccion) {
-        registro.papeDate = votoEleccion.datePape ? formatearFechaWeb(votoEleccion.datePape) : null;
-        registro.papeTxId = votoEleccion.txIdPape;
-        registro.votoDate = votoEleccion.dateVoto ? formatearFechaWeb(votoEleccion.dateVoto) : null;
-        registro.votoTxId = votoEleccion.txIdVoto;
-        registro.votoNota = votoEleccion.notaVoto;
-      }
+      // const votoEleccion = await this.cargarVotoEleccion(registro.compromisoAddr, registro.contratoAssetId);
+      // if (votoEleccion) {
+      //   registro.papeDate = votoEleccion.datePape ? formatearFechaWeb(votoEleccion.datePape) : null;
+      //   registro.papeTxId = votoEleccion.txIdPape;
+      //   registro.votoDate = votoEleccion.dateVoto ? formatearFechaWeb(votoEleccion.dateVoto) : null;
+      //   registro.votoTxId = votoEleccion.txIdVoto;
+      //   registro.votoNota = votoEleccion.notaVoto;
+      // }
 
       return registro;
 
@@ -483,7 +486,6 @@ export const servicioVotante = {
 
       console.log("Voto emitido con txID:", txIdVoto);
 
-      //--------------
       //--------------
 
       const votoEleccion = await this.cargarVotoEleccion(registro.compromisoAddr, registro.contratoAssetId);

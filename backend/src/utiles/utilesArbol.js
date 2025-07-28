@@ -9,6 +9,8 @@ import { UltraHonkBackend } from '@aztec/bb.js';
 import { ArbolMerkle } from './ArbolMerkle.js'
 import { calcularPoseidon2, calcularSha256, bigInt2HexStr } from './utilesCrypto.js';
 
+import { PROOFS_DIR } from './constantes.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PROFUNDIDAD = 11;
@@ -97,11 +99,11 @@ export async function calcularPruebaDatosPublicos({
   console.log('Inputs:', inputs);
 
   const { witness } = await noir.execute(inputs);
-
   const { proof, publicInputs } = await honk.generateProof(witness);
 
-  const proofHash = calcularSha256(proof);
+  // guardarProofEnFichero(proof, `proof_${anulador_hash}.bin`);
 
+  const proofHash = calcularSha256(proof);
   const datosPublicos = publicInputs.map(pi => BigInt(pi).toString());
   console.log('Datos públicos:', datosPublicos);
   console.log('Proof Hash:', proofHash);
@@ -257,3 +259,17 @@ export function cargarArbolDeFichero(rutaFichero) {
 }
 
 //----------------------------------------------------------------------------
+
+export async function guardarProofEnFichero(proof, nombreFichero) {
+  try {
+    const rutaFichero = path.join(__dirname, '../../', PROOFS_DIR, nombreFichero);
+    await fsp.writeFile(rutaFichero, proof);
+    console.log(`Proof guardado en ${rutaFichero}`);
+  } catch (error) {
+    console.error(`Error al guardar el proof en ${rutaFichero}:`, error);
+    throw error;
+  }
+}
+
+//----------------------------------------------------------------------------
+
