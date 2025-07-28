@@ -38,7 +38,7 @@ export const controladorPapeleta = {
         publicInputs,
       });
 
-      console.log('Resultado del registro:', resultadoRegistrar);
+      // console.log('Resultado del registro:', resultadoRegistrar);
       respuesta.json({ date: new Date(), txId: resultadoRegistrar.txId, proofHash });
 
     } catch (error) {

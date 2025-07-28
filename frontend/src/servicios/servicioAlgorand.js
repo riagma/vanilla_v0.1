@@ -252,29 +252,37 @@ export const servicioAlgorand = {
   //----------------------------------------------------------------------------
 
   async votar(mnemonico, appAddr, assetId, voto) {
-    const cuenta = algosdk.mnemonicToSecretKey(mnemonico);
-    if (!cuenta || !cuenta.addr || !cuenta.sk) {
-      throw new Error("Cuenta inválida o mnemonico incorrecto.");
+    try {
+      const cuenta = algosdk.mnemonicToSecretKey(mnemonico);
+      if (!cuenta || !cuenta.addr || !cuenta.sk) {
+        throw new Error("Cuenta inválida o mnemonico incorrecto.");
+      }
+
+      const params = await algod.getTransactionParams().do();
+
+      const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+        sender: cuenta.addr,
+        receiver: appAddr,
+        amount: 1n,
+        assetIndex: Number(assetId),
+        suggestedParams: params,
+        note: this.toNote(voto),
+      });
+
+      const signedTxn = txn.signTxn(cuenta.sk);
+      const respSRT = await algod.sendRawTransaction(signedTxn).do();
+      const txId = respSRT.txId ? respSRT.txId : respSRT.txid ? respSRT.txid : "null";
+      console.log("Envío asset txID:", txId);
+
+      await algosdk.waitForConfirmation(algod, txId, 4);
+      return { date: new Date(), txId, voto };
+    } catch (error) {
+      console.error("Error al emitir el voto:", error);
+      if (error.response) {
+        console.error("Detalles del error:", error.response.body ? JSON.parse(error.response.body) : error.response);
+      }
+      throw new Error(`Error al emitir el voto: ${error.message}`);
     }
-
-    const params = await algod.getTransactionParams().do();
-
-    const txn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-      sender: cuenta.addr,
-      receiver: appAddr,
-      amount: 1n,
-      assetIndex: Number(assetId),
-      suggestedParams: params,
-      note: this.toNote(voto),
-    });
-
-    const signedTxn = txn.signTxn(cuenta.sk);
-    const respSRT = await algod.sendRawTransaction(signedTxn).do();
-    const txId = respSRT.txId ? respSRT.txId : respSRT.txid ? respSRT.txid : "null";
-    console.log("Envío asset txID:", txId);
-
-    await algosdk.waitForConfirmation(algod, txId, 4);
-    return txId;
   },
 
   //----------------------------------------------------------------------------
@@ -302,3 +310,42 @@ export const servicioAlgorand = {
     return txId ? unirUrl(explorer, explorerTransaction, txId) : explorer;
   },
 }
+
+// // Suponiendo que tienes algosdk cargado y las claves de la cuenta temporal
+
+// const algod = new algosdk.Algodv2('', 'https://testnet-api.algonode.cloud', '');
+
+// // 1. Opt-out de un ASA
+// const params = await algod.getTransactionParams().do();
+// const assetId = 123456; // ID del ASA
+// const tempAccount = algosdk.mnemonicToSecretKey('MNEMONIC_TEMP_ACCOUNT');
+// const creatorAddress = 'CREATOR_ADDRESS';
+
+// const optOutTxn = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+//   from: tempAccount.addr,
+//   to: creatorAddress,
+//   assetIndex: assetId,
+//   amount: 0,
+//   closeRemainderTo: creatorAddress,
+//   suggestedParams: params,
+// });
+
+// const signedOptOutTxn = optOutTxn.signTxn(tempAccount.sk);
+// const { txId: optOutTxId } = await algod.sendRawTransaction(signedOptOutTxn).do();
+// await algosdk.waitForConfirmation(algod, optOutTxId, 4);
+
+// // 2. Cerrar la cuenta y devolver el ALGO sobrante
+// const receiver = 'ORIGINAL_SENDER_ADDRESS';
+// const closeParams = await algod.getTransactionParams().do();
+
+// const closeTxn = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+//   from: tempAccount.addr,
+//   to: receiver,
+//   amount: 0,
+//   closeRemainderTo: receiver,
+//   suggestedParams: closeParams,
+// });
+
+// const signedCloseTxn = closeTxn.signTxn(tempAccount.sk);
+// const { txId: closeTxId } = await algod.sendRawTransaction(signedCloseTxn).do();
+// await algosdk.waitForConfirmation(algod, closeTxId, 4);

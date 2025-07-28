@@ -408,6 +408,8 @@ export const servicioVotante = {
         registro.papeDate = respSolicitar.date ? formatearFechaWeb(respSolicitar.date) : null;
         registro.papeTxId = respSolicitar.txId ? respSolicitar.txId : null;
 
+        await idb.actualizarRegistro(contexto.getNombreUsuario(), idEleccion, registro);
+
       } else {
         console.log('Ya se había solicitado la papeleta para esta elección.');
       }
@@ -468,6 +470,8 @@ export const servicioVotante = {
         throw new Error('No tiene la papeleta necesaria para votar en esta elección: ' + registro.contratoAssetId);
       }
 
+      //--------------
+
       const nonce = generarNonceHex();
 
       const votoEnc = await encriptarConClavePublica(JSON.stringify({
@@ -477,25 +481,20 @@ export const servicioVotante = {
 
       const voto = { voto: votoEnc };
 
-      const txIdVoto = await servicioAlgorand.votar(
+      const respVotar = await servicioAlgorand.votar(
         datosCompromiso.mnemonico,
         registro.contratoAppAddr,
         registro.contratoAssetId,
         voto
       );
 
-      console.log("Voto emitido con txID:", txIdVoto);
+      console.log("Voto emitido con txID:", respVotar.txId);
 
-      //--------------
+      registro.votoDate = respVotar.date ? formatearFechaWeb(respVotar.date) : null;
+      registro.votoTxId = respVotar.txId ? respVotar.txId : null;
+      registro.votoNota = respVotar.txId ? votoEnc : null;
 
-      const votoEleccion = await this.cargarVotoEleccion(registro.compromisoAddr, registro.contratoAssetId);
-      if (votoEleccion) {
-        registro.papeDate = votoEleccion.datePape ? formatearFechaWeb(votoEleccion.datePape) : null;
-        registro.papeTxId = votoEleccion.txIdPape;
-        registro.votoDate = votoEleccion.dateVoto ? formatearFechaWeb(votoEleccion.dateVoto) : null;
-        registro.votoTxId = votoEleccion.txIdVoto;
-        registro.votoNota = votoEleccion.notaVoto;
-      }
+      await idb.actualizarRegistro(contexto.getNombreUsuario(), idEleccion, registro);
 
       return registro;
 

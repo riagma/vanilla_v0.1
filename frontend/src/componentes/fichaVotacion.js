@@ -1,5 +1,7 @@
 import { limpiarManejadores } from '../utiles/utilesVistas.js';
 import { servicioVotante } from '../servicios/servicioVotante.js';
+import { servicioAlgorand } from '../servicios/servicioAlgorand.js';
+import { parsearFechaHora } from '../utiles/utilesFechas.js';
 import { ESTADO_ELECCION, ELECCION_ACTUAL } from '../utiles/constantes.js';
 
 
@@ -12,10 +14,17 @@ export function fichaVotacion(contenedor, eleccion, partidos, registro, actualiz
     let innerHTML = '';
 
     if (eleccion.estado === ESTADO_ELECCION.PASADA) {
-      if (regFicha.compromiso) {
-        innerHTML += `<div class="alert alert-info">Se registró para la votación en esta elección el ${regFicha.compromisoFecha}.</div>`;
-      } else {
+      if (!regFicha.compromiso) {
         innerHTML += `<div class="alert alert-secondary">No se registró para la votación en esta elección.</div>`;
+      } else if (!regFicha.papeDate) {
+        innerHTML += `<div class="alert alert-secondary">No se recibió la papeleta para esta elección.</div>`;
+      } else {
+        innerHTML += `<div class="alert alert-info">Recibió la papeleta el ${regFicha.papeDate}.</div>`;
+        if (regFicha.votoDate) {
+          innerHTML += `<div class="alert alert-info">Su voto fue emitido el ${regFicha.votoDate}.</div>`;
+        } else {
+          innerHTML += `<div class="alert alert-warning">Pero su voto no fue emitido.</div>`;
+        }
       }
     } else if (eleccion.actual === ELECCION_ACTUAL.VOTACION) {
       if (!regFicha.papeDate) {
@@ -31,14 +40,39 @@ export function fichaVotacion(contenedor, eleccion, partidos, registro, actualiz
         `).join('');
         innerHTML += `<div>${lista}</div>`;
       } else {
-        innerHTML += `<div class="alert alert-success">Su voto ha sido registrado el ${regFicha.votoDate}.</div>`;
+        innerHTML += `<div class="alert alert-success">Su voto ha sido emitido el ${regFicha.votoDate}.</div>`;
       }
     } else if (eleccion.estado === ESTADO_ELECCION.ACTUAL) {
-      const inicioVoto = eleccion.fechaInicioVotacion;
-      innerHTML += `<div class="alert alert-info">Todavía no se ha abierto el periodo de votación.</div>`;
-      if (!regFicha.compromiso) {
-        innerHTML += `<div class="alert alert-secondary">Es necesario registrarse para votar en esta elección.</div>`;
+      const ahora = new Date();
+      const inicioVoto = parsearFechaHora(eleccion.fechaInicioVotacion);
+      const finVoto = parsearFechaHora(eleccion.fechaFinVotacion);
+      if (ahora < inicioVoto) {
+        innerHTML += `<div class="alert alert-info">Todavía no se ha abierto el periodo de votación.</div>`;
+        if (!regFicha.compromiso) {
+          innerHTML += `<div class="alert alert-secondary">Es necesario registrarse para votar en esta elección.</div>`;
+        }
+      } else if (ahora > finVoto) {
+        innerHTML += `<div class="alert alert-info">Se está realizando el escrutinio.</div>`;
       }
+    }
+
+    if (regFicha.papeDate && regFicha.votoDate) {
+      const compromisoAddr = servicioAlgorand.urlAccount(regFicha.compromisoAddr);
+      const votoTxId = servicioAlgorand.urlTransaction(regFicha.votoTxId);
+      innerHTML += `
+        <ul class="list-unstyled">
+          <li class="d-flex flex-wrap align-items-center gap-2">
+            <div class="d-flex align-items-center">
+              <strong>Cuenta Blockchain:</strong>
+              <a href="${compromisoAddr}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary ms-2">Ver</a>
+            </div>
+            <span class="mx-2 d-none d-md-inline">|</span>
+            <div class="d-flex align-items-center">
+              <strong>Voto Registrado:</strong>
+              <a href="${votoTxId}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary ms-2">Ver</a>
+            </div>
+          </li>
+        </ul>`;
     }
 
     contenedor.innerHTML = innerHTML;
@@ -77,6 +111,7 @@ export function fichaVotacion(contenedor, eleccion, partidos, registro, actualiz
           manejadores.add([btn, 'click', handler]);
         });
       }
+
 
     // if (eleccion.actual === ELECCION_ACTUAL.VOTACION && regFicha.papeDate && !regFicha.votoDate) {
     //   // mostrar lista de partidos

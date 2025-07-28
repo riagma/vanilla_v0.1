@@ -1,7 +1,7 @@
 import { poseidon2Hash, poseidon2HashAsync } from "@zkpassport/poseidon2"
 
-const codificador = new TextEncoder();
-const decodificador = new TextDecoder();
+const codificador = new TextEncoder('utf-8');
+const decodificador = new TextDecoder('utf-8');
 
 //----------------------------------------------------------------------------
 
@@ -36,8 +36,17 @@ export async function calcularPoseidon2Async(datos) {
 //----------------------------------------------------------------------------
 
 export async function calcularSha256(datos) {
-  const data = codificador.encode(datos);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  let buffer;
+  if (typeof datos === 'string') {
+    buffer = codificador.encode(datos);
+  } else if (datos instanceof Uint8Array) {
+    buffer = datos;
+  } else if (datos instanceof ArrayBuffer) {
+    buffer = new Uint8Array(datos);
+  } else {
+    throw new Error('Datos deben ser un string, Uint8Array o ArrayBuffer');
+  }
+  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
   return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
